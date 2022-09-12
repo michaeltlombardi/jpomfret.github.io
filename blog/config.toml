@@ -1,0 +1,23 @@
+baseURL = 'http://jesspomfret.com'
+languageCode = 'en-gb'
+title = 'Jess Pomfret'
+theme = "m10c"
+
+[params]
+  author = 'Jess Pomfret'
+  description = 'Database engineer with a passion for automation'
+  avatar = '/resources/_gen/images/JessPomfret.jpg'
+  #menu_item_separator = Separator between each menu item. HTML allowed (default: " - ")
+  #favicon =
+
+[[params.social]]
+  icon = "github"
+  name = "My Github"
+  url = "https://github.com/jpomfret"
+
+[params.style]
+  darkestColor = "#d35050"
+  darkColor = "#0babc4"
+  lightColor = "#f5e3e0"
+  lightestColor = "#f5f5f5"
+  primaryColor = "#ffffff"
