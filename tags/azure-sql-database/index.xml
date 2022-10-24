@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>azure-sql-database on Jess Pomfret</title><link>https://jpomfret.github.io/tags/azure-sql-database/</link><description>Recent content in azure-sql-database on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 01 Dec 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/azure-sql-database/index.xml" rel="self" type="application/rss+xml"/><item><title>dbachecks and Azure SQL Databases</title><link>https://jpomfret.github.io/p/dbachecks-and-azure-sql-databases/</link><pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/dbachecks-and-azure-sql-databases/</guid><description>&lt;p>Last week I gave a presentation at &lt;a class="link" href="https://www.meetup.com/SQL-South-West/" target="_blank" rel="noopener"
+>Data South West&lt;/a> on dbachecks and dbatools. One of the questions I got was whether you could run dbachecks against Azure SQL Databases, to which I had no idea. I always try to be prepared for potential questions that might come up, but I had only been thinking about on-premises environments and hadn’t even considered the cloud.  The benefit is this gives me a great topic for a blog post.&lt;/p>
+&lt;h2 id="step-1--create-an-azure-sql-database">&lt;strong>Step 1 – Create an Azure SQL Database&lt;/strong>&lt;/h2>
+&lt;p>I created a SQL Database through the &lt;a class="link" href="https://portal.azure.com/" target="_blank" rel="noopener"
+>Azure Portal&lt;/a>. The wizard is pretty straightforward and the only real decisions needed were around sizing. Since this is just going to be for a test environment I chose a small ‘Basic’ database.&lt;/p>
+&lt;h2 id="step-2--connect-to-the-database">&lt;strong>Step 2 – Connect to the Database&lt;/strong>&lt;/h2>
+&lt;p>Once the database had been created I navigated to the resource pane in the portal. At the top there is a drop down that helps you get connected using Azure Data Studio.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/Connect-1024x203.jpg"
+loading="lazy"
+alt="Azure SQL Database pane in Azure Portal"
+>&lt;/p>
+&lt;p>Once Azure Data Studio opened, I was asked to confirm I wanted to connect:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ConnectSure.jpg"
+loading="lazy"
+alt="Confirmation prompt for connection"
+>&lt;/p>
+&lt;p>Then a pane opened which enabled me to easily add a firewall rule so client IP could access the Azure SQL Database.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/firewall.jpg"
+loading="lazy"
+alt="Pane in ADS to configure a firewall rule"
+>&lt;/p>
+&lt;p>Once that was completed I was connected through Azure Data Studio and able to interact with my server and database.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ADSConnected-1024x382.jpg"
+loading="lazy"
+alt="ADS connected to Azure SQL Database"
+>&lt;/p>
+&lt;p>Connecting first through Azure Data Studio is not a requirement, but it does help us to get the firewall rules configured and confirm that connecting from our client machine will not be an issue.&lt;/p>
+&lt;p>Another good check to ensure we can connect to our database from PowerShell is to use dbatools’ &lt;code>Connect-DbaInstance&lt;/code>:&lt;/p>
+&lt;p>$cred = Get-Credential
+Connect-DbaInstance -SqlInstance &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo; -SqlCredential $cred&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/connectDbatools-1024x90.jpg"
+loading="lazy"
+alt="Connect-DbaInstance results"
+>&lt;/p>
+&lt;p>The results show we were able to connect successfully.&lt;/p>
+&lt;h2 id="step-3--run-some-dbachecks">&lt;strong>Step 3 – Run some dbachecks&lt;/strong>&lt;/h2>
+&lt;p>First of all let’s run a single check to ensure our database is online and in the expected state. For this we can use the ‘DatabaseStatus’ check.&lt;/p>
+&lt;p>$checkSplat = @{
+SqlInstance = &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo;
+SqlCredential = $cred
+Check = &amp;lsquo;DatabaseStatus&amp;rsquo;
+}
+Invoke-DbcCheck @checkSplat&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/databaseStatus-1-1024x210.jpg"
+loading="lazy"
+alt="DatabaseStatus checks succeed"
+>&lt;/p>
+&lt;p>Here you can easily see, both because of the green result text and plus icon to the left, that our tests were successful. Both the database we created, AzDb01, and the master database are online and have the expected status.&lt;/p>
+&lt;p>dbachecks uses tags on the pester tests to enable you to either call specific tests or groups of checks. Each check has a unique tag. In our previous example it was &lt;code>DatabaseStatus&lt;/code> as well as tags that group like checks, for example &lt;code>Database&lt;/code>.&lt;/p>
+&lt;p>$checkSplat = @{
+SqlInstance = &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo;
+SqlCredential = $cred
+Check = &amp;lsquo;Database’
+}
+Invoke-DbcCheck @checkSplat&lt;/p>
+&lt;p>Running all the database checks against our Azure SQL Database we get some failures.&lt;/p>
+&lt;p>Tests completed in 70.68s
+Tests Passed: 37, Failed: 28, Skipped: 8, Pending: 0, Inconclusive: 0&lt;/p>
+&lt;p>There are a lot of tests that pass or fail with valid reasons. However, some of the failures are due to errors running the check. These are to be expected since this is a PaaS (Platform as a Service) database offering. One example is the suspect pages check.&lt;/p>
+&lt;p>The test failed due to an error in the context block, and it clearly states that the &amp;lsquo;msdb.dbo.suspect_pages&amp;rsquo; table isn’t available in this version of SQL Server.&lt;/p>
+&lt;p>SqlException: Reference to database and/or server name in &amp;lsquo;msdb.dbo.suspect_pages&amp;rsquo; is not supported in this version of SQL Server.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/FailedSuspectPages-1024x192.jpg"
+loading="lazy"
+alt="dbachecks output fails for suspect pages"
+>&lt;/p>
+&lt;p>There are plenty of tests that do work against an Azure SQL Database though, allowing you to keep tabs on many different aspects of your database including:&lt;/p>
+&lt;ul>
+&lt;li>Database Collation&lt;/li>
+&lt;li>Database Owners&lt;/li>
+&lt;li>Column Identity Usage&lt;/li>
+&lt;li>Duplicate Index&lt;/li>
+&lt;li>Disabled Index&lt;/li>
+&lt;li>Auto Shrink&lt;/li>
+&lt;li>Database Orphaned User&lt;/li>
+&lt;li>Compatibility Level&lt;/li>
+&lt;li>Database Status&lt;/li>
+&lt;li>Database Exists&lt;/li>
+&lt;li>And more…&lt;/li>
+&lt;/ul>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>So to answer the question: yes, we can run dbachecks against our Azure SQL Databases. As long as we can connect and the version of SQL Supports the features needed to run the test we can ensure our databases in the cloud are configured just how we like them.&lt;/p></description></item></channel></rss>

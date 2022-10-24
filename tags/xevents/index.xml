@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>xevents on Jess Pomfret</title><link>https://jpomfret.github.io/tags/xevents/</link><description>Recent content in xevents on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 29 May 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/xevents/index.xml" rel="self" type="application/rss+xml"/><item><title>Extended Events - Hidden Treasure</title><link>https://jpomfret.github.io/p/extended-events-hidden-treasure/</link><pubDate>Tue, 29 May 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/extended-events-hidden-treasure/</guid><description>&lt;p>I was troubleshooting an issue last week which led to me firing up extended events to look at records being written to the transaction log, I typed into the search bar ‘Transaction’ hoping to find something that would do the trick and didn’t quite find what I was looking for.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/XEvents_Transaction.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>After a few more failed attempts I headed to the internet and found a &lt;a class="link" href="https://www.sqlskills.com/blogs/paul/t-sql-tuesday-67-monitoring-log-activity-with-extended-events/" target="_blank" rel="noopener"
+>post by Paul Randal&lt;/a> describing exactly what I needed for this situation, using the [sqlserver].[transaction_log] event. Hold on, that’s exactly what I searched for.  I ran the T-SQL within his blog post, the event was successfully created and gave me the information I was looking for.&lt;/p>
+&lt;p>I then noticed someone asked in the comments whether it was a bug that the transaction_log event doesn’t show up in the XEvents GUI and Paul had replied:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/PaulRandal.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>It took me a second to find it but by default there is a filter on the ‘Channel’ column that doesn’t include ‘Debug’. Selecting that gives you a whole host of new XEvents to investigate (and use carefully, for example the transaction_log event can generate a lot of activity).&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/XEvents_ChannelTransaction.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>I’m not sure how often I’ll need these ‘Debug’ events, but it sure is nice to know they exist. I feel like there should be some notation in the GUI that there is a filter being applied, similar to the icon in Excel when you have something filtered.&lt;/p></description></item></channel></rss>

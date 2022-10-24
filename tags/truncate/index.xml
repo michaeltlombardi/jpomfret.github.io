@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>truncate on Jess Pomfret</title><link>https://jpomfret.github.io/tags/truncate/</link><description>Recent content in truncate on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 30 Jun 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/truncate/index.xml" rel="self" type="application/rss+xml"/><item><title>Truncate all the Tables in a Database with PowerShell</title><link>https://jpomfret.github.io/p/truncate-all-the-tables-in-a-database-with-powershell/</link><pubDate>Tue, 30 Jun 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/truncate-all-the-tables-in-a-database-with-powershell/</guid><description>&lt;p>&lt;strong>TLDR&lt;/strong>; &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/05_TruncateAllTables.ps1" target="_blank" rel="noopener"
+>This code&lt;/a> will script out foreign keys and views (including object level permissions), drop the objects, truncate all the tables, and recreate the objects.&lt;/p>
+&lt;h2 id="the-details">The Details&lt;/h2>
+&lt;p>The most popular post on my blog so far was called ‘&lt;a class="link" href="https://jesspomfret.com/disable-all-triggers/" target="_blank" rel="noopener"
+>Disable all Triggers on a Database&lt;/a>’ and this one is a good follow up from that post.&lt;/p>
+&lt;p>The scenario here is you need to remove all the data from the tables in your database. This could be as part of a refresh process, or perhaps to clear out test data that has been entered through an application.  Either way, you want to truncate all the tables in your database.&lt;/p>
+&lt;p>Using a copy of the AdventureWorks2017 database for my demos, the easiest option to truncate all the tables is to script out truncate statements using the metadata stored in &lt;code>sys.tables&lt;/code>.&lt;/p>
+&lt;p>SELECT &amp;lsquo;Truncate table &amp;rsquo; + QUOTENAME(SCHEMA_NAME(schema_id)) + &amp;lsquo;.&amp;rsquo; + QUOTENAME(name)
+FROM sys.tables&lt;/p>
+&lt;p>You’ll get a results set like shown below which you can copy out into a new query window and execute.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/TruncateFromSysTables.png"
+loading="lazy"
+alt="select from sys.tables to generate truncate statements"
+>&lt;/p>
+&lt;p>The problem is if you have foreign keys, even if you order the truncate statements to remove the dependent data first, you can’t issue a truncate statement. The way around this is to script out the foreign keys, drop them, run the truncate statements and then recreate the foreign keys. This is not difficult in T-SQL, but it’s easier with PowerShell and a little bit of &lt;a class="link" href="https://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> magic.&lt;/p>
+&lt;h2 id="truncate-tables-with-powershell">Truncate tables with PowerShell&lt;/h2>
+&lt;p>The full script is available up on my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/05_TruncateAllTables.ps1" target="_blank" rel="noopener"
+>Github&lt;/a>, but I’ll walk through the process here. During my post on disabling triggers I stored the previously enabled triggers in a variable to reuse during the script.  I had a really great comment on this post that pointed out a problem: if the session crashed for some reason we would lose the list of triggers we wanted to enable. I will solve that problem in this post by instead of using a variable, saving the information in a temporary file.&lt;/p>
+&lt;p>First things first, we need to set up a couple of variables to define our SqlInstance, database and the folder we’ll use as our workspace.&lt;/p>
+&lt;p>I’ll then use &lt;code>Connect-DbaInstance&lt;/code> to connect to the instance and save the smo object. This will save having to reconnect to the instance multiple times.&lt;/p>
+&lt;p>$sqlInstance = &amp;lsquo;mssql1&amp;rsquo;
+$database = &amp;lsquo;AdventureWorks2017&amp;rsquo;
+$tempFolder = &amp;lsquo;C:\temp&amp;rsquo;&lt;/p>
+&lt;p>$svr = Connect-DbaInstance -SqlInstance $sqlInstance&lt;/p>
+&lt;p>The next step is to collect the foreign keys that we’ll need to drop and recreate. It’s important to note here there are also some views that depend on these tables, so I can also collect that information at the same time. &lt;/p>
+&lt;p># Collect up the objects we need to drop and recreate
+$objects = @()
+$objects += Get-DbaDbForeignKey -SqlInstance $svr -Database $database
+$objects += Get-DbaDbView -SqlInstance $svr -Database $database -ExcludeSystemView&lt;/p>
+&lt;p>Now that we have collected the objects into a variable we can pipe this to the &lt;code>Export-DbaScript&lt;/code> command to generate T-SQL scripts for both dropping and then recreating the objects. Something to take into consideration when dropping and recreating views is that if there are permissions set at the object level we need to include those in our create scripts.  We can use the &lt;code>New-DbaScriptingOption&lt;/code> command to set the options we care about when we create the scripts.&lt;/p>
+&lt;p>Here we are including the permissions, the ‘ScriptBatchTerminator’, which will add ‘Go’ between objects, and finally setting the file type to ANSI.  When we call &lt;code>Export-DbaScript&lt;/code> we can then use these options for the &lt;code>-ScriptingOptionsObject&lt;/code> parameter.&lt;/p>
+&lt;p># Script out the create statements for objects
+$createOptions = New-DbaScriptingOption
+$createOptions.Permissions = $true
+$createOptions.ScriptBatchTerminator = $true
+$createOptions.AnsiFile = $true&lt;/p>
+&lt;p>$objects | Export-DbaScript -FilePath (&amp;rsquo;{0}\CreateObjects.Sql&amp;rsquo; -f $tempFolder) -ScriptingOptionsObject $createOptions&lt;/p>
+&lt;p>We also need to script out the drop statements. To do that we’ll create another options object, this time setting &lt;code>ScriptDrops&lt;/code> to true. Then we’ll again call &lt;code>Export-DbaScript&lt;/code> with the &lt;code>-ScriptingOptionsObject&lt;/code> parameter.&lt;/p>
+&lt;p># Script out the drop statements for objects
+$options = New-DbaScriptingOption
+$options.ScriptDrops = $true
+$objects| Export-DbaScript -FilePath (&amp;rsquo;{0}\DropObjects.Sql&amp;rsquo; -f $tempFolder) -ScriptingOptionsObject $options&lt;/p>
+&lt;p>Once we have the scripts safely in our temporary folder we’ll run three simple statements.&lt;/p>
+&lt;p>First, we’ll run the drop statements we scripted out.&lt;/p>
+&lt;p>Second, remember we saved the smo connection to our server in the &lt;code>$svr&lt;/code> variable. We’ll use that to access all the tables in our database, pipe that to a &lt;code>Foreach-Object&lt;/code> and call the &lt;code>TruncateData&lt;/code> method.&lt;/p>
+&lt;p>Third, we’ll call &lt;code>Invoke-DbaQuery&lt;/code> to recreate the foreign keys and the views we previously dropped.&lt;/p>
+&lt;p># Run the drop scripts
+Invoke-DbaQuery -SqlInstance $svr -Database $database -File (&amp;rsquo;{0}\DropObjects.Sql&amp;rsquo; -f $tempFolder)&lt;/p>
+&lt;h1 id="truncate-the-tables">Truncate the tables&lt;/h1>
+&lt;p>$svr.databases[$database].Tables | ForEach-Object { $_.TruncateData() }&lt;/p>
+&lt;h1 id="run-the-create-scripts">Run the create scripts&lt;/h1>
+&lt;p>Invoke-DbaQuery -SqlInstance $svr -Database $database -File (&amp;rsquo;{0}\CreateObjects.Sql&amp;rsquo; -f $tempFolder)&lt;/p>
+&lt;p>The final step is to clear up the script files we saved to the temporary folder.&lt;/p>
+&lt;p># Clear up the script files
+Remove-Item (&amp;rsquo;{0}\DropObjects.Sql&amp;rsquo; -f $tempFolder), (&amp;rsquo;{0}\CreateObjects.Sql&amp;rsquo; -f $tempFolder)&lt;/p>
+&lt;p>This script can be reused for any database that you may need to clear out. As I was writing this post, I realised this could probably be a dbatools command… watch this space. ?&lt;/p></description></item></channel></rss>

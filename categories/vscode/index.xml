@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>vscode on Jess Pomfret</title><link>https://jpomfret.github.io/categories/vscode/</link><description>Recent content in vscode on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Wed, 06 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/categories/vscode/index.xml" rel="self" type="application/rss+xml"/><item><title>Changing focus on code execution in VSCode</title><link>https://jpomfret.github.io/p/changing-focus-on-code-execution-in-vscode/</link><pubDate>Wed, 06 May 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/changing-focus-on-code-execution-in-vscode/</guid><description>&lt;p>I wrote previously about how I loved little life hacks and shortcuts for my &lt;a class="link" href="https://jesspomfret.com/t-sql-tuesday-123-summary" target="_blank" rel="noopener"
+>February T-SQL Tuesday prompt&lt;/a>. If you read that you’ll know I use VSCode a lot and really love all the shortcuts available in that program. This is just a quick tip that I’m so glad I found, read – took the time to work out.&lt;/p>
+&lt;p>I specifically write a lot of PowerShell in VSCode and so often find myself using F8 to run the selected line in the integrated console. One thing that always drove me a little crazy was that my cursor stayed in the integrated console after execution, rather than returning to the script I was writing.  I hadn’t managed to find the shortcut to return to the editor window I was working in until recently when I decided to figure it out.&lt;/p>
+&lt;p>Since I started writing this post a couple of weeks ago, I discovered an even better solution thanks to the following tweet from &lt;a class="link" href="http://twitter.com/simon_sabin" target="_blank" rel="noopener"
+>Simon Sabin&lt;/a>. The tweet also links to a GitHub issue where there is a discussion on why this is the default behaviour.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/simon" target="_blank" rel="noopener"
+>https://twitter.com/simon&lt;/a>_sabin/status/1252253795603681281&lt;/p>
+&lt;p>So by adding the following to your &lt;code>settings.json&lt;/code> file you can override that behaviour, and keep the focus in your script pane.&lt;/p>
+&lt;p>&amp;ldquo;powershell.integratedConsole.focusConsoleOnExecute&amp;rdquo;: false&lt;/p>
+&lt;h2 id="original-solution">&lt;strong>Original Solution&lt;/strong>&lt;/h2>
+&lt;p>The original solution to this dilemma is to use the keyboard shortcut to return focus to the script pane. Using Ctrl+1 will return you to the first editor group (unless you are using ZoomIt!).&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/onepanev2-1.gif"
+loading="lazy"
+alt="Use Ctrl&amp;#43;1 to get to editor from console"
+>&lt;/p>
+&lt;p>If you have more than one editor group open you can use CTRL+2 to get to the second group, or CTRL+3 to get to the third group.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/twoPanev2-1.gif"
+loading="lazy"
+alt="ctrl&amp;#43;2 to get back to pane 2"
+>&lt;/p>
+&lt;p>Also, as with most shortcuts in VSCode, you can also customise the key bindings, by opening the command palette (F1) and choosing ‘Open Keyboard Shortcuts’ either in the GUI or JSON format.&lt;/p>
+&lt;p>The commands to customise are below with the defaults:&lt;br>
+- workbench.action.focusFirstEditorGroup: Ctrl+1&lt;br>
+- workbench.action.focusSecondEditorGroup: Ctrl+2&lt;br>
+- workbench.action.focusThirdEditorGroup: Ctrl+3 (and so on up to the eighth editor group)&lt;/p>
+&lt;p>A bonus tip for you: If you’re in the GUI keyboard shortcut editor and you right click and copy, or press Ctrl+C, you’ll actually copy the JSON you’d need to customise your key bindings in the keyboard shortcuts (JSON) file.&lt;/p>
+&lt;p>{
+&amp;ldquo;key&amp;rdquo;: &amp;ldquo;ctrl+5&amp;rdquo;,
+&amp;ldquo;command&amp;rdquo;: &amp;ldquo;workbench.action.focusFifthEditorGroup&amp;rdquo;
+}&lt;/p>
+&lt;p>I’m really excited to have discovered a couple of optimisations so now when I’m writing a script and I execute a line of PowerShell in the integrated console I will easily be able to navigate back to my editor pane using Ctrl+1 instead of having to reach for the mouse.&lt;/p></description></item><item><title>Interactive debugging in VSCode</title><link>https://jpomfret.github.io/p/interactive-debugging-in-vscode/</link><pubDate>Tue, 07 Apr 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/interactive-debugging-in-vscode/</guid><description>&lt;p>I was browsing twitter the other day when a tweet about dbatools caught my eye (I use &lt;a class="link" href="https://tweetdeck.twitter.com/" target="_blank" rel="noopener"
+>TweetDeck&lt;/a> and so have a column for tweets that contain &lt;a class="link" href="http://twitter.com/psdbatools" target="_blank" rel="noopener"
+>@PSdbatools&lt;/a>).&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/way0utwest/status/1242891971473137666" target="_blank" rel="noopener"
+>https://twitter.com/way0utwest/status/1242891971473137666&lt;/a>&lt;/p>
+&lt;p>A dbatools bug!! Oh no!&lt;/p>
+&lt;p>One of the reasons this caught my eye was that I’ve seen this error in my environment with that same command. I had discounted that it was a bug and figured it was instead something in my environment. I presumed it was something related to the fact I was using containers and Azure Data Studio connections.&lt;/p>
+&lt;p>Step one for dbatools bug fixing is to check for an issue on the &lt;a class="link" href="http://dbatools.io/bugs" target="_blank" rel="noopener"
+>GitHub repo&lt;/a> and create one if there isn’t one already. It turned out that there was &lt;a class="link" href="https://github.com/sqlcollaborative/dbatools/issues/6292" target="_blank" rel="noopener"
+>one already created&lt;/a> so we’re covered there.&lt;/p>
+&lt;p>So I figured I’d take a look and see what was happening and how we could fix it. Now I’m going to be honest with you, my usual method of debugging involves adding &lt;code>Write-Host 'Hi&lt;/code>&amp;rsquo;, or piping objects to &lt;code>Out-GridView&lt;/code>. I did start down this route, but the &lt;code>Get-DbaRegServer&lt;/code> function calls an internal function, and things quickly got complicated.&lt;/p>
+&lt;p>Luckily, the &lt;a class="link" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell" target="_blank" rel="noopener"
+>PowerShell extension for VSCode&lt;/a> includes a debugger so we can level up our game and use that to track down our issues. Since I haven’t already used this for my dbatools folder when I click the ‘Run’ icon on the left navigation bar I see the following:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/startDebug.jpg"
+loading="lazy"
+alt="run and debug window in VSCode"
+>&lt;/p>
+&lt;p>Pressing the ‘Run and Debug’ button will run your active file and, if you have breakpoints set up, then it’ll break at those points for you to troubleshoot. This is really useful if you have written a script and it’s not working correctly. Since I’m troubleshooting the call of a function I could write a simple script with the code to call the function, save it and then press ‘Run and Debug’. However there is another option, and that is to launch an interactive debugger. &lt;/p>
+&lt;p>Pressing the ‘create a launch.json file’ link opens the command palette with the option to choose your PowerShell debug configuration. Choosing the ‘Interactive Session’ configuration means we can use the integrated console within VSCode to call functions and launch the debugger.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/debugConfig.jpg"
+loading="lazy"
+alt="Select a PowerShell debug configuration"
+>&lt;/p>
+&lt;p>This will open a launch.json file that you can edit to add more functionality and customization, but we’ll just save it as is right now.&lt;/p>
+&lt;p>{
+// Use IntelliSense to learn about possible attributes.
+// Hover to view descriptions of existing attributes.
+// For more information, visit: &lt;a class="link" href="https://go.microsoft.com/fwlink/?linkid=830387" target="_blank" rel="noopener"
+>https://go.microsoft.com/fwlink/?linkid=830387&lt;/a>
+&amp;ldquo;version&amp;rdquo;: &amp;ldquo;0.2.0&amp;rdquo;,
+&amp;ldquo;configurations&amp;rdquo;: [
+{
+&amp;ldquo;name&amp;rdquo;: &amp;ldquo;PowerShell: Interactive Session&amp;rdquo;,
+&amp;ldquo;type&amp;rdquo;: &amp;ldquo;PowerShell&amp;rdquo;,
+&amp;ldquo;request&amp;rdquo;: &amp;ldquo;launch&amp;rdquo;,
+&amp;ldquo;cwd&amp;rdquo;: &amp;quot;&amp;quot;
+}
+]
+}&lt;/p>
+&lt;p>As soon as you save it the left ‘Run and Debug’ pane will change to look like this. Now we’re ready to run the interactive debugger by pressing the green play button or F5.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DebugInteractive.jpg"
+loading="lazy"
+alt="Debug and Run window for PowerShell extension"
+>&lt;/p>
+&lt;p>So now that we’re set up, let’s start troubleshooting.&lt;/p>
+&lt;p>Step one is to reproduce this issue. This particular bug was easy to reproduce. The only requirements are that you have Azure Data Studio installed and at least one connection set up, then just running &lt;code>Get-DbaRegServer&lt;/code> caused the error.&lt;/p>
+&lt;p>Next we need to add some breakpoints. These need to be the positions in the code where you want to stop execution and take a look at how things are set in the moment. It’s also a great way to see if you entered certain sections of the code that may be guarded by conditional logic.&lt;/p>
+&lt;p>Running &lt;code>Get-DbaRegServer&lt;/code> in the integrated console you can see the error, even down to the line from the function where the error is being thrown. In the screenshot below you can see hovering over that line in VSCode allows you to follow the link to open the function and navigate to the exact line.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDbaRegServerError.jpg"
+loading="lazy"
+alt="Get-DbaRegServer throws an error"
+>&lt;/p>
+&lt;p>Line 180 of the Get-DbaRegServer is the following:&lt;/p>
+&lt;p>$tempserver.ConnectionString = $adsconn.ConnectionString&lt;/p>
+&lt;p>We’ll insert a breakpoint here by clicking in the gutter at line 180.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/addBreakpoint.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Now pressing F5 the interactive debugger will start, and we can rerun &lt;code>Get-DbaRegServer&lt;/code> in the interactive console. When we do that as soon as the execution gets to line 180 the code will stop, waiting for us to respond.&lt;/p>
+&lt;p>You can see below that we are able to find the &lt;code>$adsconn&lt;/code> variable in the variables pane on the left and see that it’s actually an object with three values – which is the issue here – we’re expecting to only have one returned.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2020/04/breakpoint.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://i2.wp.com/jesspomfret.com/wp-content/uploads/2020/04/breakpoint.jpg?fit=650%2C246&amp;amp;ssl=1"
+loading="lazy"
+alt="VSCode code stopped at breakpoint, displaying variables"
+>&lt;/a>&lt;/p>
+&lt;p>I read back through the &lt;code>Get-DbaRegServer&lt;/code> function to find where the &lt;code>$adsconn&lt;/code> variable was set and found it was from calling the internal function &lt;code>Get-ADSConnection&lt;/code>. I added in another breakpoint within that function to dig in deeper.&lt;/p>
+&lt;p>Adding the breakpoint within the second function means that when we call &lt;code>Get-RegServer&lt;/code> and then that calls &lt;code>Get-ADSConnection&lt;/code> the code will wait within the second function and allow you to inspect variables within that function.&lt;/p>
+&lt;p>This meant that I was able to determine that there were several connection strings being returned for each server and that we needed to filter down to one.&lt;/p>
+&lt;p>Changing line 174 in the &lt;code>Get-DbaRegServer&lt;/code> function to include an additional filter, shown below, meant that only one connection string was returned and solved the problem.&lt;/p>
+&lt;p>$adsconn = $adsconnection | Where-Object { $_.server -eq $server.Options[&amp;lsquo;server&amp;rsquo;] -and -not $_.database }&lt;/p>
+&lt;p>Hopefully this walkthrough shows a useful way of using the interactive debugger to hunt down bugs.&lt;/p></description></item><item><title>T-SQL Tuesday #123: Life hacks to make your day easier</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#123-life-hacks-to-make-your-day-easier/</link><pubDate>Tue, 04 Feb 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#123-life-hacks-to-make-your-day-easier/</guid><description>&lt;p>&lt;img src="https://jpomfret.github.io/images/tsqltues-300x300.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>It’s time for the February edition of T-SQL Tuesday. I am really grateful to be able to host this edition and look forward to reading everyone’s contributions. In case you are new to T-SQL Tuesday this is the monthly blog party started by Adam Machanic (&lt;a class="link" href="http://dataeducation.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/adammachanic" target="_blank" rel="noopener"
+>t&lt;/a>) and now hosted by Steve Jones (&lt;a class="link" href="https://voiceofthedba.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/way0utwest/" target="_blank" rel="noopener"
+>t&lt;/a>). It’s a way of encouraging blog posts from the community and helping to share the knowledge.&lt;/p>
+&lt;p>So here we are, the first Tuesday of February. I personally always find February to be the month where my motivation is a little low. I live in the northern hemisphere so it can be a pretty dreary winter month where it still feels like there is a long way to spring (I will say this January I moved from Ohio back to England and the distinct lack of piles of snow is helping this cause somewhat). This makes my topic even more relevant as we need a little extra help to be productive and get through the month.&lt;/p>
+&lt;p>My topic is looking for your favourite ‘life hack’, something you use to make your day easier. This could be anything from a keyboard shortcut in SSMS that runs ‘sp_whoisactive’, to a technique you use to get and stay organised.  It doesn’t have to be directly related to a technology, just whatever you use to make your life easier.&lt;/p>
+&lt;p>Now, I’m personally a huge proponent of using keyboard shortcuts to get things done faster. In the last year or so I’ve started using Visual Studio Code as my editor of choice and the number of little ‘life hacks’ I’ve found has grown incredibly. I’m going to share a couple that I use often to get your ideas flowing.&lt;/p>
+&lt;h2 id="multiline-select---ctrl--alt-direction-key">Multiline Select - Ctrl + Alt+ Direction Key&lt;/h2>
+&lt;p>This is something I love for formatting queries, among other things. I know you can use T-SQL to generate some queries from the metadata but if you have a list of tables you want to truncate, for example, you can easily accomplish this. Select the start of each line by using Ctrl + Alt + down direction key, add the &lt;code>TRUNCATE TABLE&lt;/code> text and then press end to get to the end of each line, no matter the length, to add the semicolon.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/multilineselect.gif"
+loading="lazy"
+>&lt;/p>
+&lt;p>The other use I have for this hack is to generate names and descriptions of Active Directory groups for tickets to have them created.  At my previous job we created read and admin groups for databases that users could then request access to. Multiline select made this really easy to generate the required information.&lt;/p>
+&lt;p>You can use multiline select at the beginning of the row. Start by selecting the first word and copying it (Ctrl+C), then you can type to format your group name. For example, I put &lt;code>SqlDb-&lt;/code> before the database name and then &lt;code>-Read&lt;/code> afterwards.  Pressing enter at the end of the group name will create a second line for all three groups where you can add the description. Notice I can now use paste (Ctrl+V) to add the database name that we copied from each line.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/multilineselect2.gif"
+loading="lazy"
+>&lt;/p>
+&lt;p>This ability to change multiple lines at once is really powerful and once you get the hang of what you can do with it you’ll find so many opportunities.&lt;/p>
+&lt;h2 id="change-all-occurrences--ctrl--f2">&lt;strong>Change all occurrences – Ctrl + F2&lt;/strong>&lt;/h2>
+&lt;p>A similar hack to my first, VS Code also lets you change multiple occurrences of characters. I say characters because you can select whole words, parts of words, or even punctuation. This is really handy, for example, for formatting a comma separated list on one row into a list with each value on a separate row.&lt;/p>
+&lt;p>Carrying on from my previous example, now that we have formatted the group names and description. I can select the word ‘Read’ and replace all with ‘Admin’. Just like that I have all I need to get the group request off to the help desk for creation.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ChangeAllOccurances.gif"
+loading="lazy"
+>&lt;/p>
+&lt;h2 id="command-palette---f1-or-ctrlshiftp">&lt;strong>Command Palette -  F1 or Ctrl+Shift+P&lt;/strong>&lt;/h2>
+&lt;p>VS Code also has a really great Command Palette that offers a lot more for you to explore. A few of my favourites are:&lt;br>
+- Sort Lines Ascending/Descending – Select some lines in VS Code and easily alphabetise them.&lt;br>
+- Git: Undo Last Commit – Rescue that last commit back from your source control. Useful if you realised a second too late you committed to the wrong branch.&lt;br>
+- File: Compare Active File With – This clearly highlights differences between two files.&lt;/p>
+&lt;h2 id="over-to-you">&lt;strong>Over to you&lt;/strong>&lt;/h2>
+&lt;p>I hope my VS Code life hacks have got your ideas flowing, so now it’s over to you. Finally, the important part, the rules. You can &lt;a class="link" href="http://tsqltuesday.azurewebsites.net/rules/" target="_blank" rel="noopener"
+>read the full rules here&lt;/a>, but the keys are:&lt;br>
+- Write about the topic described above&lt;br>
+- Include the T-SQL Tuesday Logo and link back to this post&lt;br>
+- Comment on this post so I make sure not to miss your contribution&lt;br>
+- Post your blog on February 11th between 0:00 - 23:59 UTC&lt;/p>
+&lt;p>If you have an idea for a future T-SQL Tuesday you can &lt;a class="link" href="http://tsqltuesday.azurewebsites.net/contact/" target="_blank" rel="noopener"
+>contact Steve Jones&lt;/a>.&lt;/p>
+&lt;h2 id="bonus-february-fact">&lt;strong>Bonus February Fact&lt;/strong>&lt;/h2>
+&lt;p>Just in case anyone is still reading, while I was looking for a nice way to tie my topic to the month of February I discovered that one of the old English names for this month was Kale-monath, which means “cabbage month.” As if February couldn’t get any worse! This doesn’t really tie my topic and February together, just a useless fact to add to your collection. You’re welcome!&lt;/p></description></item></channel></rss>

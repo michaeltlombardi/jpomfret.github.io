@@ -1,0 +1,1055 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>dbatools on Jess Pomfret</title><link>https://jpomfret.github.io/tags/dbatools/</link><description>Recent content in dbatools on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 24 May 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/dbatools/index.xml" rel="self" type="application/rss+xml"/><item><title>Log Shipping – Pre-stage database backups with dbatools</title><link>https://jpomfret.github.io/p/log-ship-staged/</link><pubDate>Tue, 24 May 2022 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/log-ship-staged/</guid><description>&lt;img src="https://jpomfret.github.io/cover.jpg" alt="Featured image of post Log Shipping – Pre-stage database backups with dbatools" />&lt;p>Log shipping is a SQL Server feature used for disaster-recovery where the transaction log backups are ‘shipped’ from your production instance to a secondary instance. This enables you to cutover to this secondary server in the event of a disaster where you lose your primary instance. Log shipping is not a new feature but is still quite popular.&lt;/p>
+&lt;p>Recently I was tasked with setting up Log Shipping for a reasonably large production database. I didn’t want to initialize the secondary database with a new full backup as I was already taking full and log backups of the database. In this case we have the option of initialising the database by restoring the full &amp;amp; log backups up to the latest point in time and then configuring log shipping.&lt;/p>
+&lt;h2 id="which-backups-to-restore">Which backups to restore?&lt;/h2>
+&lt;p>In order for us to stage the database on the secondary at the point in time where we can configure log shipping we need to get the last full backup and any log backups taken since then.  If we were using differential backups as part of our strategy we would need the last full, the latest differential, and any log backups since then.&lt;/p>
+&lt;p>This could be a lot of backup files to find, put in the right order, and then restore (with no recovery) onto the secondary server. dbatools makes this so easy! We can use &lt;code>Get-DbaDbBackupHistory&lt;/code> with the &lt;code>-Last&lt;/code> switch to get the latest backup chain. Then by piping that to &lt;code>Restore-DbaDatabase&lt;/code> we can automatically restore each piece of the puzzle. First, the full backups and then any differentials or log backups we need to get us to the point in time we are now.&lt;/p>
+&lt;p>Get-DbaDbBackupHistory -SqlInstance mssql1 -Database productionDb -Last |
+Restore-DbaDatabase -SqlInstance mssql2 -NoRecovery -UseDestinationDefaultDirectories&lt;/p>
+&lt;p>Depending on how long the restores take you might have new log backups to apply to the secondary database, like those that have been taken on the primary since we ran the last command.  Again, we can use dbatools to help us with this. I will execute the same call to &lt;code>Get-DbaDbBackupHistory&lt;/code> to get the last backup chain, but instead of piping it straight to &lt;code>Restore-DbaDatabase&lt;/code> I will use &lt;code>Out-GridView&lt;/code> with the &lt;code>-PassThru&lt;/code> switch to effectively create a GUI window where I can select the backups I want to restore (any since the last log backup we applied), and then pass them on down the pipeline to be restored by &lt;code>Restore-DbaDatabase&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Get-DbaDbBackupHistory&lt;/span> &lt;span class="n">-SqlInstance&lt;/span> &lt;span class="n">mssql1&lt;/span> &lt;span class="n">-Database&lt;/span> &lt;span class="n">productionDb&lt;/span> &lt;span class="n">-Last&lt;/span> &lt;span class="p">|&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Out-GridView&lt;/span> &lt;span class="n">-PassThru&lt;/span> &lt;span class="p">|&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Restore-DbaDatabase&lt;/span> &lt;span class="n">-SqlInstance&lt;/span> &lt;span class="n">mssql2&lt;/span> &lt;span class="n">-NoRecovery&lt;/span> &lt;span class="n">-UseDestinationDefaultDirectories&lt;/span> &lt;span class="n">-Continue&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="check-on-what-we-restored">Check on what we restored&lt;/h2>
+&lt;p>Once the restores are complete we can view what was restored using &lt;code>Get-DbaDbRestoreHistory&lt;/code>.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Get-DbaDbRestoreHistory&lt;/span> &lt;span class="n">-SqlInstance&lt;/span> &lt;span class="n">mssql2&lt;/span> &lt;span class="n">-Database&lt;/span> &lt;span class="n">productionDb&lt;/span> &lt;span class="n">-Last&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="whats-next">What’s next?&lt;/h2>
+&lt;p>At this point our secondary database has been initalised and we’re ready to set up log shipping. You can use the GUI in SSMS for this, or I’d recommend taking a look at dbatools offering &lt;code>Invoke-DbaDbLogShipping&lt;/code>.&lt;/p></description></item><item><title>Collating index usage stats across Availability Group replicas</title><link>https://jpomfret.github.io/p/collating-index-usage-stats-across-availability-group-replicas/</link><pubDate>Tue, 16 Nov 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/collating-index-usage-stats-across-availability-group-replicas/</guid><description>&lt;p>One of the benefits available to us when using SQL Server Availability Groups is that we can offload read activity to a secondary replica. This can be useful if we need to run reports against our OLTP databases. Instead of this taking up valuable resources on the primary instance we can make use of the otherwise idle secondary replica.&lt;/p>
+&lt;p>Note: This could affect your licensing standpoint, so ensure you’re in compliance on that front.&lt;/p>
+&lt;p>Last week, I was working on a project to analyse indexes on a database that was part of an availability group. The main goal was to find unused indexes that could be removed, but I was also interested in gaining an overall understanding of how the system was indexed.&lt;/p>
+&lt;p>Unused indexes not only take up disk space, but they also add overhead to write operations and require maintenance which can add additional load on your system.  We can also use this analysis to look for a high number of lookups which could indicate we need to adjust indexes slightly.&lt;/p>
+&lt;p>&lt;strong>&lt;em>Note&lt;/em>&lt;/strong>: dbatools does have a command called &lt;code>Find-DbaDbUnusedIndex&lt;/code> to just look for unused indexes – however since I wanted to collect overall usage as well it wasn’t appropriate in this situation.&lt;/p>
+&lt;p>dbatools has a command &lt;code>Get-DbaHelpIndex&lt;/code> which returns detailed information on our indexes which we can then use to complete the necessary analysis. To run this against a single database we could use the following code:&lt;/p>
+&lt;p>Get-DbaHelpIndex -SqlInstsance mssql1 -Database AdventureWorks | Out-GridView&lt;/p>
+&lt;p>In the above example I’ve used &lt;code>Out-GridView&lt;/code> to popup the results in a nice, easy to view GUI. I love using this output option to get a feel for the results. You can also filter and sort to help do some initial analysis to help get an understanding of your data.&lt;/p>
+&lt;p>This is perfect – except I mentioned this database was in an AG. Oh, and it is set up to take advantage of using that read-only replica to run reporting against. That means the whole picture of the index usage is spread across two instances. We might find a totally unused index on our primary replica, a great candidate to be dropped, unless it’s heavily used by reports on the secondary.&lt;/p>
+&lt;p>Remember, the secondary replica is just a read-only copy – so the indexes needed on the secondary must be created on the primary.&lt;/p>
+&lt;p>In this situation we need to combine the index stats for both replicas into one easy to use result set – for this we can make use of PowerShell’s PSCustomObject to join these two result sets. In the code below I’ve set up a few variables at the top, and then run &lt;code>Get-DbaHelpIndex&lt;/code> against both instances. We then set up a variable to catch the results in &lt;code>$export&lt;/code> and use foreach-object to loop through the results for the primary instance. As we loop through, we’re looking for the matching index on the secondary replica before adding properties from both sides to the PSCustomObject.&lt;/p>
+&lt;p>Finally, we lean on the ImportExcel module to export the results to an excel spreadsheet – if you haven’t checked this module out yet I highly recommend it.&lt;/p>
+&lt;p>&lt;a class="link" href="https://gist.github.com/jpomfret/a9afa22c4d1129fecc4ea3e6cde1b51c" target="_blank" rel="noopener"
+>https://gist.github.com/jpomfret/a9afa22c4d1129fecc4ea3e6cde1b51c&lt;/a>&lt;/p>
+&lt;p>Looking at our results spreadsheet we can now easily review the index usage across both replicas and make sure that any indexes we identify as unused, truly are unused.&lt;/p></description></item><item><title>Searching Stored Procedures for a pattern made easy with dbatools</title><link>https://jpomfret.github.io/p/searching-stored-procedures-for-a-pattern-made-easy-with-dbatools/</link><pubDate>Tue, 25 May 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/searching-stored-procedures-for-a-pattern-made-easy-with-dbatools/</guid><description>&lt;p>Well folks, after starting the year off on a strong foot it’s been a while since I’ve published any blog posts. Hope you didn’t miss me too much, but I’m back now and I’ve got a useful dbatools snippet for you today.  Last week at the day job I had a situation where I needed to find all stored procedures that referenced a certain string, across any database on a specific server.  This is a pretty trivial task in SSMS when you’re just talking about one database. For example, if we’re looking for any reference to ‘Person’ perhaps we could run this T-SQL within the context of the database:&lt;/p>
+&lt;p>select o.name, sc.text, o.type
+from sys.objects o
+inner join sys.syscomments sc
+on sc.id = o.object_id
+where text like &amp;lsquo;%Person%&amp;rsquo;
+and o.type = &amp;lsquo;P&amp;rsquo; &amp;ndash; filtered for just stored procedures&lt;/p>
+&lt;p>You can see I’ve found one procedure in my TestDb that references the ‘Person’ table, so it has been returned.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/TSQL.jpg"
+loading="lazy"
+alt="T-SQL code to find procedures with &amp;lsquo;person&amp;rsquo; in"
+>&lt;/p>
+&lt;p>However, if I want to search all databases on the server I now need to start thinking about a cursor, or using something like &lt;code>sp_MSforeachdb&lt;/code> to iterate over the databases.  A quick warning here- &lt;code>sp_MSforeachdb&lt;/code> is an undocumented procedure and there are some known issues with it.&lt;/p>
+&lt;p>The natural next step here when we’re thinking about handling multiple databases is to switch to PowerShell and use dbatools.&lt;/p>
+&lt;h2 id="find-the-dbatools-command-for-the-job">Find the dbatools command for the job&lt;/h2>
+&lt;p>When we’re looking for the command we need within dbatools to fulfil our needs I cannot recommend &lt;code>Find-DbaCommand&lt;/code> highly enough.  This command will search all other commands for the pattern you pass in.  Today we know we want to find references in stored procedures so let’s see if there is a command that will help.&lt;/p>
+&lt;p>Find-DbaCommand *stored*proc*&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/findCommand-1024x368.jpg"
+loading="lazy"
+alt="Find-DbaCommand helping us to find what we need"
+>&lt;/p>
+&lt;p>Looks like &lt;code>Get-DbaDbStoredProcedure&lt;/code> is what we need here.  Since this is our first time using this particular command I always have a quick look through the help content. I highly recommend running &lt;code>Get-Help Get-DbaDbStoredProcedure -ShowWindow&lt;/code>, this will open a separate window from your console and allow you to keep that open to refer back to if needed.  The last section of the help gives us several examples on how to use this command- let’s run a simple one against a test database to see what we get. I’m also going to pipe the output to &lt;code>Select-Object&lt;/code> so I can just sample the first 2 results.&lt;/p>
+&lt;p>Get-DbaDbStoredProcedure -SqlInstance &amp;rsquo;localhost,2500&amp;rsquo; -Database testDb | Select-Object -First 2&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/twoProcs-1024x539.jpg"
+loading="lazy"
+alt="Get-DbaDbStoredProcedure results"
+>&lt;/p>
+&lt;p>This is handy, but this output doesn’t look like it’s going to help answer the question and find references of a string within the stored procedure code. There’s more than meets the eyes though.&lt;/p>
+&lt;h2 id="sql-server-management-objects-smo">SQL Server Management Objects (SMO)&lt;/h2>
+&lt;p>dbatools deals mostly with SQL Server Management Objects (SMO), which means that what you see in the output for commands is not always all there is available.  SMO is a hierarchy of objects which can be easily traversed from the output of the commands.  You can tell that we’re dealing with SMO instead of standard PowerShell objects by using &lt;code>Get-Member&lt;/code> and looking at the TypeName.&lt;/p>
+&lt;p>Get-DbaDbStoredProcedure -SqlInstance &amp;rsquo;localhost,2500&amp;rsquo; -Database testDb | Get-Member&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/getMember.jpg"
+loading="lazy"
+alt="using Get-Member to see what&amp;rsquo;s available"
+>&lt;/p>
+&lt;p>&lt;code>Get-Member&lt;/code> is also really useful for looking to see what’s available from the object that is returned. In the screenshot above you can see multiple methods that can be used. If you run this in your console you’ll also get a list of all available properties.  That’s a hint for what we need for our scenario.&lt;/p>
+&lt;h2 id="find-our-string-within-all-stored-procedures-in-any-database">Find our string within all Stored Procedures in any database&lt;/h2>
+&lt;p>Now that we know the &lt;code>Get-DbaDbStoredProcedure&lt;/code> command is going to return SMO StoredProcedure objects we can look at some of the properties not returned by default.  We already saw one option for this- using &lt;code>Get-Member&lt;/code> will list all the properties available to us.  Another option is to select all the properties for the first result.&lt;/p>
+&lt;p>Get-DbaDbStoredProcedure -SqlInstance &amp;rsquo;localhost,2500&amp;rsquo; -Database testDb | Select-Object -First 1 *&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/SelectAll-1024x315.png"
+loading="lazy"
+alt="Select all the properties from Get-DbaDbStoredProcedure"
+>&lt;/p>
+&lt;p>In the output you can see there are a lot of properties available that weren’t returned by default, this includes &lt;code>TextBody&lt;/code> which is what we need to search for our reference string.  All we need to do now is pipe the output of the command through to &lt;code>Where-Object&lt;/code> to find what we need:&lt;/p>
+&lt;p>Get-DbaDbStoredProcedure -SqlInstance &amp;rsquo;localhost,2500&amp;rsquo; -ExcludeSystemSp | Where-Object TextBody -like &amp;lsquo;*Person*&amp;rsquo;&lt;/p>
+&lt;p>You’ll notice two more changes to the code above. I dropped the &lt;code>Database&lt;/code> parameter, opening the search up to the whole server. I also added &lt;code>ExcludeSystemSp&lt;/code>, which means I’m only interested in user defined stored procedures. It is important to note if you have a lot of stored procedures this command could take a little while to run.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/SearchAllSPs-1024x237.jpg"
+loading="lazy"
+alt="search the TextBody for key words"
+>&lt;/p>
+&lt;p>PowerShell also supports other &lt;a class="link" href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comparison_operators?view=powershell-7.1" target="_blank" rel="noopener"
+>comparison operators&lt;/a> by default, including `match` which can be used to find regex patterns within your procedures.  This opens up a lot more possibilities when looking for more complicated patterns within your database.&lt;/p>
+&lt;h2 id="so-many-more-options">So many more options…&lt;/h2>
+&lt;p>Today we were only looking for results on one SQL Server instance, but since dbatools makes handling multiple SQL instances easy we could also widen the search and instead search our entire estate for references to a certain string.&lt;/p>
+&lt;p>We also only looked at Stored Procedures today, but if you do a little research with &lt;code>Find-DbaCommand&lt;/code>, &lt;code>Get-Help&lt;/code> and &lt;code>Get-Member&lt;/code> you’ll soon find what you need to search through functions, views and more.&lt;/p>
+&lt;p>Happy searching!&lt;/p></description></item><item><title>Quickly Execute a Folder of SQL Scripts against a SQL Server</title><link>https://jpomfret.github.io/p/quickly-execute-a-folder-of-sql-scripts-against-a-sql-server/</link><pubDate>Mon, 01 Mar 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/quickly-execute-a-folder-of-sql-scripts-against-a-sql-server/</guid><description>&lt;p>Another week and another useful dbatools snippet for you today.  Last week at work I was given a folder of 1,500 scripts – each containing a create table statement. Can you imagine having to open each file in Management Studio to be able to execute it? Thank goodness we have PowerShell and &lt;a class="link" href="https://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> on our side.&lt;/p>
+&lt;p>The code for this example is pretty short, but there are a couple of things to point out. &lt;/p>
+&lt;p>First, I used &lt;code>Connect-DbaInstance&lt;/code> to create a server object to use to run the queries.  This means that we’re efficiently reusing the connection rather than opening a new one for each file we want to execute. &lt;/p>
+&lt;p>Second, I’m using the foreach method which takes each script file returned from the &lt;code>Get-ChildItem&lt;/code> call, and executes &lt;code>Invoke-DbaQuery&lt;/code>.  With this we can use the &lt;code>-File&lt;/code> parameter to pass in the sql file and that’s really all we need.  This will loop through each file running the sql scripts.&lt;/p>
+&lt;p>$SqlInstance = &amp;lsquo;mssql1&amp;rsquo;
+$destinationDatabase = &amp;lsquo;AdventureWorks2021&amp;rsquo;
+$folderPath = &amp;lsquo;.\output\AdventureWorks2017&amp;rsquo;&lt;/p>
+&lt;h1 id="create-a-connection-to-the-server-that-we-will-reuse---can-use-sqlcredential-for-alternative-creds">Create a connection to the server that we will reuse - can use SqlCredential for alternative creds&lt;/h1>
+&lt;p>$sqlInst = Connect-DbaInstance -SqlInstance $SqlInstance&lt;/p>
+&lt;p>(Get-ChildItem $folderPath).Foreach{
+Invoke-DbaQuery -SqlInstance $sqlInst -Database $destinationDatabase -File $psitem.FullName
+}&lt;/p>
+&lt;p>That’s really all we need for this blog post, but in order to set this up for a demo I did use a few other dbatools commands. I’ve posted the script above, along with the setup scripts on my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/08_ExecuteFolderOfScripts.ps1" target="_blank" rel="noopener"
+>GitHub&lt;/a>. This includes creating a new database, scripting out all the tables into individual script files, and ensuring all the schemas and other dependencies were ready in the new database.&lt;/p>
+&lt;p>Thanks for reading, and hope this is a useful snippet. It sure saved me a lot of time this week.&lt;/p></description></item><item><title>Troubleshooting SPN Troubles - Cannot generate SSPI context</title><link>https://jpomfret.github.io/p/troubleshooting-spn-troubles-cannot-generate-sspi-context/</link><pubDate>Tue, 16 Feb 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/troubleshooting-spn-troubles-cannot-generate-sspi-context/</guid><description>&lt;p>I was working in my lab environment this weekend, playing with some SQL Servers that I had built with PowerShell DSC a while ago.  I had installed SQL Server with mostly defaults, including not changing the engine and agent service accounts.  For the blog post I thought I was going to write next, I wanted to change these to be active directory accounts – it did not go smoothly, and I figured this might be useful to document for future Jess, or anyone else who might stumble across this problem.&lt;/p>
+&lt;h2 id="create-the-issue-change-sql-server-service-accounts">Create the Issue: Change SQL Server Service Accounts&lt;/h2>
+&lt;p>First off, I created two new Active Directory users that I’ll use for my service accounts. The below code will create a prompt for each account for the password to be entered.&lt;/p>
+&lt;p>$engSvcAccount = &amp;lsquo;svc-dscsvr1-eng2&amp;rsquo;
+$agSvcAccount = &amp;lsquo;svc-dscsvr1-ag2&amp;rsquo;&lt;/p>
+&lt;p>$EngSvcAccount = @{
+Name = $engSvcAccount
+UserPrincipalName = $engSvcAccount
+AccountPassword = (Get-Credential -Credential EnterPassword).Password
+PasswordNeverExpires = $true
+Enabled = $true
+}
+New-AdUser @EngSvcAccount&lt;/p>
+&lt;p>$AgentSvcAccount = @{
+Name = $agSvcAccount
+UserPrincipalName = $agSvcAccount
+AccountPassword = (Get-Credential -Credential EnterPassword).Password
+PasswordNeverExpires = $true
+Enabled = $true
+}
+New-AdUser @AgentSvcAccount&lt;/p>
+&lt;p>We can view the current SQL services with &lt;code>Get-DbaService&lt;/code>. This is useful to see what account they are currently running under, as well as the service names.&lt;/p>
+&lt;p>Get-DbaService -ComputerName dscsvr1 | Format-Table&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/GetDbaService.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/GetDbaService.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>There is also a command for updating service accounts in dbatools. I will note, sometimes I have issues with the command being able to update the accounts and I’m not sure why. It worked perfectly in this scenario though running the following.&lt;/p>
+&lt;p>This again creates a prompt to enter the service account password, before setting the service &amp;lsquo;StartName&amp;rsquo;.&lt;/p>
+&lt;p>Update-DbaServiceAccount -ComputerName dscsvr1 -ServiceName MSSQLSERVER -ServiceCredential (Get-Credential -Credential &amp;ldquo;Pomfret\$engSvcAccount&amp;rdquo; )
+Update-DbaServiceAccount -ComputerName dscsvr1 -ServiceName SQLSERVERAGENT -ServiceCredential (Get-Credential -Credential &amp;ldquo;Pomfret\$agSvcAccount&amp;rdquo; )&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/UpdateDbaServiceAccount.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/UpdateDbaServiceAccount.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>If I rerun &lt;code>Get-DbaService&lt;/code> I can see all looks good. &lt;code>StartName&lt;/code> shows my new accounts and the services for both engine and agent are running.&lt;/p>
+&lt;p>Get-DbaService -ComputerName dscsvr1 | Format-Table&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/GetDbaService_post.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/GetDbaService_post.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;h2 id="the-issue">The Issue&lt;/h2>
+&lt;p>At this point I was still planning on writing a blog post on a totally different topic. I ran the following to determine what databases I already had on dscsvr1:&lt;/p>
+&lt;p>Get-DbaDatabase -SqlInstance dscsvr1 -ExcludeSystem | Format-Table&lt;/p>
+&lt;p>But instead of getting a quick answer to my question, I just got the following error:&lt;/p>
+&lt;p>&lt;em>WARNING: [15:19:49][Get-DbaDatabase] Error occurred while establishing connection to dscsvr1 | The target principal name is incorrect. Cannot generate SSPI context.&lt;/em>&lt;/p>
+&lt;p>I checked a few things as I started troubleshooting:&lt;/p>
+&lt;ul>
+&lt;li>Are the services running – we already checked this with &lt;code>Get-DbaService&lt;/code> and they are&lt;/li>
+&lt;li>Was it firewall related – inbound rules were in place, and I was able to previously connect&lt;/li>
+&lt;li>Was it certificate related – I’m not forcing encryption, and there are no certificates set up&lt;/li>
+&lt;li>Was it Service Principal Name (SPN) related – bingo&lt;/li>
+&lt;/ul>
+&lt;p>I have seen this happen before when changing service accounts for SQL services. I’m not an Active Directory expert, and I’m certainly not a Kerberos expert – in fact I’m as surprised as you that Kerberos has actually appeared on this blog. &lt;/p>
+&lt;p>What I do know is that due to permissions, the SPNs needed were not able to be registered for the new service accounts.  The easiest way to investigate SPN issues is with dbatools, saving us again!&lt;/p>
+&lt;p>&lt;code>Test-DbaSpn&lt;/code> works out exactly what SPNs are needed for our SQL instances and determines if they are in place.&lt;/p>
+&lt;p>Test-DbaSpn -ComputerName dscsvr1 | Format-Table&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/Test-DbaSpn.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/Test-DbaSpn.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>This shows we should have two SPNs set for the default instance (MSSQLSERVER) on DscSvr1.  The ‘IsSet’ column shows they aren’t set – and this is why we can’t connect to our instance remotely.&lt;/p>
+&lt;h2 id="lets-fix-it">Let&amp;rsquo;s Fix It&lt;/h2>
+&lt;p>The fix for this issue seems simple- register the required SPNs.  dbatools again tries to make this as easy as possible for us. We can take the output from &lt;code>Test-DbaSpn&lt;/code> and pipe it straight into &lt;code>Set-DbaSpn&lt;/code> and dbatools will take care of the rest – won’t it?&lt;/p>
+&lt;p>Test-DbaSpn -ComputerName dscsvr1 | Set-DbaSpn&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/FailedToSetSPN.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/FailedToSetSPN.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>As you can see from the warning message, dbatools wasn’t able to set our required SPNs either. It complains about &amp;lsquo;A constraint violation occurred&amp;rsquo;.&lt;/p>
+&lt;p>The reason is each SPN can only be registered once, and these SPNs were created for the previous service accounts and never cleaned up due to a lack of permissions.&lt;/p>
+&lt;p>We now need to use the &lt;code>setspn&lt;/code> command line tool that is built into Windows and available when you have AD windows features installed, but the output from the dbatools command is still very useful for building the inputs for &lt;code>setspn&lt;/code>.&lt;/p>
+&lt;p>First we’ll try and register the required SPNs manually. For this we’ll use the -a parameter on &lt;code>setspn&lt;/code>, the format being:&lt;/p>
+&lt;p>setspn -a &amp;laquo;SPN&amp;raquo; &amp;laquo;ServiceAccount&amp;raquo;&lt;/p>
+&lt;p>So we’ll run the following, getting the SPN from the ‘RequiredSPN’ column of the &lt;code>Test-DbaSpn&lt;/code> output. You’ll notice there are two required SPNs, one without a port specified and one with 1433 – we’ll want to fix both.&lt;/p>
+&lt;p>setspn -a MSSQLSvc/DscSvr1.pomfret.com Pomfret\svc-dscsvr1-eng2&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/duplicateSpn.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/duplicateSpn.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>You can see in the output, the problem is highlighted – ‘Duplicate SPN found’.  The useful part of this output is on the second line.  I’ve highlighted the current owner of the SPN – we need this to be able to resolve the problem.  Not surprising, it is the computer account since I was previously running SQL Server as the default &lt;code>NT SERVICE\MSSQLSERVER&lt;/code> account.&lt;/p>
+&lt;p>Now we know what the duplicate is we can remove it, again using setspn, but this time with the -d parameter. The format is:&lt;/p>
+&lt;p>setspn -d &amp;laquo;SPN&amp;raquo; &amp;laquo;ServiceAccount&amp;raquo;&lt;/p>
+&lt;p>We’ll run the following two commands to clear up both old SPNs:&lt;/p>
+&lt;p>setspn -d MSSQLSvc/DscSvr1.pomfret.com DSCSVR1
+setspn -d MSSQLSvc/DscSvr1.pomfret.com:1433 DSCSVR1&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/DeleteSPN.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/DeleteSPN.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>Finally we can add the required SPNs. We can either use dbatools with the code we tried earlier or &lt;code>setspn&lt;/code>.&lt;/p>
+&lt;p>setspn -a MSSQLSvc/DscSvr1.pomfret.com Pomfret\svc-dscsvr1-eng2
+setspn -a MSSQLSvc/DscSvr1.pomfret.com:1433 Pomfret\svc-dscsvr1-eng2&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/addSpn.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/addSpn.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>You can see the output now states ‘Updated object’ which means we were successful. If we try and view the databases again now we should see the output we were expecting.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/02/Get-DbaDatabase.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/Get-DbaDatabase.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>As I mentioned, this was not at all what I was expecting to write about – but I hope it’ll be useful if you ever find yourself in this situation while trying to change service accounts for SQL Server.&lt;/p>
+&lt;p>I was in the end able to resolve the permissions problems for my service accounts by following this great blog post &amp;lsquo;&lt;a class="link" href="http://www.alexandreviot.net/2014/09/30/sql-server-could-not-register-the-service-principal-name-spn/" target="_blank" rel="noopener"
+>SQL Server - Could not register the Service Principal Name&lt;/a>&amp;rsquo;. Once I applied these permissions when I changed service accounts they were able to delete and recreate the required SPNs.&lt;/p>
+&lt;p>Another great blog post for more reading on SPNs is this post by &lt;a class="link" href="https://www.twitter.com/pittfurg" target="_blank" rel="noopener"
+>Drew Furgiuele&lt;/a> on how to use the &lt;a class="link" href="https://dbatools.io/schwifty/" target="_blank" rel="noopener"
+>dbatools SPN commands&lt;/a>.&lt;/p></description></item><item><title>T-SQL Tuesday #135: The outstanding tools of the trade that make your job awesome</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/</link><pubDate>Tue, 09 Feb 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/</guid><description>&lt;p>&lt;a class="link" href="https://www.bronowski.it/blog/2021/02/t-sql-tuesday-135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>It’s time for February’s monthly blog party. This month is hosted by Mikey Bronowski (&lt;a class="link" href="https://www.bronowski.it/blog" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/MikeyBronowski" target="_blank" rel="noopener"
+>t&lt;/a>) and he’s asking us to write about our ‘tools of the trade’.  He’s looking for those tools that make our lives easier, ones we couldn’t imagine going without. Thanks for hosting Mikey, can’t wait to read everyone’s contributions and add some tools to my toolbelt.&lt;/p>
+&lt;p>I’m going to split this into a couple of sections. I’m sure you can all guess what’s up first though…&lt;/p>
+&lt;h2 id="powershell">PowerShell&lt;/h2>
+&lt;p>If I could only choose one tool for my toolbelt it would be PowerShell, which is actually probably cheating because there are so many options to import modules and add functionality.  I’m going to highlight five modules I use a lot below.&lt;/p>
+&lt;ol>
+&lt;li>&lt;a class="link" href="https://github.com/sqlcollaborative/dbatools" target="_blank" rel="noopener"
+>dbatools&lt;/a> – If you’ve read much of my blog before, or seen me present, it should be no surprise that dbatools is number one.  I use dbatools every day, whether it’s to check diskspace, update database owners, or a plethora of other uses.  In fact I previously wrote a post ‘&lt;a class="link" href="https://jesspomfret.com/t-sql-tuesday-101/" target="_blank" rel="noopener"
+>The Multitool of my DBA toolbox&lt;/a>’ that highlights five great use cases.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks&lt;/a> – A close friend of dbatools, dbachecks combines Pester and dbatools to create an amazing infrastructure testing module.  This is perfect for creating a morning checks dashboard, or quickly checking certain parts of your estate. For example, in my post ‘&lt;a class="link" href="https://jesspomfret.com/dbachecks-importexcel/" target="_blank" rel="noopener"
+>dbachecks meets ImportExcel&lt;/a>’ we check up on backups and database status before exporting to create an Excel report.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/pester/Pester" target="_blank" rel="noopener"
+>Pester&lt;/a> – Originally designed for unit/integration testing, I personally use this framework to test anything you can write in PowerShell. It quickly provides a clear and easy to read answer for whether everything is as expected. I’ve written about it previously to ‘&lt;a class="link" href="https://jesspomfret.com/pester-test-cluster-role-owners/" target="_blank" rel="noopener"
+>Pester test your Cluster Role Owners&lt;/a>’.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/dfinke/ImportExcel" target="_blank" rel="noopener"
+>ImportExcel&lt;/a> – This module lets you work with Excel objects, without having Excel installed.  Easily read data from spreadsheets into PowerShell, or export data to create detailed reports with a few lines of code. Our host for this T-SQL Tuesday has written a great series on this module, if you’re looking for inspiration. &lt;a class="link" href="https://www.bronowski.it/blog/tag/importexcel/" target="_blank" rel="noopener"
+>importexcel Archives - Mikey Bronowski - Blog&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/PowershellFrameworkCollective/psframework" target="_blank" rel="noopener"
+>PSFramework&lt;/a> – Finally, I want to highlight PSFramework.  Portions of this module are used within both dbatools and dbachecks.  It provides great options for both setting configuration options that can be then used in your modules as well as for creating great logging. I’ve switched to using Write-PSFMessage instead of Write-Host\Verbose\Output as it provides a lot more flexibility as well as writing to a physical log file.&lt;/li>
+&lt;/ol>
+&lt;p>I also recently wrote about &lt;a class="link" href="https://jesspomfret.com/psreadline-search-history/" target="_blank" rel="noopener"
+>PowerShell’s interactive search functionality&lt;/a>, and after a poll on Twitter was pretty shocked by how few people knew about it.  I recommend checking it out, as it is a really handy built in feature.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/jpomfret/status/1357014555638042624" target="_blank" rel="noopener"
+>https://twitter.com/jpomfret/status/1357014555638042624&lt;/a>&lt;/p>
+&lt;h2 id="microsoft-excel">Microsoft Excel&lt;/h2>
+&lt;p>Since I’ve written a lot about PowerShell previously, I wanted to highlight some other tools that I depend on. I’ve always been a fan of Excel, my personal life is full of spreadsheets – most decisions end with a spreadsheet (lucky for me, my wife is also a big fan of Excel!).  I often find myself copying data into Excel to keep track of work, or to quickly analyse data.  It’s also a great way of sharing data with a clear structure.  I’m also a big fan of shortcuts – so here’s a few I use often.&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Ctrl+;&lt;/strong> - Insert today’s date into the current cell – really useful, and avoids you having to remember we’re now in 2021!&lt;/li>
+&lt;li>&lt;strong>Ctrl+l&lt;/strong> – Select a cell within a dataset, press Ctrl+l (lowercase L), press enter. Your data is transformed into a table.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ctrlL.gif"
+loading="lazy"
+alt="Gif showing using Ctrl&amp;#43;L in Excel to create a table"
+>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Ctrl+D&lt;/strong> – Fill down, this will copy the contents of the cell above into your current cell.  Also smart enough to handle continuation of formulas.&lt;/li>
+&lt;li>&lt;strong>Ctrl+R&lt;/strong> – Fill right, same as above but it’ll copy the contents of the cell to your left into your current cell.&lt;/li>
+&lt;li>&lt;strong>Ctrl+Up/Down arrow&lt;/strong> – This will move your cursor to either the first value in the current column, or the last.  I use this a lot for navigating around worksheets/tables.&lt;/li>
+&lt;li>&lt;strong>F2&lt;/strong> – This edits a cell&amp;rsquo;s contents. It puts your cursor at the end of the value, but you can now use your arrow keys to move about in the cell. It also stops you accidentally overwriting what was already in the cell.&lt;/li>
+&lt;/ul>
+&lt;h2 id="my-bike">My Bike&lt;/h2>
+&lt;p>My final tool is my bike. Not technical at all, but a tool I use to keep fit and have some fun.  I love cycling, and in the current times it’s my best option for fitness (I’m in England – we’re deep into lockdown 3 and gyms are closed). &lt;/p>
+&lt;p>Honestly, I have a really hard time working out at home. I enjoy going to the gym, seeing some friendly faces and having someone tell me what to do for an hour.  It’s not the same at home, and my mood is instantly affected by not being active.&lt;/p>
+&lt;p>However, I’m happy to go out for a ride, and living in the South of England the weather is reasonably kind all year round.  Previously, living in Ohio there weren’t many options for winter bike riding, unless you had fat tyres and loved the snow!  I’m also lucky to be close to the South Downs (pictured below), as well as plenty of country lanes to explore.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/Bike_SouthDowns-1024x768.jpg"
+loading="lazy"
+alt="My bike on the south downs"
+>&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>Thanks for reading and hope you’ve enjoyed digging through my toolbox. Thanks again to Mikey for hosting. I always enjoy participating in these T-SQL Tuesday’s, partly because it gives me a prompt to write about, partly because it’s fun to see what everyone else wrote about.&lt;/p>
+&lt;p>Stay safe folks.&lt;/p></description></item><item><title>Discover SQL Server Permissions hidden via AD Group Membership</title><link>https://jpomfret.github.io/p/discover-sql-server-permissions-hidden-via-ad-group-membership/</link><pubDate>Tue, 26 Jan 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/discover-sql-server-permissions-hidden-via-ad-group-membership/</guid><description>&lt;p>When granting permissions to SQL Server resources we have a few options. One option is to grant permissions to Active Directory groups instead of individual users.  This has several benefits, for example, improved security over using SQL logins, and the ability to create a separation of duties when controlling database access.&lt;/p>
+&lt;p>However, it does add an extra step when trying to determine who has what access to your SQL Servers. It can also make troubleshooting permission issues more challenging.  This post is going to aim to simplify this by combining dbatools and ActiveDirectory PowerShell modules to provide a clear solution.&lt;/p>
+&lt;h2 id="setup">&lt;strong>Setup&lt;/strong>&lt;/h2>
+&lt;p>This is obviously not needed in our actual environments, this is just how I prepared my lab so I could demonstrate how we can solve this problem.  Feel free to skip ahead to the solution if you already have plenty of AD groups to investigate.&lt;/p>
+&lt;p>The full code sample is available in my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/07_PermisssionsGrantedViaADGroups.ps1" target="_blank" rel="noopener"
+>GitHub demos repo&lt;/a>.&lt;/p>
+&lt;p>First, I created some AD users and groups to use in my lab. This is easily achieved with the AD PowerShell module using &lt;code>New-AdUser&lt;/code> and &lt;code>New-AdGroup&lt;/code>. Then, using &lt;code>Add-AdGroupMember&lt;/code>, I added two users into the newly created group.&lt;/p>
+&lt;p># setup - create some AD users\groups uing the ActiveDirectory module&lt;/p>
+&lt;h1 id="create-several-new-ad-users">create several new ad users&lt;/h1>
+&lt;p>(&amp;lsquo;pomfretJ&amp;rsquo;,&amp;lsquo;smithA&amp;rsquo;, &amp;lsquo;jonesP&amp;rsquo;,&amp;lsquo;barnesR&amp;rsquo;).foreach{New-AdUser $_}&lt;/p>
+&lt;h1 id="view-newly-created-users">view newly created users&lt;/h1>
+&lt;p>$date = (get-date).AddHours(-1)
+get-aduser -filter {created -gt $date} | select name&lt;/p>
+&lt;h1 id="create-a-new-ad-group">create a new Ad group&lt;/h1>
+&lt;p>$newAdGroup = @{
+Name = &amp;lsquo;AdventureWorksReadOnly&amp;rsquo;
+GroupCategory = &amp;lsquo;Security&amp;rsquo;
+GroupScope = &amp;lsquo;Global&amp;rsquo;
+Path = &amp;lsquo;CN=Users,DC=pomfret,DC=com&amp;rsquo;
+}
+New-ADGroup @newAdGroup&lt;/p>
+&lt;h1 id="add-users-to-group">add users to group&lt;/h1>
+&lt;p>$addMemberGroup = @{
+Identity = &amp;lsquo;AdventureWorksReadOnly&amp;rsquo;
+Members = &amp;lsquo;pomfretj&amp;rsquo;, &amp;lsquo;jonesP&amp;rsquo;
+}
+Add-ADGroupMember @addMemberGroup&lt;/p>
+&lt;p>The second part of the setup was to add an AD group and an AD user to the SQL Server and grant some permissions using dbatools.&lt;/p>
+&lt;p># setup - grant permissions to ad users\groups using dbatools&lt;/p>
+&lt;h1 id="add-ad-group-and-grant-permissions-db_datareader-to-adventureworks">add ad group and grant permissions (db_datareader to AdventureWorks)&lt;/h1>
+&lt;p>New-DbaLogin -SqlInstance dscsvr1 -Login &amp;lsquo;Pomfret\AdventureWorksReadOnly&amp;rsquo;
+New-DbaDbUser -SqlInstance dscsvr1 -Database AdventureWorks2017 -Login &amp;lsquo;Pomfret\AdventureWorksReadOnly&amp;rsquo;
+Add-DbaDbRoleMember -SqlInstance dscsvr1 -Database AdventureWorks2017 -Role db_datareader -User &amp;lsquo;Pomfret\AdventureWorksReadOnly&amp;rsquo; -Confirm:$false&lt;/p>
+&lt;h1 id="add-ad-user-to-sql-server-and-provide-permissions-db_owner-to-adventureworks">add ad user to sql server and provide permissions (db_owner to AdventureWorks)&lt;/h1>
+&lt;p>New-DbaLogin -SqlInstance dscsvr1 -Login &amp;lsquo;Pomfret\smithA&amp;rsquo;
+New-DbaDbUser -SqlInstance dscsvr1 -Database AdventureWorks2017 -Login &amp;lsquo;Pomfret\smithA&amp;rsquo;
+Add-DbaDbRoleMember -SqlInstance dscsvr1 -Database AdventureWorks2017 -Role db_owner -User &amp;lsquo;Pomfret\smithA&amp;rsquo; -Confirm:$false&lt;/p>
+&lt;h2 id="viewing-database-access">&lt;strong>Viewing database access&lt;/strong>&lt;/h2>
+&lt;p>Now that my lab environment is set up, let’s take a look at database users that have access to the AdventureWorks2017 database.  This is an easy task thanks to dbatools, we can just use &lt;code>Get-DbaDbUser&lt;/code>. Shown below, you can clearly see there is a WindowsUser &amp;lsquo;smithA&amp;rsquo; that has access, as well as a WindowsGroup &amp;lsquo;AdventureWorksReadOnly&amp;rsquo;.&lt;/p>
+&lt;p># Find users that have permissions through group membership
+Get-DbaDbUser -SqlInstance dscsvr1 -Database AdventureWorks2017 -ExcludeSystemUser | Select-Object SqlInstance, Database, Login, LoginType, HasDbAccess&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/01/GetDbaDbUser.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/GetDbaDbUser.png"
+loading="lazy"
+alt="Get-DbaDbUser results"
+>&lt;/a>&lt;/p>
+&lt;p>We can also use &lt;code>Get-DbaDbRoleMember&lt;/code> to see exactly which database roles these users have been granted. &lt;/p>
+&lt;p>Get-DbaDbRoleMember -SqlInstance dscsvr1 -Database AdventureWorks2017 | Select-Object SqlInstance, Database, role, Login&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/01/Get-DbaDbRoleMember.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/Get-DbaDbRoleMember.png"
+loading="lazy"
+alt="Get-DbaDbRoleMember output"
+>&lt;/a>&lt;/p>
+&lt;p>The issue is the same for both these examples, we don’t know which users are inheriting the permissions granted to the &amp;lsquo;AdventureWorksReadOnly&amp;rsquo; group. This is where we need to combine these two modules to get the answers we need.&lt;/p>
+&lt;p>There are several ways you could combine the output of two functions. For this example I’m going to use a calculated property.&lt;/p>
+&lt;p>If I run the exact same code as before to get a list of role members from the dbatools function &lt;code>Get-DbaDbRoleMember&lt;/code>, I can add a calculated property in the Select-Object to lookup the members of that specific group from active directory.  In the example below you can see the &amp;lsquo;AdventureWorksReadOnly&amp;rsquo; group has two members, and we now know that both &amp;lsquo;pomfretJ&amp;rsquo; and &amp;lsquo;jonesP&amp;rsquo; have read access to the AdventureWorks2017 database. &lt;/p>
+&lt;p>You can also still see the WindowsUser, &amp;lsquo;smithA&amp;rsquo;, has db_owner permissions.  Since that lookup didn’t return any results (obviously, since it’s a user not a group), the GroupMembers property remains empty.&lt;/p>
+&lt;p>Get-DbaDbRoleMember -SqlInstance dscsvr1 -Database AdventureWorks2017 |
+Select-Object SqlInstance, Database, Role, LoginType, Login, @{l=&amp;lsquo;GroupMembers&amp;rsquo;;e={ (Get-AdGroupMember -Identity ($_.Login).Split(&amp;rsquo;\&amp;rsquo;)[1]).Name }}&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/01/FinalOutput.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/FinalOutput.png"
+loading="lazy"
+alt="Combining Get-DbaDbRoleMember &amp; Get-AdGroupMember"
+>&lt;/a>&lt;/p>
+&lt;p>You can also use this same code to determine specific user access, for example, by adding a Where-Object to see just the permissions granted to &amp;lsquo;pomfretJ&amp;rsquo;.&lt;/p>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>This should give you an easy option for determining specific user access that is hidden behind AD groups, and I think reduces one of the negatives of using AD groups in this situation.  It also shows us that we can combine multiple functions into one to get all the information we need with one easy line of code.&lt;/p>
+&lt;p>I would also encourage you to explore the other permission related dbatools functions available, including &lt;code>Get-DbaServerRole&lt;/code> and &lt;code>Get-DbaPermission&lt;/code>. These can also be used in combination with &lt;code>Get-AdGroupMember&lt;/code> to enhance the results.&lt;/p></description></item><item><title>Easily Create A Copy Of Your Database For Testing</title><link>https://jpomfret.github.io/p/easily-create-a-copy-of-your-database-for-testing/</link><pubDate>Tue, 19 Jan 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/easily-create-a-copy-of-your-database-for-testing/</guid><description>&lt;p>Have you ever wanted to quickly backup/restore a database to the same instance to do some side by side testing? Perhaps to make some index changes or code changes, without actually changing the live copy of the database?  Ideally you’d already have another environment for this sort of work, but even then sometimes it’s handy to have a quick option.&lt;/p>
+&lt;p>Let’s first take a look at the databases on my SQL Server- we can use a GUI tool for that (SSMS, ADS) or we can use dbatools.&lt;/p>
+&lt;p>Get-DbaDatabase -SqlInstance mssql1 | Select-Object SqlInstance, Name, Status, Size&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDatabase.jpg"
+loading="lazy"
+alt="Get-DbaDatabase"
+>&lt;/p>
+&lt;p>We’re working hard on the AdventureWorks2017 database, perhaps getting it ready for an upgrade – since it’s now 3+ years out of date.&lt;/p>
+&lt;p>dbatools has so many functions, and I know I’ve mentioned it before, but &lt;code>Find-DbaCommand&lt;/code> is a great way of looking for what we need. I want to know what the default backup path is set to, and since I’m just backing up and restoring to the same server, we already know that the instance has the required permissions here. If only there was an easy button for this…&lt;/p>
+&lt;p>Find-DbaCommand *default*path*backup*&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/findcommand.jpg"
+loading="lazy"
+alt="results of Find-DbaCommand"
+>&lt;/p>
+&lt;p>Even just reading the synopsis, I can see that &lt;code>Get-DbaDefaultPath&lt;/code> will give me exactly what I need.  I recommend the next step is running &lt;code>Get-Help Get-DbaDefaultPath -ShowWindow&lt;/code>, that’ll create a popup that provides all the information you need about the function.&lt;/p>
+&lt;p>The only required parameter is a SqlInstance, and you can see the backup property returns gives us the path we need for our copy.&lt;/p>
+&lt;p>Get-DbaDefaultPath -SqlInstance mssql1&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDbaDefaultPath.jpg"
+loading="lazy"
+alt="Get-DbaDefaultPath output"
+>&lt;/p>
+&lt;p>That’s all the groundwork done- we have our instance, database, and a location to backup/restore from.  We’re going to want to check we have enough disk space available on both the instance and that backup path, then we’re ready to go.&lt;/p>
+&lt;h2 id="using-copy-dbadatabase">&lt;strong>Using Copy-DbaDatabase&lt;/strong>&lt;/h2>
+&lt;p>I’ve already spoken and blogged a lot about the power of this command (related links at the end of this post), but today’s tip is centred around a less than well-known parameter.  Hidden deep in the comment based help (another great reason to read all of &lt;code>Get-Help Copy-DbaDatabase -ShowWindow&lt;/code>) you’ll find the ‘Prefix’ parameter. This will allow us to easily add a prefix to both the database and the associated files, meaning we won’t have any issues restoring the database to the same server.&lt;/p>
+&lt;p>-Prefix &lt;!-- raw HTML omitted --> &lt;br>
+All copied database names and physical files will be prefixed with this string&lt;/p>
+&lt;p>This option is mutually exclusive of NewName&lt;/p>
+&lt;p>Required? false
+Position? named
+Default value &lt;br>
+Accept pipeline input? False
+Accept wildcard characters? false&lt;/p>
+&lt;p>Here I’ve set a SqlInstance variable so I can reuse the same value multiple times in my code. Then created a hash table ‘$copySplat’ with the necessary parameters so we can utilise splatting (a way to improve code readability) to pass the whole set into &lt;code>Copy-DbaDatabase&lt;/code>. &lt;/p>
+&lt;p>Two parameters I want to highlight- I’ve set ‘Prefix’, meaning the database and files for the restored database will start with ‘Test’.  I’ve also set SharedPath and used the code we already wrote to get the default backup path.&lt;/p>
+&lt;p>$sqlInstance = &amp;lsquo;mssql1&amp;rsquo;&lt;/p>
+&lt;p>$copySplat = @{
+Source = $sqlInstance
+Destination = $sqlInstance
+Database = &amp;lsquo;AdventureWorks2017&amp;rsquo;
+BackupRestore = $true
+SharedPath = (Get-DbaDefaultPath -SqlInstance $sqlInstance).Backup
+Prefix = &amp;lsquo;Test&amp;rsquo;
+}
+Copy-DbaDatabase @copySplat&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/copyDatabase.jpg"
+loading="lazy"
+alt="Copy-DbaDatabase"
+>&lt;/p>
+&lt;p>The output below shows the migration was successful, and there were no warnings or errors (those would appear in the notes column).&lt;/p>
+&lt;p>Finally, let’s confirm it worked by rerunning our &lt;code>Get-DbaDatabase&lt;/code> command again:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDatabaseAfter.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Extra proof, it’s now accessible through Azure Data Studio (ADS) and we’re ready to start our testing.  One note, if you are on the same server it’s important to confirm any code you run isn’t referencing the original database name.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ADSView.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;h2 id="additional-content">&lt;strong>Additional content&lt;/strong>&lt;/h2>
+&lt;p>As I mentioned I have already spoken and written about the power of &lt;code>Copy-DbaDatabase&lt;/code>, one of my favourite commands.  If you’d like to read more, I’ve written a post on the dbatools blog, &lt;a class="link" href="https://dbatools.io/migrating-application-dbs/" target="_blank" rel="noopener"
+>migrating application databases with dbatools&lt;/a>.&lt;/p>
+&lt;p>I’ve also recorded a short ‘Life hack’ video, &lt;a class="link" href="https://www.youtube.com/watch?v=Fraig15pwxE&amp;amp;t=1s" target="_blank" rel="noopener"
+>easy database migrations with dbatools&lt;/a> that I’ve published on my YouTube channel.&lt;/p></description></item><item><title>Ensure Query Store meets best practice across your environment</title><link>https://jpomfret.github.io/p/ensure-query-store-meets-best-practice-across-your-environment/</link><pubDate>Tue, 24 Nov 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/ensure-query-store-meets-best-practice-across-your-environment/</guid><description>&lt;p>It’s no secret that I love dbatools and dbachecks. I am certain that I run a dbatools command at least once a day. It has fundamentally changed how I work as a dba, and it makes my life so much easier.  I mention this when I’m presenting on these topics, but today I want to highlight what I consider the special sauce of open-source software.&lt;/p>
+&lt;p>dbatools not only provides us with easy to run functions that get/set/test so many aspects of our environments, but it also encapsulates the knowledge of industry experts, and that right there is part of the magic. For example, I no longer have to remember &lt;a class="link" href="https://www.sqlskills.com/blogs/jonathan/how-much-memory-does-my-sql-server-actually-need/" target="_blank" rel="noopener"
+>Jonathan Kehayias’ detailed calculations&lt;/a> for max memory. I can just run &lt;a class="link" href="https://docs.dbatools.io/#Test-DbaMaxMemory" target="_blank" rel="noopener"
+>Test-DbaMaxMemory&lt;/a> to check whether I need to adjust my settings.&lt;/p>
+&lt;p>I would like to just say I’m in no way suggesting that we can skip the learning here, reading posts from experts and understanding why is vital – just it’s nice to be able to quickly call this knowledge from PowerShell rather from the depths of my brain (and that’s hoping it’s still stored in there).&lt;/p>
+&lt;h2 id="adding-query-store-expertise-to-dbatools">&lt;strong>Adding Query Store Expertise to dbatools&lt;/strong>&lt;/h2>
+&lt;p>Last week I was working on configuring Query Store, and knowing that Erin Stellato (&lt;a class="link" href="https://www.sqlskills.com/blogs/erin/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/erinstellato" target="_blank" rel="noopener"
+>t&lt;/a>) is the expert on that I headed over to her blog. I found exactly what I needed. Erin has a bunch of great posts on query store, but this one caught my eye: &amp;lsquo;&lt;a class="link" href="https://www.sqlskills.com/blogs/erin/query-store-best-practices" target="_blank" rel="noopener"
+>Query Store Best Practices&lt;/a>&amp;rsquo;.&lt;/p>
+&lt;p>I read through her suggestions and could easily translate those using dbatools to optimally configure Query Store. First by setting several query store options using &lt;code>Set-DbaDbQueryStoreOption&lt;/code>:&lt;/p>
+&lt;p>$queryStoreBP = @{
+SqlInstance = &amp;lsquo;mssql1&amp;rsquo;
+Database = &amp;lsquo;TestDb&amp;rsquo;
+State = &amp;lsquo;ReadWrite&amp;rsquo;
+MaxSize = 2048
+CaptureMode = &amp;lsquo;Auto&amp;rsquo;
+CollectionInterval = 30
+}
+Set-DbaDbQueryStoreOption @queryStoreBP&lt;/p>
+&lt;p>Secondly by configuring two trace flags using &lt;code>Set-DbaStartupParameter&lt;/code> (reboot required):&lt;/p>
+&lt;p>Set-DbaStartupParameter -SqlInstance mssql1 -TraceFlag 7745,7752&lt;/p>
+&lt;p>Once I was happy with my settings, I realised we were missing a ‘test’ command for dbatools. The suite of ‘test’ functions in dbatools (a lot that end up as checks in dbachecks btw!), give us an easy way to check our environment against best practices, or our desired settings.&lt;/p>
+&lt;p>Since dbatools is open-source I was able to write this function (&lt;a class="link" href="https://docs.dbatools.io/#Test-DbaDbQueryStore" target="_blank" rel="noopener"
+>Test-DbaDbQueryStore&lt;/a>) and get it added into the module. It’s included as of version 1.0.131, so make sure you’re up to date.  Taking Erin’s suggestions and wrapping them in a little PowerShell, I can make it easier for myself and everyone else to make sure we’re following her guidelines.&lt;/p>
+&lt;p>To test a single database you can use the following. It will output each setting, it’s current value, the recommended value, as well as a note from Erin’s blog post on why we should choose that. Again, I recommend you read her post to fully understand the why.&lt;/p>
+&lt;p>Test-DbaDbQueryStore -SqlInstance mssql1 -Database testdb&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/querystoreBP.jpg"
+loading="lazy"
+alt="Sample output from Test-DbaDbQueryStore showing a couple of best practices"
+>&lt;/p>
+&lt;p>This also means we can find any databases across many instances that aren’t set up to meet best practices:&lt;/p>
+&lt;p>$results = Test-DbaDbQueryStore -SqlInstance mssql1, mssql2 |
+Where-Object {-not $_.IsBestPractice} |
+Select-Object SqlInstance, Database, Name, Value, RecommendedValue
+$results | Format-Table&lt;/p>
+&lt;h2 id="so-over-to-you">So, over to you&lt;/h2>
+&lt;p>Step 1 – Go and read the why - &amp;lsquo;&lt;a class="link" href="https://www.sqlskills.com/blogs/erin/query-store-best-practices" target="_blank" rel="noopener"
+>Query Store Best Practices&lt;/a>&amp;rsquo;.&lt;/p>
+&lt;p>Step 2 – Easily make sure your environment is up to par.&lt;/p></description></item><item><title>dbachecks meets ImportExcel</title><link>https://jpomfret.github.io/p/dbachecks-meets-importexcel/</link><pubDate>Fri, 28 Aug 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/dbachecks-meets-importexcel/</guid><description>&lt;p>I got a message from a friend on Twitter last night asking ‘Is there an easy way to get dbachecks backup info into an Excel spreadsheet?’.  I sent them a couple of ideas, but figured this is a great use case that many people might be interested in. Pairing infrastructure testing using dbachecks with creating Excel reports with the ImportExcel module is a great addition to your automation tool belt. I also had ImportExcel on my mind this week after watching some great demos from Mikey Bronowski (&lt;a class="link" href="https://www.bronowski.it/blog/2020/06/powershell-into-excelimportexcel-module-part-1/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/mikeybronowski" target="_blank" rel="noopener"
+>t&lt;/a>) at a user group earlier this week.&lt;/p>
+&lt;h2 id="run-the-checks">&lt;strong>Run the Checks&lt;/strong>&lt;/h2>
+&lt;p>First step is to run some checks. I’ve previously written about using &lt;a class="link" href="https://jesspomfret.com/checking-backups-with-dbachecks/" target="_blank" rel="noopener"
+>dbachecks to check on your SQL Server database backups&lt;/a>, so I’m going to use that as a base here.&lt;/p>
+&lt;p>I’m not going to change any of the configuration options, but that is covered in the post I linked to above. I am going to add the &lt;code>DatabaseStatus&lt;/code> check with the default configuration to ensure all my databases are online.&lt;/p>
+&lt;p>$sqlinstances = &amp;lsquo;mssql1&amp;rsquo;,&amp;lsquo;mssql2&amp;rsquo;,&amp;lsquo;mssql3&amp;rsquo;,&amp;lsquo;mssql4&amp;rsquo;
+$testResults = Invoke-DbcCheck -SqlInstance $sqlinstances -Check LastBackup, DatabaseStatus -PassThru&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2020/08/tests.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tests.jpg"
+loading="lazy"
+alt="dbachecks results in PowerShell"
+>&lt;/a>&lt;/p>
+&lt;p>You can see I have a nice balance of green (passed tests) and red (failed tests). Not really the balance we’re looking for in production, but perfect for a demo environment.&lt;/p>
+&lt;p>Using the &lt;code>-PassThru&lt;/code> parameter means that the test results are both displayed on screen and saved to my $testResults variable. We’ll use that to create our report.&lt;/p>
+&lt;h2 id="create-the-report--option-1-export-csv">&lt;strong>Create the Report – Option 1: Export-Csv&lt;/strong>&lt;/h2>
+&lt;p>The first option we have here is to just get the data into a csv. We can do that natively in PowerShell using the &lt;code>Export-Csv&lt;/code> function.&lt;/p>
+&lt;p>$testResults.TestResult |
+Select-Object Describe, Context, Name, Result, FailureMessage |
+Export-Csv c:\temp\backups.csv -NoTypeInformation&lt;/p>
+&lt;p>This will get our data into a csv, which we can then manipulate in Excel.&lt;/p>
+&lt;h2 id="create-the-report--option-2-export-excel">&lt;strong>Create the Report – Option 2: Export-Excel&lt;/strong>&lt;/h2>
+&lt;p>The second option is to use the ImportExcel module. This is easily in my top 5 all-time favourite PowerShell modules. With this module we can create a great looking Excel report in just a few lines. The following will take our test results and create two worksheets in one Excel file.  The first sheet will contain our raw data, formatted as an Excel table with some conditional formatting to highlight the failed tests. The second tab will contain a pivot table/chart of our results broken down by the test type and result.&lt;/p>
+&lt;p>$ConditionalFormat =$(
+New-ConditionalText -Text Failed -Range &amp;lsquo;D:D&amp;rsquo;
+)&lt;/p>
+&lt;p>$excelSplat = @{
+Path = &amp;lsquo;C:\Temp\Backups.xlsx&amp;rsquo;
+WorkSheetName = &amp;lsquo;TestResults&amp;rsquo;
+TableName = &amp;lsquo;Results&amp;rsquo;
+Autosize = $true
+ConditionalFormat = $ConditionalFormat
+IncludePivotTable = $true
+PivotRows = &amp;lsquo;Describe&amp;rsquo;
+PivotData = @{Describe=&amp;lsquo;Count&amp;rsquo;}
+PivotColumns = &amp;lsquo;Result&amp;rsquo;
+IncludePivotChart = $true
+ChartType = &amp;lsquo;ColumnStacked&amp;rsquo;
+}&lt;/p>
+&lt;p>$testResults.TestResult |
+Select-Object Describe, Context, Name, Result, FailureMessage |
+Export-Excel @excelSplat&lt;/p>
+&lt;p>The final results are shown below. With so many more checks available in the dbachecks module it would be easy to expand on this example and get a comprehensive report of your environment.&lt;/p>
+&lt;p>The full script is available on &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/06_dbachecksToExcel.ps1" target="_blank" rel="noopener"
+>my Github&lt;/a> demos repo.&lt;/p>
+&lt;p>Results Worksheet:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/excelSheet-1024x369.jpg"
+loading="lazy"
+alt="excel screenshot showing results worksheet"
+>&lt;/p>
+&lt;p>Pivot Table/Chart:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/pivot-1024x524.jpg"
+loading="lazy"
+alt="excel screenshot of pivot chart and table"
+>&lt;/p></description></item><item><title>Get a list of databases from named SQL Instances</title><link>https://jpomfret.github.io/p/get-a-list-of-databases-from-named-sql-instances/</link><pubDate>Tue, 18 Aug 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/get-a-list-of-databases-from-named-sql-instances/</guid><description>&lt;p>Have you ever had someone send you the name of a SQL Server and database to do some work, but when you try to connect to the server you can’t? Then,come to find out, there are four named instances on the box and you don’t know which one hosts the database? No? Just me?&lt;/p>
+&lt;p>Luckily, dbatools has a couple of commands that can help us out with this. Firstly, we can use &lt;code>Get-DbaService&lt;/code> to get a list of instances that are running on the server:&lt;/p>
+&lt;p>$SqlInstances = Get-DbaService -ComputerName mssql1 -Type Engine |
+Select @{L=&amp;lsquo;SqlInstance&amp;rsquo;;e={(&amp;rsquo;{0}\{1}&amp;rsquo; -f $_.ComputerName, $_.InstanceName)}}&lt;/p>
+&lt;p>I went ahead and piped this to the Select-Object and built the SqlInstance property to be ‘ServerName\InstanceName’.  We can now use this in any of the other dbatools commands. For my use case I wanted database information, so I went with &lt;code>Get-DbaDatabase&lt;/code>:&lt;/p>
+&lt;p>Get-DbaDatabase -SqlInstance $SqlInstances.SqlInstance |
+Format-Table SqlInstance, Name, Status, RecoveryModel -AutoSize&lt;/p>
+&lt;p>This made it easy for me to find the database in question without having to connect to each instance manually.&lt;/p>
+&lt;p>You could also use this if you had a list of servers by just passing in a comma seperated list to the &lt;code>-ComputerName&lt;/code> parameter on &lt;code>Get-DbaService&lt;/code>.&lt;/p>
+&lt;p>Just a short post today, but hopefully useful to somebody.&lt;/p></description></item><item><title>Truncate all the Tables in a Database with PowerShell</title><link>https://jpomfret.github.io/p/truncate-all-the-tables-in-a-database-with-powershell/</link><pubDate>Tue, 30 Jun 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/truncate-all-the-tables-in-a-database-with-powershell/</guid><description>&lt;p>&lt;strong>TLDR&lt;/strong>; &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/05_TruncateAllTables.ps1" target="_blank" rel="noopener"
+>This code&lt;/a> will script out foreign keys and views (including object level permissions), drop the objects, truncate all the tables, and recreate the objects.&lt;/p>
+&lt;h2 id="the-details">The Details&lt;/h2>
+&lt;p>The most popular post on my blog so far was called ‘&lt;a class="link" href="https://jesspomfret.com/disable-all-triggers/" target="_blank" rel="noopener"
+>Disable all Triggers on a Database&lt;/a>’ and this one is a good follow up from that post.&lt;/p>
+&lt;p>The scenario here is you need to remove all the data from the tables in your database. This could be as part of a refresh process, or perhaps to clear out test data that has been entered through an application.  Either way, you want to truncate all the tables in your database.&lt;/p>
+&lt;p>Using a copy of the AdventureWorks2017 database for my demos, the easiest option to truncate all the tables is to script out truncate statements using the metadata stored in &lt;code>sys.tables&lt;/code>.&lt;/p>
+&lt;p>SELECT &amp;lsquo;Truncate table &amp;rsquo; + QUOTENAME(SCHEMA_NAME(schema_id)) + &amp;lsquo;.&amp;rsquo; + QUOTENAME(name)
+FROM sys.tables&lt;/p>
+&lt;p>You’ll get a results set like shown below which you can copy out into a new query window and execute.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/TruncateFromSysTables.png"
+loading="lazy"
+alt="select from sys.tables to generate truncate statements"
+>&lt;/p>
+&lt;p>The problem is if you have foreign keys, even if you order the truncate statements to remove the dependent data first, you can’t issue a truncate statement. The way around this is to script out the foreign keys, drop them, run the truncate statements and then recreate the foreign keys. This is not difficult in T-SQL, but it’s easier with PowerShell and a little bit of &lt;a class="link" href="https://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> magic.&lt;/p>
+&lt;h2 id="truncate-tables-with-powershell">Truncate tables with PowerShell&lt;/h2>
+&lt;p>The full script is available up on my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/05_TruncateAllTables.ps1" target="_blank" rel="noopener"
+>Github&lt;/a>, but I’ll walk through the process here. During my post on disabling triggers I stored the previously enabled triggers in a variable to reuse during the script.  I had a really great comment on this post that pointed out a problem: if the session crashed for some reason we would lose the list of triggers we wanted to enable. I will solve that problem in this post by instead of using a variable, saving the information in a temporary file.&lt;/p>
+&lt;p>First things first, we need to set up a couple of variables to define our SqlInstance, database and the folder we’ll use as our workspace.&lt;/p>
+&lt;p>I’ll then use &lt;code>Connect-DbaInstance&lt;/code> to connect to the instance and save the smo object. This will save having to reconnect to the instance multiple times.&lt;/p>
+&lt;p>$sqlInstance = &amp;lsquo;mssql1&amp;rsquo;
+$database = &amp;lsquo;AdventureWorks2017&amp;rsquo;
+$tempFolder = &amp;lsquo;C:\temp&amp;rsquo;&lt;/p>
+&lt;p>$svr = Connect-DbaInstance -SqlInstance $sqlInstance&lt;/p>
+&lt;p>The next step is to collect the foreign keys that we’ll need to drop and recreate. It’s important to note here there are also some views that depend on these tables, so I can also collect that information at the same time. &lt;/p>
+&lt;p># Collect up the objects we need to drop and recreate
+$objects = @()
+$objects += Get-DbaDbForeignKey -SqlInstance $svr -Database $database
+$objects += Get-DbaDbView -SqlInstance $svr -Database $database -ExcludeSystemView&lt;/p>
+&lt;p>Now that we have collected the objects into a variable we can pipe this to the &lt;code>Export-DbaScript&lt;/code> command to generate T-SQL scripts for both dropping and then recreating the objects. Something to take into consideration when dropping and recreating views is that if there are permissions set at the object level we need to include those in our create scripts.  We can use the &lt;code>New-DbaScriptingOption&lt;/code> command to set the options we care about when we create the scripts.&lt;/p>
+&lt;p>Here we are including the permissions, the ‘ScriptBatchTerminator’, which will add ‘Go’ between objects, and finally setting the file type to ANSI.  When we call &lt;code>Export-DbaScript&lt;/code> we can then use these options for the &lt;code>-ScriptingOptionsObject&lt;/code> parameter.&lt;/p>
+&lt;p># Script out the create statements for objects
+$createOptions = New-DbaScriptingOption
+$createOptions.Permissions = $true
+$createOptions.ScriptBatchTerminator = $true
+$createOptions.AnsiFile = $true&lt;/p>
+&lt;p>$objects | Export-DbaScript -FilePath (&amp;rsquo;{0}\CreateObjects.Sql&amp;rsquo; -f $tempFolder) -ScriptingOptionsObject $createOptions&lt;/p>
+&lt;p>We also need to script out the drop statements. To do that we’ll create another options object, this time setting &lt;code>ScriptDrops&lt;/code> to true. Then we’ll again call &lt;code>Export-DbaScript&lt;/code> with the &lt;code>-ScriptingOptionsObject&lt;/code> parameter.&lt;/p>
+&lt;p># Script out the drop statements for objects
+$options = New-DbaScriptingOption
+$options.ScriptDrops = $true
+$objects| Export-DbaScript -FilePath (&amp;rsquo;{0}\DropObjects.Sql&amp;rsquo; -f $tempFolder) -ScriptingOptionsObject $options&lt;/p>
+&lt;p>Once we have the scripts safely in our temporary folder we’ll run three simple statements.&lt;/p>
+&lt;p>First, we’ll run the drop statements we scripted out.&lt;/p>
+&lt;p>Second, remember we saved the smo connection to our server in the &lt;code>$svr&lt;/code> variable. We’ll use that to access all the tables in our database, pipe that to a &lt;code>Foreach-Object&lt;/code> and call the &lt;code>TruncateData&lt;/code> method.&lt;/p>
+&lt;p>Third, we’ll call &lt;code>Invoke-DbaQuery&lt;/code> to recreate the foreign keys and the views we previously dropped.&lt;/p>
+&lt;p># Run the drop scripts
+Invoke-DbaQuery -SqlInstance $svr -Database $database -File (&amp;rsquo;{0}\DropObjects.Sql&amp;rsquo; -f $tempFolder)&lt;/p>
+&lt;h1 id="truncate-the-tables">Truncate the tables&lt;/h1>
+&lt;p>$svr.databases[$database].Tables | ForEach-Object { $_.TruncateData() }&lt;/p>
+&lt;h1 id="run-the-create-scripts">Run the create scripts&lt;/h1>
+&lt;p>Invoke-DbaQuery -SqlInstance $svr -Database $database -File (&amp;rsquo;{0}\CreateObjects.Sql&amp;rsquo; -f $tempFolder)&lt;/p>
+&lt;p>The final step is to clear up the script files we saved to the temporary folder.&lt;/p>
+&lt;p># Clear up the script files
+Remove-Item (&amp;rsquo;{0}\DropObjects.Sql&amp;rsquo; -f $tempFolder), (&amp;rsquo;{0}\CreateObjects.Sql&amp;rsquo; -f $tempFolder)&lt;/p>
+&lt;p>This script can be reused for any database that you may need to clear out. As I was writing this post, I realised this could probably be a dbatools command… watch this space. ?&lt;/p></description></item><item><title>Using PSDefaultParameterValues for connecting to SQL Server in containers</title><link>https://jpomfret.github.io/p/using-psdefaultparametervalues-for-connecting-to-sql-server-in-containers/</link><pubDate>Wed, 27 May 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/using-psdefaultparametervalues-for-connecting-to-sql-server-in-containers/</guid><description>&lt;p>I’ve written previously about using containers for demos on my laptop, specifically for my &lt;a class="link" href="https://jesspomfret.com/data-compression-containers/" target="_blank" rel="noopener"
+>data compression talk&lt;/a>.  Since I switched those demos over I haven’t looked back- if it’s possible to run my demos off of containers I always choose that option.&lt;/p>
+&lt;p>I recently presented a talk called ‘Life Hacks: dbatools edition’ which walks through 6 scenarios where you can immediately implement dbatools to quickly reap the rewards.  The demos can all be run on containers, but I did need to get a little more complex to be able to show off dbatools migration commands. To do this I used a docker compose file.&lt;/p>
+&lt;p>The compose file creates one instance straight from the Microsoft SQL Server 2019 image and a second one from a dockerfile that specifies the base SQL Server 2017 image, copies in the files needed to attach the AdventureWorks2017 database, and runs some SQL to get everything setup exactly as desired. Feel free to check out this &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/LifeHacks_dbatools/Docker/docker-compose.yml" target="_blank" rel="noopener"
+>setup on my Github&lt;/a>.&lt;/p>
+&lt;p>One of the things that bothered me about running my demos on containers was that I couldn’t use windows authentication. Instead I had to pass in a SQL login to connect for every command.&lt;/p>
+&lt;h2 id="enter-psdefaultparametervalues">Enter PSDefaultParameterValues&lt;/h2>
+&lt;p>I first heard about PSDefaultParameterValues from a &lt;a class="link" href="https://github.com/PSPowerHour/PSPowerHour/tree/master/materials/2018-08-21/potatoqualitee" target="_blank" rel="noopener"
+>PSPowerHour session by Chrissy LeMaire&lt;/a> in 2018. After rewatching this recently, I realised she even mentioned this exact scenario. However, it took until I recently rediscovered this handy preference variable that it all clicked together.&lt;/p>
+&lt;p>PSDefaultParameterValues does exactly what the name suggests- it lets you specify default values for parameters. PSDefaultParameterValues can be set as a hash table of parameter names and values that will be used in your session for any function that can use it.  A simple example is the verbose parameter. If you wanted to turn on the &lt;code>-Verbose&lt;/code> switch for every function you run you could add &lt;code>-Verbose&lt;/code> to each function call, or you could set PSDefaultParameterValues.&lt;/p>
+&lt;h3 id="option-1--add--verbose-to-individual-commands">Option 1 – Add &lt;code>-Verbose&lt;/code> to individual commands&lt;/h3>
+&lt;p>Get-DbaDbBackupHistory -SqlInstance mssql1 -Verbose
+Repair-DbaDbOrphanUser -SqlInstance mssql1 -Verbose&lt;/p>
+&lt;h3 id="option-2--set-psdefaultparametervalues">Option 2 – Set PSDefaultParameterValues&lt;/h3>
+&lt;p>$PSDefaultParameterValues = @{ &amp;lsquo;*:Verbose&amp;rsquo; = $True }
+Get-DbaDbBackupHistory -SqlInstance mssql1
+Repair-DbaDbOrphanUser -SqlInstance mssql1&lt;/p>
+&lt;p>One thing to note when specifying PSDefaultParameterValues as I have above: this will overwrite any parameters you already have saved to PSDefaultParameterValues, so be careful. Another way to set &lt;code>-Verbose&lt;/code> to true would be to use the following notation:&lt;/p>
+&lt;p>$PSDefaultParameterValues[&amp;rsquo;*:Verbose&amp;rsquo;] = $True&lt;/p>
+&lt;h2 id="getting-more-specific">Getting more specific&lt;/h2>
+&lt;p>In the above examples I’m using a wildcard (*) on the left side to specify that this parameter is for all functions. You can also focus in PSDefaultParameterValues by specifying one certain function name that the parameter value will apply to:&lt;/p>
+&lt;p>$PSDefaultParameterValues[&amp;lsquo;Get-DbaDbTable:Verbose&amp;rsquo;] = $True&lt;/p>
+&lt;p>You can also specify just the dbatools commands by taking advantage of their naming conventions and using:&lt;/p>
+&lt;p>$PSDefaultParameterValues[&amp;rsquo;*-Dba*:Verbose&amp;rsquo;] = $True&lt;/p>
+&lt;h2 id="psdefaultparametervalues-for-connecting-to-containers">PSDefaultParameterValues for connecting to containers&lt;/h2>
+&lt;p>As I mentioned, my use case was to avoid having to specify a credential for every function that connected to my SQL Server running in a container. To use this for dbatools I need to specify a few parameter names. Most dbatools functions take the credential for the &lt;code>-SqlCredential&lt;/code> parameter, but for the copy commands there is both &lt;code>-SourceSqlCredential&lt;/code> and &lt;code>-DestinationCredential&lt;/code> that need to be specified.&lt;/p>
+&lt;p>First, I create a &lt;code>PSCredential&lt;/code> that contains my username and password (note: this is for a demo environment and is insecure as the password is in plain text. If you are using this for other scenarios you’ll want to protect this credential). &lt;/p>
+&lt;p>$securePassword = (&amp;lsquo;Password1234!&amp;rsquo; | ConvertTo-SecureString -asPlainText -Force)
+$credential = New-Object System.Management.Automation.PSCredential(&amp;lsquo;sa&amp;rsquo;, $securePassword)&lt;/p>
+&lt;p>Once I have the credential I can specify all the parameters that should use that credential by default:&lt;/p>
+&lt;p>$PSDefaultParameterValues = @{&amp;quot;*:SqlCredential&amp;quot;=$credential
+&amp;ldquo;*:DestinationCredential&amp;rdquo;=$credential
+&amp;ldquo;*:DestinationSqlCredential&amp;rdquo;=$credential
+&amp;ldquo;*:SourceSqlCredential&amp;rdquo;=$credential}&lt;/p>
+&lt;p>Now whenever I call a function within this session, the specified parameters will use my credential. Therefore I can run the following and it’ll automatically use my saved sa login credential.&lt;/p>
+&lt;p>Get-DbaDatabase -SqlInstance mssql1&lt;/p>
+&lt;h2 id="psdefaultparametervalues-in-your-profile">PSDefaultParameterValues in your profile&lt;/h2>
+&lt;p>Setting PSDefaultParameterValues will only persist in the current session, however you can add the code above to your profile so that these default values are always provided.  If I do, whenever I open a PowerShell window I can easily connect to my containers without having to specify the credential.&lt;/p>
+&lt;p>One thing to note is that this might be overkill. In my situation this is my demo machine. I always use the same sa password for any containers I run, and the majority of the time I’m running commands with a &lt;code>SqlCredential&lt;/code> parameter I want to connect to those containers.&lt;/p>
+&lt;h2 id="override">Override&lt;/h2>
+&lt;p>Even if you have set PSDefaultParameterValues in your profile you can still override that default value on any command just by specifying a new value. For example, running the following will pop up the credential request window for you to enter new credentials.&lt;/p>
+&lt;p>Get-DbaDatabase -SqlInstance mssql1 -SqlCredential (Get-Credential)&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>To wrap this up, I’ve found a lot of time savings by adding PSDefaultParameterValues to my profile. I can now quickly fire up PowerShell and start running functions against my containers.  It also keeps my demo scripts clean and easier to read. There is no need to specify the same parameters over and over again when it’s always going to be the same value.&lt;/p></description></item><item><title>Interactive debugging in VSCode</title><link>https://jpomfret.github.io/p/interactive-debugging-in-vscode/</link><pubDate>Tue, 07 Apr 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/interactive-debugging-in-vscode/</guid><description>&lt;p>I was browsing twitter the other day when a tweet about dbatools caught my eye (I use &lt;a class="link" href="https://tweetdeck.twitter.com/" target="_blank" rel="noopener"
+>TweetDeck&lt;/a> and so have a column for tweets that contain &lt;a class="link" href="http://twitter.com/psdbatools" target="_blank" rel="noopener"
+>@PSdbatools&lt;/a>).&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/way0utwest/status/1242891971473137666" target="_blank" rel="noopener"
+>https://twitter.com/way0utwest/status/1242891971473137666&lt;/a>&lt;/p>
+&lt;p>A dbatools bug!! Oh no!&lt;/p>
+&lt;p>One of the reasons this caught my eye was that I’ve seen this error in my environment with that same command. I had discounted that it was a bug and figured it was instead something in my environment. I presumed it was something related to the fact I was using containers and Azure Data Studio connections.&lt;/p>
+&lt;p>Step one for dbatools bug fixing is to check for an issue on the &lt;a class="link" href="http://dbatools.io/bugs" target="_blank" rel="noopener"
+>GitHub repo&lt;/a> and create one if there isn’t one already. It turned out that there was &lt;a class="link" href="https://github.com/sqlcollaborative/dbatools/issues/6292" target="_blank" rel="noopener"
+>one already created&lt;/a> so we’re covered there.&lt;/p>
+&lt;p>So I figured I’d take a look and see what was happening and how we could fix it. Now I’m going to be honest with you, my usual method of debugging involves adding &lt;code>Write-Host 'Hi&lt;/code>&amp;rsquo;, or piping objects to &lt;code>Out-GridView&lt;/code>. I did start down this route, but the &lt;code>Get-DbaRegServer&lt;/code> function calls an internal function, and things quickly got complicated.&lt;/p>
+&lt;p>Luckily, the &lt;a class="link" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell" target="_blank" rel="noopener"
+>PowerShell extension for VSCode&lt;/a> includes a debugger so we can level up our game and use that to track down our issues. Since I haven’t already used this for my dbatools folder when I click the ‘Run’ icon on the left navigation bar I see the following:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/startDebug.jpg"
+loading="lazy"
+alt="run and debug window in VSCode"
+>&lt;/p>
+&lt;p>Pressing the ‘Run and Debug’ button will run your active file and, if you have breakpoints set up, then it’ll break at those points for you to troubleshoot. This is really useful if you have written a script and it’s not working correctly. Since I’m troubleshooting the call of a function I could write a simple script with the code to call the function, save it and then press ‘Run and Debug’. However there is another option, and that is to launch an interactive debugger. &lt;/p>
+&lt;p>Pressing the ‘create a launch.json file’ link opens the command palette with the option to choose your PowerShell debug configuration. Choosing the ‘Interactive Session’ configuration means we can use the integrated console within VSCode to call functions and launch the debugger.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/debugConfig.jpg"
+loading="lazy"
+alt="Select a PowerShell debug configuration"
+>&lt;/p>
+&lt;p>This will open a launch.json file that you can edit to add more functionality and customization, but we’ll just save it as is right now.&lt;/p>
+&lt;p>{
+// Use IntelliSense to learn about possible attributes.
+// Hover to view descriptions of existing attributes.
+// For more information, visit: &lt;a class="link" href="https://go.microsoft.com/fwlink/?linkid=830387" target="_blank" rel="noopener"
+>https://go.microsoft.com/fwlink/?linkid=830387&lt;/a>
+&amp;ldquo;version&amp;rdquo;: &amp;ldquo;0.2.0&amp;rdquo;,
+&amp;ldquo;configurations&amp;rdquo;: [
+{
+&amp;ldquo;name&amp;rdquo;: &amp;ldquo;PowerShell: Interactive Session&amp;rdquo;,
+&amp;ldquo;type&amp;rdquo;: &amp;ldquo;PowerShell&amp;rdquo;,
+&amp;ldquo;request&amp;rdquo;: &amp;ldquo;launch&amp;rdquo;,
+&amp;ldquo;cwd&amp;rdquo;: &amp;quot;&amp;quot;
+}
+]
+}&lt;/p>
+&lt;p>As soon as you save it the left ‘Run and Debug’ pane will change to look like this. Now we’re ready to run the interactive debugger by pressing the green play button or F5.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DebugInteractive.jpg"
+loading="lazy"
+alt="Debug and Run window for PowerShell extension"
+>&lt;/p>
+&lt;p>So now that we’re set up, let’s start troubleshooting.&lt;/p>
+&lt;p>Step one is to reproduce this issue. This particular bug was easy to reproduce. The only requirements are that you have Azure Data Studio installed and at least one connection set up, then just running &lt;code>Get-DbaRegServer&lt;/code> caused the error.&lt;/p>
+&lt;p>Next we need to add some breakpoints. These need to be the positions in the code where you want to stop execution and take a look at how things are set in the moment. It’s also a great way to see if you entered certain sections of the code that may be guarded by conditional logic.&lt;/p>
+&lt;p>Running &lt;code>Get-DbaRegServer&lt;/code> in the integrated console you can see the error, even down to the line from the function where the error is being thrown. In the screenshot below you can see hovering over that line in VSCode allows you to follow the link to open the function and navigate to the exact line.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDbaRegServerError.jpg"
+loading="lazy"
+alt="Get-DbaRegServer throws an error"
+>&lt;/p>
+&lt;p>Line 180 of the Get-DbaRegServer is the following:&lt;/p>
+&lt;p>$tempserver.ConnectionString = $adsconn.ConnectionString&lt;/p>
+&lt;p>We’ll insert a breakpoint here by clicking in the gutter at line 180.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/addBreakpoint.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Now pressing F5 the interactive debugger will start, and we can rerun &lt;code>Get-DbaRegServer&lt;/code> in the interactive console. When we do that as soon as the execution gets to line 180 the code will stop, waiting for us to respond.&lt;/p>
+&lt;p>You can see below that we are able to find the &lt;code>$adsconn&lt;/code> variable in the variables pane on the left and see that it’s actually an object with three values – which is the issue here – we’re expecting to only have one returned.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2020/04/breakpoint.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://i2.wp.com/jesspomfret.com/wp-content/uploads/2020/04/breakpoint.jpg?fit=650%2C246&amp;amp;ssl=1"
+loading="lazy"
+alt="VSCode code stopped at breakpoint, displaying variables"
+>&lt;/a>&lt;/p>
+&lt;p>I read back through the &lt;code>Get-DbaRegServer&lt;/code> function to find where the &lt;code>$adsconn&lt;/code> variable was set and found it was from calling the internal function &lt;code>Get-ADSConnection&lt;/code>. I added in another breakpoint within that function to dig in deeper.&lt;/p>
+&lt;p>Adding the breakpoint within the second function means that when we call &lt;code>Get-RegServer&lt;/code> and then that calls &lt;code>Get-ADSConnection&lt;/code> the code will wait within the second function and allow you to inspect variables within that function.&lt;/p>
+&lt;p>This meant that I was able to determine that there were several connection strings being returned for each server and that we needed to filter down to one.&lt;/p>
+&lt;p>Changing line 174 in the &lt;code>Get-DbaRegServer&lt;/code> function to include an additional filter, shown below, meant that only one connection string was returned and solved the problem.&lt;/p>
+&lt;p>$adsconn = $adsconnection | Where-Object { $_.server -eq $server.Options[&amp;lsquo;server&amp;rsquo;] -and -not $_.database }&lt;/p>
+&lt;p>Hopefully this walkthrough shows a useful way of using the interactive debugger to hunt down bugs.&lt;/p></description></item><item><title>Backups with dbatools &amp; BurntToast</title><link>https://jpomfret.github.io/p/backups-with-dbatools-burnttoast/</link><pubDate>Tue, 25 Feb 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/backups-with-dbatools-burnttoast/</guid><description>&lt;p>I have just a quick tip for you today using the &lt;a class="link" href="https://github.com/Windos/BurntToast" target="_blank" rel="noopener"
+>BurntToast&lt;/a> module to notify us when a backup is complete. As DBAs there is always plenty to do, so we don’t want to have to sit and watch a long running script to catch the moment when it finishes.  Usually what happens to me is I kick off the script, move on to something else and then totally forget about it, perhaps until someone asks if it’s done yet. Oops. Well this tip will help avoid that.&lt;/p>
+&lt;p>The &lt;a class="link" href="https://github.com/Windos/BurntToast" target="_blank" rel="noopener"
+>BurntToast&lt;/a> module, created by Josh King (&lt;a class="link" href="https://toastit.dev/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/windosnz" target="_blank" rel="noopener"
+>t&lt;/a>), allows you to easily add Windows toast notifications to your PowerShell scripts. I’m going to show you how to use BurntToast to keep track of a database backup.&lt;/p>
+&lt;p>By this time you should know about my love for &lt;a class="link" href="https://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a>, so today we’re going to take a look at how to take a &lt;a class="link" href="https://docs.microsoft.com/en-us/sql/relational-databases/backup-restore/copy-only-backups-sql-server?view=sql-server-ver15" target="_blank" rel="noopener"
+>copy-only&lt;/a> backup.  This is a backup that doesn’t upset the LSN chain of your regular database backups and can be used to just save a specific point in time for perhaps pre-upgrade, or to restore the database somewhere else.&lt;/p>
+&lt;p>The following script will take a copy-only backup of the AdventureWorks2019 database on the mssql2 instance. Since I’m not specifying a path it will go to the default backup directory defined for that instance. I’m also saving the results of the command to the &lt;code>$backup&lt;/code> variable.&lt;/p>
+&lt;p>The second section below that will run directly after the backup completes will use the results in $backup to notify us using BurntToast:&lt;/p>
+&lt;p>## Take a copy only backup, using splatting for readability
+$backupSplat = @{
+SqlInstance = &amp;ldquo;mssql2&amp;rdquo;
+Database = &amp;ldquo;AdventureWorks2019&amp;rdquo;
+CopyOnly = $true
+}
+$backup = Backup-DbaDatabase @backupSplat&lt;/p>
+&lt;h2 id="notify-the-backup-is-complete-using-splatting-for-readability">Notify the backup is complete, using splatting for readability&lt;/h2>
+&lt;p>toastSplat = @{
+Text = (&amp;ldquo;Backup of {0} completed in {1}&amp;rdquo; -f $backup.Database, $backup.Duration.ToString())
+AppLogo = &amp;ldquo;C:\temp\dbatools.png&amp;rdquo;
+}
+New-BurntToastNotification @toastSplat&lt;/p>
+&lt;p>That’s it, 2 commands to take a backup and notify us on completion.  I’ve also used the &lt;code>-AppLogo&lt;/code> parameter to add the &lt;a class="link" href="https://github.com/sqlcollaborative/dbatools/blob/development/bin/dbatools.png" target="_blank" rel="noopener"
+>dbatools logo&lt;/a>. You can see that this backup only took 1 second to complete (hopefully I didn’t get sidetracked in that time) but if the backup takes a few minutes or longer this is a useful tip to let you know when it’s finished.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/dbatoolsToast.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>You could also add some error handling to this script to make it a little more robust by perhaps using try-catch to change the message if the backup was unsuccessful.&lt;/p>
+&lt;p>This is just one use case for using BurntToast with dbatools You could use this in any script that you’re writing to keep you notified when it’s done. This will allow you to get on with whatever else you have on your plate and not have to worry about remembering that backup you kicked off a while ago.&lt;/p>
+&lt;p>Since writing this post I saw that Josh has created the &lt;a class="link" href="https://github.com/Windos/PoshNotify" target="_blank" rel="noopener"
+>PoshNotify&lt;/a> module which allows you to generate popups cross-platform. So if you are not using Windows you can adapt the above script to use this module instead.&lt;/p></description></item><item><title>Disable all Triggers on a Database</title><link>https://jpomfret.github.io/p/disable-all-triggers-on-a-database/</link><pubDate>Mon, 19 Aug 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/disable-all-triggers-on-a-database/</guid><description>&lt;p>Sometimes it’s best not to ask why. However, if for some reason you have a number of triggers on tables within a database that you would like to temporarily disable, read on.&lt;/p>
+&lt;p>I came across a situation recently while automating a process to refresh test environments where this exact scenario came up.  As part of the process several scripts were run to obfuscate production data. While these ran all the UPDATE triggers were firing. Not only were the triggers adding a significant amount of time to the process, they were also updating dates and other values that we’d prefer kept their original values.&lt;/p>
+&lt;p>Now, as I mentioned this is not a discussion on whether this is a good database design or not, this is just how to solve this issue.&lt;/p>
+&lt;p>In the snippet below I use &lt;code>Connect-DbaInstance&lt;/code> from &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
+>dbatools&lt;/a> to create a &lt;code>$svr&lt;/code> object. If you don’t have dbatools installed you could either &lt;a class="link" href="http://dbatools.io/install" target="_blank" rel="noopener"
+>install dbatools&lt;/a>, or use &lt;code>New-Object Microsoft.SqlServer.Management.Smo.Server&lt;/code>. The dbatools function is essentially a wrapper around this command that adds a lot of additional checks and options.&lt;/p>
+&lt;p>I have also defined an array &lt;code>$triggers&lt;/code> to keep track of the triggers I disable. It’s likely that you’ll want to put the environment back to how it started, so this will make sure you don’t enable any triggers that started off disabled.&lt;/p>
+&lt;p>Then we get to the actual work. Using the &lt;code>$svr&lt;/code> object we can loop through all the tables, and then all the triggers on those tables. If a certain trigger is enabled, it is added to the &lt;code>$triggers&lt;/code> array and then disabled using &lt;code>$tr.isenabled&lt;/code>.  As with most (all?) changes made through SMO you then need to call the alter method ,&lt;code>$tr.alter()&lt;/code>, to actually make the change on the server.&lt;/p>
+&lt;p>$database = ‘AdventureWorks2017’
+$svr = Connect-DbaInstance -SqlInstance server1
+$foreach ($tbl in $svr.databases[$database].Tables)
+{
+foreach ($tr in $($tbl.Triggers | Where-Object Isenabled)) {
+$triggers += $tr | Select-Object @{l=&amp;lsquo;SchemaName&amp;rsquo;;e={$tbl.Schema}}, @{l=&amp;lsquo;TableName&amp;rsquo;;e={$tbl.name}}, @{l=&amp;lsquo;TriggerName&amp;rsquo;;e={$_.name}}
+$tr.isenabled = $FALSE
+$tr.alter()
+}
+}&lt;/p>
+&lt;p>When you are ready to enable the triggers again you can use the following code. This loops through the triggers that we had previously disabled and added to our array and enables them.&lt;/p>
+&lt;p>foreach($tr in $triggers) {
+$trigger = $svr.Databases[$database].Tables[$tr.TableName,$tr.SchemaName].Triggers[$tr.TriggerName]
+$trigger.IsEnabled = $true
+$trigger.alter()
+}&lt;/p></description></item><item><title>Getting OS and SQL Version information with dbatools</title><link>https://jpomfret.github.io/p/getting-os-and-sql-version-information-with-dbatools/</link><pubDate>Thu, 30 May 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/getting-os-and-sql-version-information-with-dbatools/</guid><description>&lt;p>There have been a lot of blog posts and talk around upgrading your servers in the past. However, the chatter always seems to intensify when we start getting close to that dreaded ‘end of support’ date for your older Windows and SQL Server versions.  I hope this isn’t the first place you are discovering this, but July 9th 2019 marks the end of support for both SQL Server 2008 and 2008R2, closely followed on January 14th 2020 with the end of support for Windows Server 2008 and 2008R2.&lt;/p>
+&lt;p>With these dates on the horizon it’s a good time to look at our estate and make sure we have a good understanding of the versions we currently support. I’m going to show you how to do that easily with a couple of &lt;a class="link" href="https://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> functions. Then, bonus content, I’ll show you how to present it for your managers with one of my other favourite PowerShell modules &lt;a class="link" href="https://github.com/dfinke/ImportExcel" target="_blank" rel="noopener"
+>ImportExcel&lt;/a>.&lt;/p>
+&lt;p>First things first, I need an object that contains our servers.  At my work we use a central management server to keep track of servers, but you could just as easily pull server names in from a text file, or a database.&lt;/p>
+&lt;p>$servers = Get-DbaCmsRegServer -SqlInstance CmsServerName&lt;/p>
+&lt;p>Let’s first look at what operating systems we are running. The dbatools function we need for this is &lt;code>Get-DbaOperatingSystem&lt;/code>. I’ll use the name property of my &lt;code>$servers&lt;/code> object to get the OS information for all my servers and save it to a variable.&lt;/p>
+&lt;p>$os = Get-DbaOperatingSystem -ComputerName $servers.name&lt;/p>
+&lt;p>I chose to save the results to a variable for this since I’m going to examine the results using PowerShell and then also output them to Excel, saving me from having to gather the information from each server multiple times. If I only planned on looking at the results on screen I could instead have just piped the &lt;code>Get-DbaOperationSystem&lt;/code> results straight into &lt;code>Group-Object&lt;/code>.&lt;/p>
+&lt;p>Using &lt;code>Group-Object&lt;/code> I can quickly see how many servers I have for each versions of windows, and how many I have going out of support in the near future.&lt;/p>
+&lt;p>$os | Group-Object OSVersion |
+Sort-Object Name |
+Select-Object Name, Count, @{l=&amp;lsquo;Servers&amp;rsquo;;e={$_.Group.ComputerName -Replace &amp;lsquo;.domain.name,&amp;rsquo;&amp;rsquo; -Join &amp;lsquo;,&amp;rsquo;}}&lt;/p>
+&lt;p>I have used the -Replace option in my &lt;code>Select-Object&lt;/code> to remove the domain name from the output and instead only return the server name.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2019/05/os-2.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/os-2.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>We can do the same with &lt;code>Get-DbaProductKey&lt;/code> to get the SQL version information.&lt;/p>
+&lt;p>$sql = Get-DbaProductKey -ComputerName $servers.name
+$sql | Group-Object Version |
+Sort-Object Name |
+Select Name, Count, @{l=&amp;lsquo;Servers&amp;rsquo;;e={$_.Group.SqlInstance -join &amp;lsquo;,&amp;rsquo;}}&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2019/05/sql.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/sql.jpg"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>With just 5 lines of code we can review our entire estate and make sure we know what we have nearing the end of support. This is pretty useful information, and also a good thing to export into a pretty spreadsheet and share with your team or management. Enter &lt;a class="link" href="https://github.com/dfinke/ImportExcel" target="_blank" rel="noopener"
+>ImportExcel&lt;/a>.&lt;/p>
+&lt;p>If you haven’t used this module before, prepare to have your mind blown. Doug Finke has crafted some PowerShell magic to enable you to both import from and export to Excel, using PowerShell, without needing Excel installed even.&lt;/p>
+&lt;p>The full code is below. We’ve already done the work of gathering our data so if you are following along skip the first 3 lines below.&lt;/p>
+&lt;p>I’ve separated out the properties I want to select and will therefore end up in my spreadsheet. I’ve also used &lt;a class="link" href="https://dbatools.io/splat/" target="_blank" rel="noopener"
+>splatting&lt;/a> to make the call to &lt;code>Export-Excel&lt;/code> easier to read.&lt;/p>
+&lt;!-- raw HTML omitted -->
+&lt;p>The important part of this script is the parameters used for the &lt;code>Export-Excel&lt;/code> call so I’ll go through them here:&lt;/p>
+&lt;p>[table id=7 /]&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ExcelOutput-1024x669.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>There you have it, a simple script to get the current OS and SQL versions you are running with a good looking Excel sheet as the output. Hope you don’t find too many instances out there nearing the end of support.&lt;/p></description></item><item><title>dbatools with Bert</title><link>https://jpomfret.github.io/p/dbatools-with-bert/</link><pubDate>Tue, 05 Feb 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/dbatools-with-bert/</guid><description>&lt;p>This weekend, while I was having a great time at SQL Saturday Cleveland, I ran into my friend Bert (&lt;a class="link" href="https://bertwagner.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/bertwagner" target="_blank" rel="noopener"
+>t&lt;/a>). He had some dbatools questions, which I was happy to help him with.  Now that dbatools has over 500 commands, it is both awesome and terrifying.  Bert wanted to know how to automate his database backups and then check he was using the correct recovery model.&lt;/p>
+&lt;!-- raw HTML omitted -->
+&lt;h3 id="backup-your-databases">Backup your databases&lt;/h3>
+&lt;p>Bert’s first question was how to automate his database backups. I showed him the &lt;code>Backup-DbaDatabase&lt;/code> command and explained some of the parameters available.&lt;/p>
+&lt;p>First, we backed up all the databases on his instance:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Backup-DbaDatabase -SqlInstance localhost\sql2017
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Backup-DbaDatabase-2.gif"
+loading="lazy"
+>&lt;/p>
+&lt;p>We then looked at specifying a specific database to backup:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">﻿Backup-DbaDatabase -SqlInstance localhost\sql2017 -Database ApplicationDatabase
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Backup-DbaDatabase_Database-1.gif"
+loading="lazy"
+>&lt;/p>
+&lt;p>This command will backup to the default backup location for your instance. If you want to override that you can use the &lt;code>BackupDirectory&lt;/code> parameter:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Backup-DbaDatabase `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-SqlInstance localhost `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-Database ApplicationDatabase `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-BackupDirectory C:\backups\﻿
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Backup-DbaDatabase_BackupDir.gif"
+loading="lazy"
+>&lt;/p>
+&lt;p>The final options we looked at were two switches: &lt;code>CompressBackup,&lt;/code>which will make use of backup compression, and &lt;code>CopyOnly,&lt;/code> which will leave your LSN chain intact by taking a copy only backup.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Backup-DbaDatabase `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-SqlInstance localhost `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-Database ApplicationDatabase `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-CompressBackup `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-CopyOnly
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Backup-DbaDatabase_Switches.gif"
+loading="lazy"
+>&lt;/p>
+&lt;p>Once we had Bert’s databases all backed up and safe he realized he also needed to make sure the database recovery model was set correctly.&lt;/p>
+&lt;h3 id="check-database-recovery-model">Check Database Recovery Model&lt;/h3>
+&lt;p>Bert wanted to make sure he was using the Full recovery model for his databases. We went about finding any that were in Simple with the following:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Get-DbaDbRecoveryModel -SqlInstance localhost -RecoveryModel Simple﻿
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Get-DbaDbRecoveryModel.gif"
+loading="lazy"
+>&lt;/p>
+&lt;p>We also talked about running this command against multiple instances, either by using a central management server or from a text file:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Get-DbaDbRecoveryModel `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-SqlInstance $(Get-Content C:\servers.txt) `
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-RecoveryModel Simple﻿
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>We found some databases in the simple recovery model that we wanted to change. This can easily be accomplished by piping the output of our get command into the set command:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Get-DbaDbRecoveryModel -SqlInstance localhost -RecoveryModel Simple |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Set-DbaDbRecoveryModel -RecoveryMode Full
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Get-DbaDbRecoveryModel_Set.gif"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="search-dbatools-commands">Search dbatools Commands&lt;/h3>
+&lt;p>The final tip I had for Bert was how to use &lt;code>Find-DbaCommand&lt;/code> to help him find the commands he needed to complete his tasks.&lt;/p>
+&lt;p>A lot of the commands have tags, which is a good way to find anything relating to compression. For example:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Find-DbaCommand -Tag Compression﻿
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Find-DbaCommand_Compression.gif"
+loading="lazy"
+>&lt;/p>
+&lt;p>You can also just specify keywords and the command will search for any reference of these within the inline command based help for all the commands.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Find-DbaCommand triggers
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Find-DbaCommand_Trigger-1.gif"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="summary">Summary&lt;/h3>
+&lt;p>There are many more resources to get help with dbatools. Firstly, their website, &lt;a class="link" href="https://dbatools.io/" target="_blank" rel="noopener"
+>https://dbatools.io/&lt;/a>, has a lot of great information on how to get started.&lt;/p>
+&lt;p>Secondly, the dbatools slack channel is always full of people who can lend a hand. You can get an invite here: &lt;a class="link" href="https://dbatools.io/slack/" target="_blank" rel="noopener"
+>https://dbatools.io/slack/&lt;/a>.&lt;/p>
+&lt;p>Finally, feel free to get in contact with me if you have any questions or need some help finding the commands you need to get going with dbatools.&lt;/p></description></item><item><title>Testing Availability Group Read-Only Routing with dbatools</title><link>https://jpomfret.github.io/p/testing-availability-group-read-only-routing-with-dbatools/</link><pubDate>Fri, 07 Sep 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/testing-availability-group-read-only-routing-with-dbatools/</guid><description>&lt;p>I recently set up an Availability Group with the intent of using the secondary as a read only replica for reporting.  We have a few AG&amp;rsquo;s in our environment already but currently none are using this feature.&lt;/p>
+&lt;p>I&amp;rsquo;m not going to step through setting up the AG or configuring the readable secondary as there are plenty of good posts out there as well as the official &lt;a class="link" href="https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/configure-read-only-access-on-an-availability-replica-sql-server?view=sql-server-2017" target="_blank" rel="noopener"
+>books online documentation&lt;/a>.&lt;/p>
+&lt;p>Once my AG was created I set the &amp;lsquo;Connections in Primary Role&amp;rsquo; to &amp;lsquo;Allow read/write connections&amp;rsquo; and the &amp;lsquo;Readable Secondary&amp;rsquo; to &amp;lsquo;Read-intent only&amp;rsquo; as shown below. On a side note it&amp;rsquo;s important to set these for both instances, if you&amp;rsquo;re running with 01B as the Primary after a failover by setting both you&amp;rsquo;ll get the same behavior, with read only connections being routed to the now secondary, 01A server.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/AGReplicas.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>The other part I needed to set up was &lt;a class="link" href="https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/configure-read-only-routing-for-an-availability-group-sql-server?view=sql-server-2017" target="_blank" rel="noopener"
+>read-only routing&lt;/a>, this enables SQL Server to reroute those read only connections to the appropriate replica.  You can also list the read only replicas by priority if you have multiple available or you can group them to enable load-balancing.&lt;/p>
+&lt;p>Although this seems to be setup correctly so that connections that specify their application intent of read only will be routed to the secondary node I wanted to prove it. I used the &lt;a class="link" href="https://dbatools.io/functions/connect-dbainstance/" target="_blank" rel="noopener"
+>Connect-DbaInstance&lt;/a> function from dbatools to connect to the listener name with the -ApplicationIntent property set to &amp;lsquo;ReadOnly&amp;rsquo;.&lt;/p>
+&lt;p>$svr = Connect-DbaInstance -SqlInstance AGListenerName `
+-Database DatabaseInAG `
+-ApplicationIntent ReadOnly&lt;/p>
+&lt;p>$svr.Query(&amp;lsquo;Select @@ServerName as ServerName&amp;rsquo;)&lt;/p>
+&lt;h2 id="servername">ServerName&lt;/h2>
+&lt;p>*******01B&lt;/p>
+&lt;p>You can see it routed correctly to 01B which is currently the secondary node.  If I don&amp;rsquo;t specify the ApplicationIntent property on the connection it&amp;rsquo;ll be routed to the primary.&lt;/p>
+&lt;p>$svr = Connect-DbaInstance -SqlInstance AGListenerName `
+-Database DatabaseInAG&lt;/p>
+&lt;p>$svr.Query(&amp;lsquo;Select @@ServerName as ServerName&amp;rsquo;)&lt;/p>
+&lt;h2 id="servername-1">ServerName&lt;/h2>
+&lt;p>*******01A&lt;/p>
+&lt;p>This was a quick and easy way to ensure my read only routing was working as expected, and another great use of dbatools.&lt;/p></description></item><item><title>Data Compression + Backup Compression = Double Compression?</title><link>https://jpomfret.github.io/p/data-compression--backup-compression-double-compression/</link><pubDate>Mon, 20 Aug 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/data-compression--backup-compression-double-compression/</guid><description>&lt;p>I recently gave my &lt;a class="link" href="http://jesspomfret.com/first-user-group-presentation-i-survived/" target="_blank" rel="noopener"
+>first usergroup presentation in Cleveland&lt;/a>, closely followed by my first SQL Saturday presentation in Columbus. My chosen topic was row store data compression and I had a few great questions that I plan on answering with blog posts. First up&amp;hellip;&lt;/p>
+&lt;h3 id="what-happens-if-i-use-data-compression-and-backup-compression-do-i-get-double-compression">What happens if I use data compression and backup compression, do I get double compression?&lt;/h3>
+&lt;p>This is a great question, and without diving too deeply into how backup compression works I&amp;rsquo;m going to do a simple experiment on the WideWorldImporters database.  I&amp;rsquo;ve restored this database to my local SQL Server 2016 instance and I&amp;rsquo;m simply going to back it up several times under different conditions.&lt;/p>
+&lt;p>After restoring the database it&amp;rsquo;s about 3GB in size, so our testing will be on a reasonably small database.  It would be interesting to see how the results change as the database size increases, perhaps a future blog post.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/WideWorldImporters-1-300x99.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Now I&amp;rsquo;m not sure how to write a blog post without mentioning &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
+>dbatools&lt;/a>, I&amp;rsquo;m using my favourite PowerShell module to check current database compression (Get-DbaDbCompression), apply data compression (Set-DbaDbCompression) and to create the backups with and without compression (Backup-DbaDatabase).&lt;/p>
+&lt;p>The script I used to run through this experiment is available for you to test out on my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/01_DataCompressionPlusBackupCompression.ps1" target="_blank" rel="noopener"
+>github&lt;/a> and the results are below:&lt;/p>
+&lt;p>[table id=1 /]&lt;/p>
+&lt;p>We can clearly see that using backup compression gives us a huge space savings.  On our database where none of the objects are compressed we get a 78% reduction in the size of the backup file. When all our objects are row compressed we get a 70% savings and even when all our objects are page compressed we still get a 60% reduction in size when we apply backup compression.&lt;/p>
+&lt;p>Now, if we compare the difference in sizes for the three backups that used backup compression, we do get a small amount of additional space savings by using data compression in combination with backup compression. The backup file is 7% smaller when the database objects are row compressed and 6% smaller when page compression is applied, however, these savings aren&amp;rsquo;t nearly as significant as as just comparing whether backup compression is used or not.&lt;/p>
+&lt;p>So to answer the question, we don&amp;rsquo;t get double the compression by using both data and backup compression, but whether we use data compression or not within our database using backup compression will get you a pretty significant space saving when looking at the size of the backup file on disk.&lt;/p></description></item><item><title>T-SQL Tuesday #104 – Code you can't live without</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#104-code-you-cant-live-without/</link><pubDate>Tue, 10 Jul 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#104-code-you-cant-live-without/</guid><description>&lt;p>&lt;a class="link" href="https://bertwagner.com/2018/07/03/code-youd-hate-to-live-without-t-sql-tuesday-104-invitation/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues-300x300.png"
+loading="lazy"
+>&lt;/a>As soon as I saw Bert Wagner (&lt;a class="link" href="https://twitter.com/bertwagner" target="_blank" rel="noopener"
+>t&lt;/a>|&lt;a class="link" href="https://bertwagner.com/" target="_blank" rel="noopener"
+>b&lt;/a>) post his T-SQL Tuesday topic last week I knew this was going to be a great one. I’m really looking forward to reading about everyone’s favorite code snippets so thanks Bert for hosting and choosing a fantastic subject!&lt;/p>
+&lt;p>A lot of the code I can&amp;rsquo;t live without is either downloaded from the community (e.g. &lt;a class="link" href="http://whoisactive.com/" target="_blank" rel="noopener"
+>sp_whoisactive&lt;/a>, &lt;a class="link" href="http://karaszi.com/spindexinfo-enhanced-index-information-procedure" target="_blank" rel="noopener"
+>sp_indexinfo&lt;/a>, &lt;a class="link" href="https://www.brentozar.com/blitz/" target="_blank" rel="noopener"
+>sp_blitz&lt;/a>), or very specific to my workplace so I&amp;rsquo;m going to share some code that I&amp;rsquo;ve been meaning to blog about.&lt;/p>
+&lt;p>I’ve been using this at work recently and it also relates to the presentation I gave at the &lt;a class="link" href="http://jesspomfret.com/first-user-group-presentation-i-survived/" target="_blank" rel="noopener"
+>ONSSUG June meeting&lt;/a> around data compression. The beginnings of this script originated online as I dug into learning about the DMVs that related to objects and compression and then customized for what I needed.&lt;/p>
+&lt;p>If you run the below as is it will provide basic information about all objects in your database, except those in the &amp;lsquo;sys&amp;rsquo; schema, along with their current size and compression level.&lt;/p>
+&lt;p>SELECT
+schema_name(obj.SCHEMA_ID) as SchemaName,
+obj.name as TableName,
+ind.name as IndexName,
+ind.type_desc as IndexType,
+pas.row_count as NumberOfRows,
+pas.used_page_count as UsedPageCount,
+(pas.used_page_count * 8)/1024 as SizeUsedMB,
+par.data_compression_desc as DataCompression
+FROM sys.objects obj
+INNER JOIN sys.indexes ind
+ON obj.object_id = ind.object_id
+INNER JOIN sys.partitions par
+ON par.index_id = ind.index_id
+AND par.object_id = obj.object_id
+INNER JOIN sys.dm_db_partition_stats pas
+ON pas.partition_id = par.partition_id
+WHERE obj.schema_id &amp;lt;&amp;gt; 4 &amp;ndash; exclude objects in &amp;lsquo;sys&amp;rsquo; schema
+&amp;ndash;AND schema_name(obj.schema_id) = &amp;lsquo;schemaName&amp;rsquo;
+&amp;ndash;AND obj.name = &amp;rsquo;tableName&amp;rsquo;
+ORDER BY SizeUsedMB desc&lt;/p>
+&lt;p>(This is also available in my &lt;a class="link" href="https://github.com/jpomfret/ScriptsAndTips/blob/master/ObjectSizeAndCompression.sql" target="_blank" rel="noopener"
+>GitHub Tips and Scripts Repo&lt;/a>)&lt;/p>
+&lt;p>Now this T-SQL is great for a quick look at one database, but what if I want to run this script against every database in my environment? Well I popped over to PowerShell, fired up &lt;a class="link" href="http://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> and ran the following:&lt;/p>
+&lt;p>get-command -Module dbatools -Name *compression*&lt;/p>
+&lt;p>Bad news, there was no Get-DbaDbCompression, there were commands for compressing objects (Set-DbaDbCompression) and for getting suggested compression setting based on the &lt;a class="link" href="https://blogs.msdn.microsoft.com/blogdoezequiel/2011/01/03/the-sql-swiss-army-knife-6-evaluating-compression-gains/" target="_blank" rel="noopener"
+>Tiger Teams best practices&lt;/a> (Test-DbaDbCompression), but nothing to just return the current compression status of the objects.&lt;/p>
+&lt;p>What’s more exciting than just using the greatest PowerShell module ever created? Making it better by contributing! So I made sure I had the latest development branch synced up and got to work writing Get-DbaDbCompression.  This has now been merged into the main branch and is therefore available in the Powershell gallery, so if your dbatools module is up to date you can now run the following to get the same information as above from one database:&lt;/p>
+&lt;p>Get-DbaDbCompression -SqlInstance serverName -Database databaseName&lt;/p>
+&lt;p>Or go crazy and run it against a bunch of servers.&lt;/p>
+&lt;p>$servers = Get-DbaRegisteredServer -SqlInstance cmsServer | select -expand servername
+$compression = Get-DbaDbCompression -SqlInstance $servers
+$compression | Out-GridView&lt;/p>
+&lt;p>I hope this post might come in handy for anyone who is curious about data compression in their environments. Both the T-SQL and PowerShell versions provide not just the current compression setting but the size of the object too. Useful if you are about to apply compression and would like a before and after comparison to see how much space you saved.&lt;/p></description></item><item><title>First User Group Presentation - I Survived!</title><link>https://jpomfret.github.io/p/first-user-group-presentation-i-survived/</link><pubDate>Wed, 27 Jun 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/first-user-group-presentation-i-survived/</guid><description>&lt;p>Well tonight marks three weeks since I gave my first user group presentation and you know what, it’s been a total whirlwind since then so I’ve had little time to reflect.  Myself and the fiancé closed on our first house and my parents flew in to visit. It’s very useful to have people on hand the first couple of weeks so we didn’t feel like completely unqualified homeowners. I spent some time right after the presentation to start breathing again and to jot down some thoughts, but this is the first chance I’ve had to report back.&lt;/p>
+&lt;p>TL;DR I didn’t die, the SQL Server community is fantastic and I have amazing supportive friends.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/Pittfurg/status/1004125722082934784" target="_blank" rel="noopener"
+>https://twitter.com/Pittfurg/status/1004125722082934784&lt;/a>&lt;/p>
+&lt;p>&lt;strong>Why Present?&lt;/strong>&lt;/p>
+&lt;p>The answer to this is twofold. Firstly this year I’ve challenged myself to get more involved in the SQL Server community. For several years now I’ve attended user group meetings, SQL Saturday’s and even made it to the PASS Summit a couple of times, but I’ve never contributed anything. It’s been all take.   Last year I got involved with dbatools and that started my quest to return the favour.  I’m still currently wrestling with the ideas of “who wants to listen to what I have to say” and “do I really have anything to contribute anyway,” but I’m doing my best to keep one foot in front of the other and see what happens.&lt;/p>
+&lt;p>Secondly, whenever I review my strengths and weaknesses at annual review time, communication, or more precisely public speaking is always something that I consider a weakness.  I’m not sure of a better way to improve in this area than to put myself out there and practice, so here’s to some professional development. I’m certain that gaining some knowledge, experience and confidence in this area will help me in many areas of my life.&lt;/p>
+&lt;p>&lt;strong>What to Present?&lt;/strong>&lt;/p>
+&lt;p>I ended up presenting on SQL Server data compression.  I talked about the types of data compression, and how the internals work before focusing on what you can compress, how to compress and how to decide what should be compressed.  This topic stemmed mainly from an issue at work where data compression was implemented with a large performance benefit.  This issue at work also encouraged me to spend some time looking at dbatools and compression. There were existing commands for Set-DbaDbCompression and Test-DbaDbCompression that I added some improvements to, and then I added Get-DbaDbCompression.&lt;/p>
+&lt;p>The culmination of both the issue at work and working on dbatools commands for compression left me feeling like this was a great topic to share.  Since 2016 SP1 data compression is now a standard level feature, opening up the possibilities to a lot more people.&lt;/p>
+&lt;p>&lt;strong>Improvements&lt;/strong>&lt;/p>
+&lt;p>Overall I think the presentation went well, I delivered most of what I had planned on saying and my demo’s did a decent job of explaining the process for deciding what to compress and then applying compression through T-SQL, SSMS and PowerShell.  I was lucky to have some great friends in the audience (&lt;a class="link" href="https://twitter.com/awickham" target="_blank" rel="noopener"
+>Andrew&lt;/a>, &lt;a class="link" href="https://twitter.com/Pittfurg" target="_blank" rel="noopener"
+>Drew&lt;/a> and &lt;a class="link" href="https://twitter.com/erinstellato" target="_blank" rel="noopener"
+>Erin&lt;/a>) who asked great questions which helped me to drive home certain points.&lt;/p>
+&lt;p>My timing was definitely a bit off. I’d prepared for what I thought would be 45-60 minutes of content and it was a bit shorter than that.  I plan on adding some additional content and delivering slightly slower the next time I give this talk to fix this problem.&lt;/p>
+&lt;p>I got some great feedback both from the speaker evaluations and from &lt;a class="link" href="https://www.sqlskills.com/blogs/erin/" target="_blank" rel="noopener"
+>Erin Stellato&lt;/a> who went above and beyond my request for any tips and feedback she may have.  I’ll make sure to incorporate some real life stories on where compression has had an impact as well as adding some more demos.&lt;/p>
+&lt;p>&lt;strong>What’s next?&lt;/strong>&lt;/p>
+&lt;p>That’s right, there is a next! I took a chance and submitted my session to &lt;a class="link" href="http://www.sqlsaturday.com/736/eventhome.aspx" target="_blank" rel="noopener"
+>SQL Saturday Columbus&lt;/a> and was lucky enough to be selected.  I’ve been to quite a few SQL Saturdays in Cleveland, Columbus, Pittsburgh and even Minneapolis, but this will be my first as a speaker.  If you’re in the area on July 28th and want to learn more about data compression I’ll be on at 8:30am in Room 6.&lt;/p>
+&lt;p>I’m also going to work on some blog posts around data compression and the dbatools commands so watch out for that also.&lt;/p></description></item><item><title>T-SQL Tuesday #101 - The Multitool of my DBA toolbox</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#101-the-multitool-of-my-dba-toolbox/</link><pubDate>Tue, 10 Apr 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#101-the-multitool-of-my-dba-toolbox/</guid><description>&lt;p>&lt;a class="link" href="http://t-sql.dk/?p=1947" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues-300x300.png"
+loading="lazy"
+>&lt;/a>Thanks to &lt;a class="link" href="http://t-sql.dk/" target="_blank" rel="noopener"
+>Jens Vestergaard&lt;/a> for hosting T-SQL Tuesday #101.  When I saw the topic for this month’s T-SQL Tuesday, I knew instantly which tool I would write about. Although there are many great tools out there that make my job as a DBA easier (and I’m excited to read the summary for this month to see what everyone else leans on), there is one that has fundamentally changed far more than just my work day. First of all I love PowerShell; the ability to make my daily tasks both repeatable and automated is something that has always appealed to me. Then I found &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
+>dbatools&lt;/a>, which combines everything I love about PowerShell into an ever-evolving open source module.&lt;/p>
+&lt;p>Once you &lt;a class="link" href="https://dbatools.io/install" target="_blank" rel="noopener"
+>install the module&lt;/a> you can run the following to list all the available commands in your toolbox. It’s a good idea to keep your copy of the module updated and check this often as people are always adding new commands.&lt;/p>
+&lt;p>Get-Command -Module dbatools -CommandType Function | Out-GridView&lt;/p>
+&lt;p>Having hundreds of commands can be a little overwhelming. In no particular order, these are the top five that I use most or that save me the most time.&lt;/p>
+&lt;h3 id="test-dbasqlbuild">Test-DbaSqlBuild&lt;/h3>
+&lt;p>When I found this command I couldn’t have been more excited. My day-to-day job requires the care and watering of over 100 SQL Server instances of varying versions.  Using this command you can get the current build of all your instances and then compare that to the most recent available.  There are also parameters for how far you want to be from the latest version. Setting the -latest switch means just that, your server will only be seen as compliant if it’s on the latest release, passing in -1CU means that it can be no more than 1 cumulative update behind.&lt;/p>
+&lt;p>This snippet takes the registered instances from our central management servers and pipes them into Test-DbaSqlBuild to determine if they are on the latest version. It creates an easy list of what needs patched.&lt;/p>
+&lt;p>Get-DbaRegisteredServer -SqlInstance nonProdServers, prodServers |
+Test-DbaSqlBuild -Latest&lt;/p>
+&lt;h3 id="get-dbadiskspace">Get-DbaDiskSpace&lt;/h3>
+&lt;p>This is a great command to have handy. Pass in one or many server names and it returns the current size, amount of space available and blocksize for all drives and mount points on that server. There are also switches to look for any drives that have SQL files on, or to check the filesystem fragmentation levels.  One great use of this command is to pass in a list of servers and filter for drives under 5% free space. This is a great proactive check of where action may be needed soon.&lt;/p>
+&lt;p>Get-DbaDiskSpace -ComputerName $servers | Where-Object {$_.PercentFree -lt 5}&lt;/p>
+&lt;h3 id="copy-dbadatabase">Copy-DbaDatabase&lt;/h3>
+&lt;p>This command is used to move databases from one instance to another. You can use either a backup/restore method or by detaching and re-attaching the files. Check out my post on the &lt;a class="link" href="https://dbatools.io/migrating-application-dbs/" target="_blank" rel="noopener"
+>dbatools blog&lt;/a> for a more detailed look on how I used this to save a lot of time on a recent project at work.&lt;/p>
+&lt;p>Copy-DbaDatabase -Source SourceServer -Destination DestinationServer `
+-Database MigratingDatabase -BackupRestore -NetworkShare \\fileshare\&lt;/p>
+&lt;h3 id="repair-dbaoprhaneduser">Repair-DbaOprhanedUser&lt;/h3>
+&lt;p>This command is pure wizardry and &lt;a class="link" href="https://voiceofthedba.com/2018/02/16/dbatools-and-orphaned-users/" target="_blank" rel="noopener"
+>Steve Jones has a more extensive post&lt;/a> on this command, but it does exactly what it says. It syncs up the SIDs for SQL logins that you’ve migrated from one instance to another. This is not a difficult task, however this one line fixes any orphaned logins on your whole instance. Extremely useful if you are migrating a lot of databases to new servers.&lt;/p>
+&lt;p>Repair-DbaOrphanUser -SqlInstance serverName&lt;/p>
+&lt;h3 id="write-dbadatatable">Write-DbaDataTable&lt;/h3>
+&lt;p>The final command for my top five takes an object in PowerShell and uses SQL bulk copy to insert it into a table in a SQL Server database. Using the -AutoCreateTable switch will do just that, if the table doesn’t exist it will be created. One thing to watch is this will be a heap so if you’re going to use this table going forward building the table ahead of time with appropriate indexes and keys is probably advisable. However, this one line can be very useful for quickly throwing results into a table to save or analyze further.&lt;/p>
+&lt;p>$results | Write-DbaDataTable -SqlInstance serverName -Database databaseName -Table tableName -AutoCreateTable&lt;/p>
+&lt;p> &lt;/p>
+&lt;p>The Second reason dbatools is my favorite tool is all the other things I’ve gained and learnt from this module.  It’s been almost one year since my first pull request to dbatools, and at that point I had a decent handle on PowerShell but git was a foreign language. Guided by Chrissy LeMaire (&lt;a class="link" href="http://twitter.com/cl" target="_blank" rel="noopener"
+>t&lt;/a>) and some other folks from the &lt;a class="link" href="http://dbatools.io/slack" target="_blank" rel="noopener"
+>slack channel&lt;/a> I got the repo forked, created my own branch and then submitted a PR to get my contributions merged in.  Since then I’ve contributed multiple more PRs, everything from small fixes to the command based help, to writing a brand new command (Get-DbaDbCompression will be released soon!).&lt;/p>
+&lt;p>This tool not only gives you hundreds of commands to make your job easier, it encourages you to branch out and get involved in a truly special community. You will meet some brilliant people to bounce ideas off, learn new skills like github, integration tests or even continuous integration and development, all while giving back to the amazing community that surrounds the SQL Server ecosystem.  This blog is the start of my attempt to give back while furthering my understanding of certain topics. In June I’ll be stepping even further outside of my comfort zone by presenting at my local user group on data compression, and of course that’ll feature some dbatools related demos.&lt;/p></description></item></channel></rss>

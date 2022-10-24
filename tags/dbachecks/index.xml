@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>dbachecks on Jess Pomfret</title><link>https://jpomfret.github.io/tags/dbachecks/</link><description>Recent content in dbachecks on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 09 Feb 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/dbachecks/index.xml" rel="self" type="application/rss+xml"/><item><title>T-SQL Tuesday #135: The outstanding tools of the trade that make your job awesome</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/</link><pubDate>Tue, 09 Feb 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/</guid><description>&lt;p>&lt;a class="link" href="https://www.bronowski.it/blog/2021/02/t-sql-tuesday-135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>It’s time for February’s monthly blog party. This month is hosted by Mikey Bronowski (&lt;a class="link" href="https://www.bronowski.it/blog" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/MikeyBronowski" target="_blank" rel="noopener"
+>t&lt;/a>) and he’s asking us to write about our ‘tools of the trade’.  He’s looking for those tools that make our lives easier, ones we couldn’t imagine going without. Thanks for hosting Mikey, can’t wait to read everyone’s contributions and add some tools to my toolbelt.&lt;/p>
+&lt;p>I’m going to split this into a couple of sections. I’m sure you can all guess what’s up first though…&lt;/p>
+&lt;h2 id="powershell">PowerShell&lt;/h2>
+&lt;p>If I could only choose one tool for my toolbelt it would be PowerShell, which is actually probably cheating because there are so many options to import modules and add functionality.  I’m going to highlight five modules I use a lot below.&lt;/p>
+&lt;ol>
+&lt;li>&lt;a class="link" href="https://github.com/sqlcollaborative/dbatools" target="_blank" rel="noopener"
+>dbatools&lt;/a> – If you’ve read much of my blog before, or seen me present, it should be no surprise that dbatools is number one.  I use dbatools every day, whether it’s to check diskspace, update database owners, or a plethora of other uses.  In fact I previously wrote a post ‘&lt;a class="link" href="https://jesspomfret.com/t-sql-tuesday-101/" target="_blank" rel="noopener"
+>The Multitool of my DBA toolbox&lt;/a>’ that highlights five great use cases.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks&lt;/a> – A close friend of dbatools, dbachecks combines Pester and dbatools to create an amazing infrastructure testing module.  This is perfect for creating a morning checks dashboard, or quickly checking certain parts of your estate. For example, in my post ‘&lt;a class="link" href="https://jesspomfret.com/dbachecks-importexcel/" target="_blank" rel="noopener"
+>dbachecks meets ImportExcel&lt;/a>’ we check up on backups and database status before exporting to create an Excel report.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/pester/Pester" target="_blank" rel="noopener"
+>Pester&lt;/a> – Originally designed for unit/integration testing, I personally use this framework to test anything you can write in PowerShell. It quickly provides a clear and easy to read answer for whether everything is as expected. I’ve written about it previously to ‘&lt;a class="link" href="https://jesspomfret.com/pester-test-cluster-role-owners/" target="_blank" rel="noopener"
+>Pester test your Cluster Role Owners&lt;/a>’.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/dfinke/ImportExcel" target="_blank" rel="noopener"
+>ImportExcel&lt;/a> – This module lets you work with Excel objects, without having Excel installed.  Easily read data from spreadsheets into PowerShell, or export data to create detailed reports with a few lines of code. Our host for this T-SQL Tuesday has written a great series on this module, if you’re looking for inspiration. &lt;a class="link" href="https://www.bronowski.it/blog/tag/importexcel/" target="_blank" rel="noopener"
+>importexcel Archives - Mikey Bronowski - Blog&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/PowershellFrameworkCollective/psframework" target="_blank" rel="noopener"
+>PSFramework&lt;/a> – Finally, I want to highlight PSFramework.  Portions of this module are used within both dbatools and dbachecks.  It provides great options for both setting configuration options that can be then used in your modules as well as for creating great logging. I’ve switched to using Write-PSFMessage instead of Write-Host\Verbose\Output as it provides a lot more flexibility as well as writing to a physical log file.&lt;/li>
+&lt;/ol>
+&lt;p>I also recently wrote about &lt;a class="link" href="https://jesspomfret.com/psreadline-search-history/" target="_blank" rel="noopener"
+>PowerShell’s interactive search functionality&lt;/a>, and after a poll on Twitter was pretty shocked by how few people knew about it.  I recommend checking it out, as it is a really handy built in feature.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/jpomfret/status/1357014555638042624" target="_blank" rel="noopener"
+>https://twitter.com/jpomfret/status/1357014555638042624&lt;/a>&lt;/p>
+&lt;h2 id="microsoft-excel">Microsoft Excel&lt;/h2>
+&lt;p>Since I’ve written a lot about PowerShell previously, I wanted to highlight some other tools that I depend on. I’ve always been a fan of Excel, my personal life is full of spreadsheets – most decisions end with a spreadsheet (lucky for me, my wife is also a big fan of Excel!).  I often find myself copying data into Excel to keep track of work, or to quickly analyse data.  It’s also a great way of sharing data with a clear structure.  I’m also a big fan of shortcuts – so here’s a few I use often.&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Ctrl+;&lt;/strong> - Insert today’s date into the current cell – really useful, and avoids you having to remember we’re now in 2021!&lt;/li>
+&lt;li>&lt;strong>Ctrl+l&lt;/strong> – Select a cell within a dataset, press Ctrl+l (lowercase L), press enter. Your data is transformed into a table.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ctrlL.gif"
+loading="lazy"
+alt="Gif showing using Ctrl&amp;#43;L in Excel to create a table"
+>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Ctrl+D&lt;/strong> – Fill down, this will copy the contents of the cell above into your current cell.  Also smart enough to handle continuation of formulas.&lt;/li>
+&lt;li>&lt;strong>Ctrl+R&lt;/strong> – Fill right, same as above but it’ll copy the contents of the cell to your left into your current cell.&lt;/li>
+&lt;li>&lt;strong>Ctrl+Up/Down arrow&lt;/strong> – This will move your cursor to either the first value in the current column, or the last.  I use this a lot for navigating around worksheets/tables.&lt;/li>
+&lt;li>&lt;strong>F2&lt;/strong> – This edits a cell&amp;rsquo;s contents. It puts your cursor at the end of the value, but you can now use your arrow keys to move about in the cell. It also stops you accidentally overwriting what was already in the cell.&lt;/li>
+&lt;/ul>
+&lt;h2 id="my-bike">My Bike&lt;/h2>
+&lt;p>My final tool is my bike. Not technical at all, but a tool I use to keep fit and have some fun.  I love cycling, and in the current times it’s my best option for fitness (I’m in England – we’re deep into lockdown 3 and gyms are closed). &lt;/p>
+&lt;p>Honestly, I have a really hard time working out at home. I enjoy going to the gym, seeing some friendly faces and having someone tell me what to do for an hour.  It’s not the same at home, and my mood is instantly affected by not being active.&lt;/p>
+&lt;p>However, I’m happy to go out for a ride, and living in the South of England the weather is reasonably kind all year round.  Previously, living in Ohio there weren’t many options for winter bike riding, unless you had fat tyres and loved the snow!  I’m also lucky to be close to the South Downs (pictured below), as well as plenty of country lanes to explore.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/Bike_SouthDowns-1024x768.jpg"
+loading="lazy"
+alt="My bike on the south downs"
+>&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>Thanks for reading and hope you’ve enjoyed digging through my toolbox. Thanks again to Mikey for hosting. I always enjoy participating in these T-SQL Tuesday’s, partly because it gives me a prompt to write about, partly because it’s fun to see what everyone else wrote about.&lt;/p>
+&lt;p>Stay safe folks.&lt;/p></description></item><item><title>dbachecks and Azure SQL Databases</title><link>https://jpomfret.github.io/p/dbachecks-and-azure-sql-databases/</link><pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/dbachecks-and-azure-sql-databases/</guid><description>&lt;p>Last week I gave a presentation at &lt;a class="link" href="https://www.meetup.com/SQL-South-West/" target="_blank" rel="noopener"
+>Data South West&lt;/a> on dbachecks and dbatools. One of the questions I got was whether you could run dbachecks against Azure SQL Databases, to which I had no idea. I always try to be prepared for potential questions that might come up, but I had only been thinking about on-premises environments and hadn’t even considered the cloud.  The benefit is this gives me a great topic for a blog post.&lt;/p>
+&lt;h2 id="step-1--create-an-azure-sql-database">&lt;strong>Step 1 – Create an Azure SQL Database&lt;/strong>&lt;/h2>
+&lt;p>I created a SQL Database through the &lt;a class="link" href="https://portal.azure.com/" target="_blank" rel="noopener"
+>Azure Portal&lt;/a>. The wizard is pretty straightforward and the only real decisions needed were around sizing. Since this is just going to be for a test environment I chose a small ‘Basic’ database.&lt;/p>
+&lt;h2 id="step-2--connect-to-the-database">&lt;strong>Step 2 – Connect to the Database&lt;/strong>&lt;/h2>
+&lt;p>Once the database had been created I navigated to the resource pane in the portal. At the top there is a drop down that helps you get connected using Azure Data Studio.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/Connect-1024x203.jpg"
+loading="lazy"
+alt="Azure SQL Database pane in Azure Portal"
+>&lt;/p>
+&lt;p>Once Azure Data Studio opened, I was asked to confirm I wanted to connect:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ConnectSure.jpg"
+loading="lazy"
+alt="Confirmation prompt for connection"
+>&lt;/p>
+&lt;p>Then a pane opened which enabled me to easily add a firewall rule so client IP could access the Azure SQL Database.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/firewall.jpg"
+loading="lazy"
+alt="Pane in ADS to configure a firewall rule"
+>&lt;/p>
+&lt;p>Once that was completed I was connected through Azure Data Studio and able to interact with my server and database.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ADSConnected-1024x382.jpg"
+loading="lazy"
+alt="ADS connected to Azure SQL Database"
+>&lt;/p>
+&lt;p>Connecting first through Azure Data Studio is not a requirement, but it does help us to get the firewall rules configured and confirm that connecting from our client machine will not be an issue.&lt;/p>
+&lt;p>Another good check to ensure we can connect to our database from PowerShell is to use dbatools’ &lt;code>Connect-DbaInstance&lt;/code>:&lt;/p>
+&lt;p>$cred = Get-Credential
+Connect-DbaInstance -SqlInstance &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo; -SqlCredential $cred&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/connectDbatools-1024x90.jpg"
+loading="lazy"
+alt="Connect-DbaInstance results"
+>&lt;/p>
+&lt;p>The results show we were able to connect successfully.&lt;/p>
+&lt;h2 id="step-3--run-some-dbachecks">&lt;strong>Step 3 – Run some dbachecks&lt;/strong>&lt;/h2>
+&lt;p>First of all let’s run a single check to ensure our database is online and in the expected state. For this we can use the ‘DatabaseStatus’ check.&lt;/p>
+&lt;p>$checkSplat = @{
+SqlInstance = &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo;
+SqlCredential = $cred
+Check = &amp;lsquo;DatabaseStatus&amp;rsquo;
+}
+Invoke-DbcCheck @checkSplat&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/databaseStatus-1-1024x210.jpg"
+loading="lazy"
+alt="DatabaseStatus checks succeed"
+>&lt;/p>
+&lt;p>Here you can easily see, both because of the green result text and plus icon to the left, that our tests were successful. Both the database we created, AzDb01, and the master database are online and have the expected status.&lt;/p>
+&lt;p>dbachecks uses tags on the pester tests to enable you to either call specific tests or groups of checks. Each check has a unique tag. In our previous example it was &lt;code>DatabaseStatus&lt;/code> as well as tags that group like checks, for example &lt;code>Database&lt;/code>.&lt;/p>
+&lt;p>$checkSplat = @{
+SqlInstance = &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo;
+SqlCredential = $cred
+Check = &amp;lsquo;Database’
+}
+Invoke-DbcCheck @checkSplat&lt;/p>
+&lt;p>Running all the database checks against our Azure SQL Database we get some failures.&lt;/p>
+&lt;p>Tests completed in 70.68s
+Tests Passed: 37, Failed: 28, Skipped: 8, Pending: 0, Inconclusive: 0&lt;/p>
+&lt;p>There are a lot of tests that pass or fail with valid reasons. However, some of the failures are due to errors running the check. These are to be expected since this is a PaaS (Platform as a Service) database offering. One example is the suspect pages check.&lt;/p>
+&lt;p>The test failed due to an error in the context block, and it clearly states that the &amp;lsquo;msdb.dbo.suspect_pages&amp;rsquo; table isn’t available in this version of SQL Server.&lt;/p>
+&lt;p>SqlException: Reference to database and/or server name in &amp;lsquo;msdb.dbo.suspect_pages&amp;rsquo; is not supported in this version of SQL Server.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/FailedSuspectPages-1024x192.jpg"
+loading="lazy"
+alt="dbachecks output fails for suspect pages"
+>&lt;/p>
+&lt;p>There are plenty of tests that do work against an Azure SQL Database though, allowing you to keep tabs on many different aspects of your database including:&lt;/p>
+&lt;ul>
+&lt;li>Database Collation&lt;/li>
+&lt;li>Database Owners&lt;/li>
+&lt;li>Column Identity Usage&lt;/li>
+&lt;li>Duplicate Index&lt;/li>
+&lt;li>Disabled Index&lt;/li>
+&lt;li>Auto Shrink&lt;/li>
+&lt;li>Database Orphaned User&lt;/li>
+&lt;li>Compatibility Level&lt;/li>
+&lt;li>Database Status&lt;/li>
+&lt;li>Database Exists&lt;/li>
+&lt;li>And more…&lt;/li>
+&lt;/ul>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>So to answer the question: yes, we can run dbachecks against our Azure SQL Databases. As long as we can connect and the version of SQL Supports the features needed to run the test we can ensure our databases in the cloud are configured just how we like them.&lt;/p></description></item><item><title>T-SQL Tuesday #130 – Automate Your Stress Away</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#130-automate-your-stress-away/</link><pubDate>Wed, 09 Sep 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#130-automate-your-stress-away/</guid><description>&lt;p>&lt;a class="link" href="https://sqlzelda.wordpress.com/2020/09/01/t-sql-tuesday-130-automate-your-stress-away/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>Thanks to Elizabeth Nobel (&lt;a class="link" href="https://sqlzelda.wordpress.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/SQLZelda" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this month’s T-SQL Tuesday party and apologies for being as late as possible to the party! I love the topic of automation so felt sure I’d write something and then time slipped away. Luckily Mikey Bronowski (&lt;a class="link" href="https://www.bronowski.it/blog/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/MikeyBronowski" target="_blank" rel="noopener"
+>t&lt;/a>) convinced me that it wasn’t too late to write something on my lunch break today (Wednesday in the UK) as it’s still Tuesday on Baker Island. Interesting fact Baker Island uses UTC-12:00 because since it’s uninhabited the islands time zone is unspecified (&lt;a class="link" href="https://en.wikipedia.org/wiki/Baker_Island" target="_blank" rel="noopener"
+>Wikipedia&lt;/a>).&lt;/p>
+&lt;h2 id="automating-dbachecks-with-scheduled-task">Automating dbachecks with scheduled task&lt;/h2>
+&lt;p>I wanted to write about automating your daily checks with dbachecks, there are many ways of expanding on this post, but this should give you a good basis to build from.&lt;/p>
+&lt;h3 id="the-environment">The environment&lt;/h3>
+&lt;p>I have two docker containers running on my laptop, one running SQL Server 2017 and one running SQL Server 2019. I will use these SQL Server instances to run my sample daily checks against.&lt;/p>
+&lt;p>I have also created a database on the 2019 instance (mssql2) called dbachecks to store our daily check results.&lt;/p>
+&lt;h3 id="the-checks">The checks&lt;/h3>
+&lt;p>There are hundreds of checks available within the dbachecks module, and on top of that you can even &lt;a class="link" href="https://nocolumnname.blog/2018/02/22/adding-your-own-checks-to-dbachecks/" target="_blank" rel="noopener"
+>write your own&lt;/a> and include those. For this example I’m going to use the ‘DatabaseStatus’ check to ensure all my databases are online as expected.&lt;/p>
+&lt;h3 id="the-automation">The automation&lt;/h3>
+&lt;p>To automate the running of our daily checks we’ll first create a PowerShell script and then schedule that using task scheduler.  If you have other enterprise scheduling tools available you could easily use those instead to invoke the PowerShell script.&lt;/p>
+&lt;p>The script for my example, shown below, is pretty simple. I have a section to define where the data will be stored (the ability to save dbachecks result information straight into a database was introduced with dbachecks 2.0 and so I would highly recommend updating if you’re on an earlier version).&lt;/p>
+&lt;p>The next section (lines 7-9) lists my SQL instances that I want to check, and the checks that should be run.  The list of SQL instances could easily be pulled from a text file, a central management server (CMS) or a database to enhance the script.&lt;/p>
+&lt;p>The final three lines (lines 11-13) run the checks, apply a label of ‘MorningChecks’ (this allows for grouping of test results in the reports) and then inserts the results into the database.&lt;/p>
+&lt;p>Import-Module dbachecks, dbatools&lt;/p>
+&lt;h2 id="dbachecks-database-connection">Dbachecks Database Connection&lt;/h2>
+&lt;p>$dbachecksServer = &amp;lsquo;mssql2&amp;rsquo;
+$dbachecksDatabase = &amp;lsquo;dbachecks&amp;rsquo;&lt;/p>
+&lt;h2 id="define-instances-and-checks-to-run">Define instances and checks to run&lt;/h2>
+&lt;p>$SqlInstance = &amp;lsquo;mssql1&amp;rsquo;,&amp;lsquo;mssql2&amp;rsquo;
+$checks = &amp;lsquo;DatabaseStatus&amp;rsquo;&lt;/p>
+&lt;p>Invoke-DbcCheck -SqlInstance $SqlInstance -Checks $checks -PassThru |
+Convert-DbcResult -Label &amp;lsquo;MorningChecks&amp;rsquo; |
+Write-DbcTable -SqlInstance $dbachecksServer -Database $dbachecksDatabase&lt;/p>
+&lt;p>I saved this script to &lt;code>C:\dbachecks\dbachecks.ps1&lt;/code> and then ran the following PowerShell to schedule the execution of the script daily at 7am.&lt;/p>
+&lt;p>$RunAs = Get-Credential
+$taskSplat = @{
+TaskName = &amp;lsquo;Daily dbachecks&amp;rsquo;
+Action = (New-ScheduledTaskAction -Execute &amp;lsquo;powershell&amp;rsquo; -Argument &amp;lsquo;-File dbachecks.ps1&amp;rsquo; -WorkingDirectory C:\dbachecks)
+Trigger = (New-ScheduledTaskTrigger -Daily -At &amp;lsquo;07:00&amp;rsquo;)
+User = $RunAs.UserName
+Password = ($RunAs.GetNetworkCredential().Password)
+RunLevel = &amp;lsquo;Highest&amp;rsquo;
+}
+Register-ScheduledTask @taskSplat&lt;/p>
+&lt;p>It’s important to note that the account used to run this scheduled task needs to be an account that has access to all of the SQL instances you want to check, as well as the SQL instance you are writing the final data to.&lt;/p>
+&lt;h3 id="results">Results&lt;/h3>
+&lt;p>Since this is now scheduled daily we can grab our morning coffee, sit down at our desk and immediately review our estate and ensure everything is as expected.&lt;/p>
+&lt;p>We wrote the data to a SQL Server so you can go and query the data directly. By default there will be two tables created in the database.&lt;/p>
+&lt;ul>
+&lt;li>CheckResults – contains the actual results of the checks against your server&lt;/li>
+&lt;li>dbachecksChecks – contains the metadata of the checks including tags and descriptions for each check you have invoked.&lt;/li>
+&lt;/ul>
+&lt;p>The other option is to use the dbachecks PowerBi dashboard, by running the following you can load the dashboard and connect to your dbachecks results database:&lt;/p>
+&lt;p>Start-DbcPowerBi -FromDatabase&lt;/p>
+&lt;p>When this opens you can see there were some failures on mssql1, right clicking on the orange bar you can drill through to see the details.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2020/09/dashboard-1.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/dashboard-1-1024x583.jpg"
+loading="lazy"
+alt="dbachecks main dashboard"
+>&lt;/a>&lt;/p>
+&lt;p>On the details pane you can see there are two offline databases that I need to look into.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2020/09/drillthrough.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/drillthrough-1024x279.jpg"
+loading="lazy"
+alt="details view of dbachecks PowerBi"
+>&lt;/a>&lt;/p>
+&lt;h3 id="summary">Summary&lt;/h3>
+&lt;p>Finally, this automation is just the starting piece of automating your daily checks. There are many ways to expand on this, but this is how you can get started with automating daily health checks with dbachecks.&lt;/p>
+&lt;p>Thanks again for hosting, and sorry for being so late!&lt;/p></description></item><item><title>Checking backups with dbachecks</title><link>https://jpomfret.github.io/p/checking-backups-with-dbachecks/</link><pubDate>Thu, 22 Feb 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/checking-backups-with-dbachecks/</guid><description>&lt;p>Folks, there is something fantastic coming from the creators of dbatools!&lt;/p>
+&lt;p>Chrissy LeMaire (&lt;a class="link" href="https://blog.netnerds.net/" target="_blank" rel="noopener"
+>blog&lt;/a>|&lt;a class="link" href="https://twitter.com/cl" target="_blank" rel="noopener"
+>twitter&lt;/a>) and Rob Sewell (&lt;a class="link" href="https://sqldbawithabeard.com/" target="_blank" rel="noopener"
+>blog&lt;/a>|&lt;a class="link" href="https://twitter.com/sqldbawithbeard" target="_blank" rel="noopener"
+>twitter&lt;/a>) just announced something big at SQLBits 2018, a new PowerShell module that combines &lt;a class="link" href="https://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> with &lt;a class="link" href="https://github.com/pester/Pester" target="_blank" rel="noopener"
+>Pester&lt;/a> to ensure your environment is &amp;ldquo;as expected&amp;rdquo;. I&amp;rsquo;ve been lucky enough to get to know both Chrissy and Rob by contributing to dbatools and when they introduced me to this new module I instantly saw a lot of potential.&lt;/p>
+&lt;p>I&amp;rsquo;m going to start off with just a small way to gain some value from dbachecks, ensuring your backups are completing with the frequency you expect.&lt;/p>
+&lt;p>The module is hosted on &lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>GitHub&lt;/a> which means you can fork and contribute to it just as you would with any other open source project. There is also a lot of useful information out there including the &lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks#dbachecks" target="_blank" rel="noopener"
+>readme&lt;/a>.  Reviewing this readme is an important first step as there are a couple of prerequisites and some potential caveats when you go to update the module.&lt;/p>
+&lt;p>You can download a copy of the module from the PowerShell Gallery (if this doesn&amp;rsquo;t work for you due to corporate firewalls, PowerShell version etc. head back to the readme for more ways to get the module):&lt;/p>
+&lt;p>Install-Module dbachecks&lt;/p>
+&lt;p>First off let&amp;rsquo;s take a look at &lt;em>Get-DbcCheck&lt;/em> to look for checks we may want to implement: &lt;img src="https://jpomfret.github.io/images/Get-DbCCheck.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Each check has one unique tag which basically names the check and then a number of other tags that can also be used to call a collection of checks.&lt;/p>
+&lt;p>For this example we are going to use several checks to ensure that we meet the following requirements:&lt;/p>
+&lt;ul>
+&lt;li>Full backup once a week - using &lt;em>LastFullBackup&lt;/em>&lt;/li>
+&lt;li>Differential backup once a day - using &lt;em>LastDiffBackup&lt;/em>&lt;/li>
+&lt;li>Log backup every hour - using &lt;em>LastLogBackup&lt;/em>&lt;/li>
+&lt;/ul>
+&lt;p>Since each of the three checks we want to run also have the &lt;em>LastBackup&lt;/em> tag we can use that to call the collection of checks at once.&lt;/p>
+&lt;p>There are many ways to point dbachecks at your instances, for this simple example we&amp;rsquo;ll just pass in one server name to check.&lt;/p>
+&lt;p>$server = &amp;ldquo;ServerName&amp;rdquo;
+Invoke-DbcCheck -SqlInstance $server -Check LastBackup&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ChecksFailing.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>As you can clearly see from the test results there is a lot of red, meaning I&amp;rsquo;m not meeting backup requirements. However looking closer at the context we can see that the check is not configured for my specific needs &amp;ldquo;StackOverflow full backups on Server should be less than 1 days&amp;rdquo;, but I only require a full backup within 7 days.&lt;/p>
+&lt;p>The checks are set up in a way that make them extremely flexible. You can configure them to meet your needs exactly. We can use &lt;em>Get-DbcConfig&lt;/em> to review the backup configurations.  Here you can see we&amp;rsquo;re looking for full backups every 1 day (policy.backup.fullmaxdays), differentials every 25 hours (policy.backup.diffmaxhours) and log backups every 15 minutes (policy.backup.logmaxminutes).&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/Get-DbcConfig.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Let&amp;rsquo;s change these configuration properties to match our requirements of a full backup within the last 7 days and a log backup in the last 60 minutes.&lt;/p>
+&lt;p>Set-DbcConfig -Name policy.backup.fullmaxdays -Value 7
+Set-DbcConfig -Name policy.backup.logmaxminutes -Value 60&lt;/p>
+&lt;p>Now that the configuration is setup correctly we can rerun and confirm our environment backups are in the green.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ChecksSuccess.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Validating your backups are running is just one small example of how you can utilize dbachecks to keep your environment in line.  In fact this is just the tip of the iceberg, there are 80 checks as of writing this post as well as multiple ways to display the results (including a pretty impressive PowerBi dashboard - &lt;a class="link" href="http://claudioessilva.eu/2018/02/22/dbachecks-using-power-bi-dashboards-to-analyse-results/" target="_blank" rel="noopener"
+>Cláudio Silva has a great post on that&lt;/a>).&lt;/p>
+&lt;p>I hope this has peaked your interest in dbachecks, I suggest heading over to the &lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks#dbachecks" target="_blank" rel="noopener"
+>readme&lt;/a> to learn more or download a copy and get checking right away!&lt;/p>
+&lt;p>Useful links:&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks on github&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="http://dbachecks.io/blog" target="_blank" rel="noopener"
+>dbachecks blog&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://dbachecks.io/introducing" target="_blank" rel="noopener"
+>Introducing dbachecks&lt;/a> - including links to a plethora of blog posts by other contributors&lt;/li>
+&lt;/ul></description></item></channel></rss>

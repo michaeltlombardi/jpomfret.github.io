@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>aggregates on Jess Pomfret</title><link>https://jpomfret.github.io/tags/aggregates/</link><description>Recent content in aggregates on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 23 Jun 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/aggregates/index.xml" rel="self" type="application/rss+xml"/><item><title>Using T-SQL to Aggregate Strings</title><link>https://jpomfret.github.io/p/using-t-sql-to-aggregate-strings/</link><pubDate>Tue, 23 Jun 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/using-t-sql-to-aggregate-strings/</guid><description>&lt;p>I’m a SQL Server Database Engineer by day, but I must say my blog has a lot more PowerShell and automation posts than T-SQL.  However, last week I found a really great T-SQL aggregate function that I had no idea existed, so I thought I’d share it with you.&lt;/p>
+&lt;p>I have been working on a project to document our SQL Server environment and create GitHub issues for things that need fixed. Issues are written in markdown so you can easily generate some pretty good looking issues with plenty of data using PowerShell. This is worth a blog post of it’s own, so keep an eye out for that soon.&lt;/p>
+&lt;p>Long story short I wanted a way to be able to list all the SQL Server instances on the server I was logging the issue for. I have a database with two tables, one that contains server information and one that contains instance information. Running the following gets me one row per server/instance combination.&lt;/p>
+&lt;p>SELECT s.ServerListId, s.ServerName, i.InstanceListId, i.InstanceName
+FROM ServerList s
+INNER JOIN InstanceList i
+ON s.ServerListId = i.ServerListId&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>ServerListId&lt;/th>
+&lt;th>ServerName&lt;/th>
+&lt;th>InstanceListId&lt;/th>
+&lt;th>InstanceName&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>1&lt;/td>
+&lt;td>MSSQL1&lt;/td>
+&lt;td>1&lt;/td>
+&lt;td>MSSQLSERVER&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2&lt;/td>
+&lt;td>MSSQL2&lt;/td>
+&lt;td>2&lt;/td>
+&lt;td>MSSQLSERVER&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>3&lt;/td>
+&lt;td>MSSQL3&lt;/td>
+&lt;td>3&lt;/td>
+&lt;td>MSSQLSERVER&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2&lt;/td>
+&lt;td>MSSQL2&lt;/td>
+&lt;td>4&lt;/td>
+&lt;td>NAMEDINST1&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>2&lt;/td>
+&lt;td>MSSQL2&lt;/td>
+&lt;td>5&lt;/td>
+&lt;td>NAMEDINST2&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>I started thinking about how to group this data by server name and then concatenate the instance names together. Luckily a quick google found &lt;a class="link" href="https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-ver15" target="_blank" rel="noopener"
+>STRING_AGG()&lt;/a>. This T-SQL aggregate function has only been available since SQL Server 2017, and does exactly what I needed. It takes two parameters, the first being the column name that should be aggregated and the second a separator to use.&lt;/p>
+&lt;p>For this example I’ll group by ServerName, and aggregate the InstanceName column using a comma to separate the values.&lt;/p>
+&lt;p>SELECT ServerName, STRING_AGG(InstanceName,&amp;rsquo;, &amp;lsquo;) as InstanceName
+FROM ServerList s
+INNER JOIN InstanceList i
+ON s.ServerListId = i.ServerListId
+GROUP BY ServerName&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>ServerName&lt;/th>
+&lt;th>InstanceName&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>MSSQL1&lt;/td>
+&lt;td>MSSQLSERVER&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>MSSQL2&lt;/td>
+&lt;td>MSSQLSERVER, NAMEDINST1, NAMEDINST2&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>MSSQL3&lt;/td>
+&lt;td>MSSQLSERVER&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>Hope some of you find this quick T-SQL post useful. It definitely fit my need well for this scenario.&lt;/p></description></item></channel></rss>

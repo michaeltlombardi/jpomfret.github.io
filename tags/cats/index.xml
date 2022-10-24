@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>cats on Jess Pomfret</title><link>https://jpomfret.github.io/tags/cats/</link><description>Recent content in cats on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Thu, 16 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/cats/index.xml" rel="self" type="application/rss+xml"/><item><title>PowerShell Comment Based Help: Examples with Multiple Lines of Code</title><link>https://jpomfret.github.io/p/powershell-comment-based-help-examples-with-multiple-lines-of-code/</link><pubDate>Thu, 16 May 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/powershell-comment-based-help-examples-with-multiple-lines-of-code/</guid><description>&lt;p>One of the reasons I love PowerShell is the comment based help. This allows you to easily get documentation for functions directly within your PowerShell session. By using &lt;code>Get-Help&lt;/code> for a function you can retrieve a description, information on the parameters, and examples of how to use the function.&lt;/p>
+&lt;p>Recently I was adding help to a function  and wanted to add two lines of code to my example. Usually the syntax for an example looks like this:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">.EXAMPLE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Get-Cat
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">This will get me a default of one cat.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The first line under &lt;code>.EXAMPLE&lt;/code> will be formatted with a PowerShell prompt in front to show it is code. The second line is a description of the example.&lt;/p>
+&lt;p>If I want to add two lines of code, and I used the following, it would only display the first line with a prompt as shown in the screenshot below.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">.EXAMPLE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$cats = 4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Get-Cat -NumberOfCats $cats
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Store the number of cats in a variable and then get that number of cats.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/example_first.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>You can see above the first example looks good, however in the second example the first two lines should both have a prompt to show they are code. I spent a little while Googling this without much avail. I then figured, somewhere within &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
+>dbatools&lt;/a> there must be an example with two lines of code. Sure enough I found my answer, and it’s pretty straightforward. You just add the prompt to the code yourself and then when the example is displayed it is formatted properly.&lt;/p>
+&lt;p>I changed my examples to the following and you can see now they display as expected.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">.EXAMPLE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PS C:\&amp;gt;Get-Cat
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">This will get me a default of one cat.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.EXAMPLE
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PS C:\&amp;gt;$cats = 4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PS C:\&amp;gt;Get-Cat -NumberOfCats $cats
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Store the number of cats in a variable and then get that number of cats.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/example_second.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>I know you’re all dying to see the result of my &lt;code>Get-Cat&lt;/code> function so here you go. If you need to add this to your PowerShell profile etc. so you can quickly brighten any day, the code is on my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/02_CommentBasedHelp_Examples.ps1" target="_blank" rel="noopener"
+>github&lt;/a>.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/cats.jpg"
+loading="lazy"
+>&lt;/p></description></item></channel></rss>

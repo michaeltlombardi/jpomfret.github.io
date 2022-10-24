@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>secondary-replica on Jess Pomfret</title><link>https://jpomfret.github.io/tags/secondary-replica/</link><description>Recent content in secondary-replica on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Fri, 07 Sep 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/secondary-replica/index.xml" rel="self" type="application/rss+xml"/><item><title>Testing Availability Group Read-Only Routing with dbatools</title><link>https://jpomfret.github.io/p/testing-availability-group-read-only-routing-with-dbatools/</link><pubDate>Fri, 07 Sep 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/testing-availability-group-read-only-routing-with-dbatools/</guid><description>&lt;p>I recently set up an Availability Group with the intent of using the secondary as a read only replica for reporting.  We have a few AG&amp;rsquo;s in our environment already but currently none are using this feature.&lt;/p>
+&lt;p>I&amp;rsquo;m not going to step through setting up the AG or configuring the readable secondary as there are plenty of good posts out there as well as the official &lt;a class="link" href="https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/configure-read-only-access-on-an-availability-replica-sql-server?view=sql-server-2017" target="_blank" rel="noopener"
+>books online documentation&lt;/a>.&lt;/p>
+&lt;p>Once my AG was created I set the &amp;lsquo;Connections in Primary Role&amp;rsquo; to &amp;lsquo;Allow read/write connections&amp;rsquo; and the &amp;lsquo;Readable Secondary&amp;rsquo; to &amp;lsquo;Read-intent only&amp;rsquo; as shown below. On a side note it&amp;rsquo;s important to set these for both instances, if you&amp;rsquo;re running with 01B as the Primary after a failover by setting both you&amp;rsquo;ll get the same behavior, with read only connections being routed to the now secondary, 01A server.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/AGReplicas.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>The other part I needed to set up was &lt;a class="link" href="https://docs.microsoft.com/en-us/sql/database-engine/availability-groups/windows/configure-read-only-routing-for-an-availability-group-sql-server?view=sql-server-2017" target="_blank" rel="noopener"
+>read-only routing&lt;/a>, this enables SQL Server to reroute those read only connections to the appropriate replica.  You can also list the read only replicas by priority if you have multiple available or you can group them to enable load-balancing.&lt;/p>
+&lt;p>Although this seems to be setup correctly so that connections that specify their application intent of read only will be routed to the secondary node I wanted to prove it. I used the &lt;a class="link" href="https://dbatools.io/functions/connect-dbainstance/" target="_blank" rel="noopener"
+>Connect-DbaInstance&lt;/a> function from dbatools to connect to the listener name with the -ApplicationIntent property set to &amp;lsquo;ReadOnly&amp;rsquo;.&lt;/p>
+&lt;p>$svr = Connect-DbaInstance -SqlInstance AGListenerName `
+-Database DatabaseInAG `
+-ApplicationIntent ReadOnly&lt;/p>
+&lt;p>$svr.Query(&amp;lsquo;Select @@ServerName as ServerName&amp;rsquo;)&lt;/p>
+&lt;h2 id="servername">ServerName&lt;/h2>
+&lt;p>*******01B&lt;/p>
+&lt;p>You can see it routed correctly to 01B which is currently the secondary node.  If I don&amp;rsquo;t specify the ApplicationIntent property on the connection it&amp;rsquo;ll be routed to the primary.&lt;/p>
+&lt;p>$svr = Connect-DbaInstance -SqlInstance AGListenerName `
+-Database DatabaseInAG&lt;/p>
+&lt;p>$svr.Query(&amp;lsquo;Select @@ServerName as ServerName&amp;rsquo;)&lt;/p>
+&lt;h2 id="servername-1">ServerName&lt;/h2>
+&lt;p>*******01A&lt;/p>
+&lt;p>This was a quick and easy way to ensure my read only routing was working as expected, and another great use of dbatools.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>activedirectory on Jess Pomfret</title><link>https://jpomfret.github.io/tags/activedirectory/</link><description>Recent content in activedirectory on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Thu, 07 Jul 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/activedirectory/index.xml" rel="self" type="application/rss+xml"/><item><title>Run ActiveDirectory PowerShell commands against another domain</title><link>https://jpomfret.github.io/p/run-activedirectory-powershell-commands-against-another-domain/</link><pubDate>Thu, 07 Jul 2022 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/run-activedirectory-powershell-commands-against-another-domain/</guid><description>&lt;img src="https://jpomfret.github.io/cover.jpg" alt="Featured image of post Run ActiveDirectory PowerShell commands against another domain" />&lt;p>Active Directory groups are used all over our IT estates. They can be used to simplify managing SQL Server access (&lt;a class="link" href="https://jesspomfret.com/sql-server-permissions-via-ad/" target="_blank" rel="noopener"
+>Discover SQL Server Permissions hidden via AD Group Membership&lt;/a>) as well as for other applications. One of my favourite commands from the &lt;a class="link" href="https://docs.microsoft.com/en-us/powershell/module/activedirectory/?view=windowsserver2022-ps" target="_blank" rel="noopener"
+>ActiveDirectory PowerShell module&lt;/a> is &lt;code>Get-AdUser&lt;/code>, specifically when used in the following snippet:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Get-ADUser&lt;/span> &lt;span class="n">UserName&lt;/span> &lt;span class="n">-Properties&lt;/span> &lt;span class="n">MemberOf&lt;/span> &lt;span class="p">|&lt;/span> &lt;span class="nb">Select-Object&lt;/span> &lt;span class="n">-ExpandProperty&lt;/span> &lt;span class="n">MemberOf&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>This snippet will list all the groups the user is in. Super useful for troubleshooting permissions issues or if you’re onboarding a new employee and want to see what groups their peers are in. But what happens if your environment consists of multiple domains, and you have a query about a user in another domain?&lt;/p>
+&lt;p>Well good news - here’s the answer!&lt;/p>
+&lt;p>First we need to know a little about the other domain, specifically the name of a domain controller in that domain. We can find that out by running the following in a console:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">PS&lt;/span>&lt;span class="p">&amp;gt;&lt;/span> &lt;span class="n">nltest&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">dclist&lt;/span>&lt;span class="err">:&lt;/span>&lt;span class="n">otherdomain&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">com&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">Get&lt;/span> &lt;span class="n">list&lt;/span> &lt;span class="n">of&lt;/span> &lt;span class="n">DCs&lt;/span> &lt;span class="k">in&lt;/span> &lt;span class="n">domain&lt;/span> &lt;span class="s1">&amp;#39;otherdomain.com&amp;#39;&lt;/span> &lt;span class="n">from&lt;/span> &lt;span class="s1">&amp;#39;\\\\DC1.otherdomain.com&amp;#39;&lt;/span>&lt;span class="p">.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">DC1&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">otherdomain&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">com&lt;/span> &lt;span class="p">\[&lt;/span>&lt;span class="n">PDC&lt;/span>&lt;span class="p">\]&lt;/span> &lt;span class="p">\[&lt;/span>&lt;span class="n">DS&lt;/span>&lt;span class="p">\]&lt;/span> &lt;span class="n">Site&lt;/span>&lt;span class="err">:&lt;/span> &lt;span class="n">London&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">DC2&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">otherdomain&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">com&lt;/span> &lt;span class="p">\[&lt;/span>&lt;span class="n">DS&lt;/span>&lt;span class="p">\]&lt;/span> &lt;span class="n">Site&lt;/span>&lt;span class="err">:&lt;/span> &lt;span class="n">London&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">DC3&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">otherdomain&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">com&lt;/span> &lt;span class="p">\[&lt;/span>&lt;span class="n">DS&lt;/span>&lt;span class="p">\]&lt;/span> &lt;span class="n">Site&lt;/span>&lt;span class="err">:&lt;/span> &lt;span class="n">London&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">The&lt;/span> &lt;span class="n">command&lt;/span> &lt;span class="n">completed&lt;/span> &lt;span class="n">successfully&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The results are shown above, and in this example you can see there are three domain controllers. We can pick any for the next step. Once we have the domain controller we just need to add the &lt;code>-Server&lt;/code> parameter to our original snippet:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Get-ADUser&lt;/span> &lt;span class="n">AnotherUserName&lt;/span> &lt;span class="n">-Server&lt;/span> &lt;span class="n">DC1&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">otherdomain&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">com&lt;/span> &lt;span class="n">-Properties&lt;/span> &lt;span class="n">MemberOf&lt;/span> &lt;span class="p">|&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Select-Object&lt;/span> &lt;span class="n">-ExpandProperty&lt;/span> &lt;span class="n">MemberOf&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>This will now return all the groups that &lt;code>AnotherUserName@otherdomain.com&lt;/code> is in.&lt;/p>
+&lt;p>For full transparency, I used this tip a lot at a previous job but today when I needed it I couldn’t remember how to get the name of the AD controller. So this blog is for future Jess, because let’s be honest, I’ll be back here soon.&lt;/p></description></item><item><title>Discover SQL Server Permissions hidden via AD Group Membership</title><link>https://jpomfret.github.io/p/discover-sql-server-permissions-hidden-via-ad-group-membership/</link><pubDate>Tue, 26 Jan 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/discover-sql-server-permissions-hidden-via-ad-group-membership/</guid><description>&lt;p>When granting permissions to SQL Server resources we have a few options. One option is to grant permissions to Active Directory groups instead of individual users.  This has several benefits, for example, improved security over using SQL logins, and the ability to create a separation of duties when controlling database access.&lt;/p>
+&lt;p>However, it does add an extra step when trying to determine who has what access to your SQL Servers. It can also make troubleshooting permission issues more challenging.  This post is going to aim to simplify this by combining dbatools and ActiveDirectory PowerShell modules to provide a clear solution.&lt;/p>
+&lt;h2 id="setup">&lt;strong>Setup&lt;/strong>&lt;/h2>
+&lt;p>This is obviously not needed in our actual environments, this is just how I prepared my lab so I could demonstrate how we can solve this problem.  Feel free to skip ahead to the solution if you already have plenty of AD groups to investigate.&lt;/p>
+&lt;p>The full code sample is available in my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/07_PermisssionsGrantedViaADGroups.ps1" target="_blank" rel="noopener"
+>GitHub demos repo&lt;/a>.&lt;/p>
+&lt;p>First, I created some AD users and groups to use in my lab. This is easily achieved with the AD PowerShell module using &lt;code>New-AdUser&lt;/code> and &lt;code>New-AdGroup&lt;/code>. Then, using &lt;code>Add-AdGroupMember&lt;/code>, I added two users into the newly created group.&lt;/p>
+&lt;p># setup - create some AD users\groups uing the ActiveDirectory module&lt;/p>
+&lt;h1 id="create-several-new-ad-users">create several new ad users&lt;/h1>
+&lt;p>(&amp;lsquo;pomfretJ&amp;rsquo;,&amp;lsquo;smithA&amp;rsquo;, &amp;lsquo;jonesP&amp;rsquo;,&amp;lsquo;barnesR&amp;rsquo;).foreach{New-AdUser $_}&lt;/p>
+&lt;h1 id="view-newly-created-users">view newly created users&lt;/h1>
+&lt;p>$date = (get-date).AddHours(-1)
+get-aduser -filter {created -gt $date} | select name&lt;/p>
+&lt;h1 id="create-a-new-ad-group">create a new Ad group&lt;/h1>
+&lt;p>$newAdGroup = @{
+Name = &amp;lsquo;AdventureWorksReadOnly&amp;rsquo;
+GroupCategory = &amp;lsquo;Security&amp;rsquo;
+GroupScope = &amp;lsquo;Global&amp;rsquo;
+Path = &amp;lsquo;CN=Users,DC=pomfret,DC=com&amp;rsquo;
+}
+New-ADGroup @newAdGroup&lt;/p>
+&lt;h1 id="add-users-to-group">add users to group&lt;/h1>
+&lt;p>$addMemberGroup = @{
+Identity = &amp;lsquo;AdventureWorksReadOnly&amp;rsquo;
+Members = &amp;lsquo;pomfretj&amp;rsquo;, &amp;lsquo;jonesP&amp;rsquo;
+}
+Add-ADGroupMember @addMemberGroup&lt;/p>
+&lt;p>The second part of the setup was to add an AD group and an AD user to the SQL Server and grant some permissions using dbatools.&lt;/p>
+&lt;p># setup - grant permissions to ad users\groups using dbatools&lt;/p>
+&lt;h1 id="add-ad-group-and-grant-permissions-db_datareader-to-adventureworks">add ad group and grant permissions (db_datareader to AdventureWorks)&lt;/h1>
+&lt;p>New-DbaLogin -SqlInstance dscsvr1 -Login &amp;lsquo;Pomfret\AdventureWorksReadOnly&amp;rsquo;
+New-DbaDbUser -SqlInstance dscsvr1 -Database AdventureWorks2017 -Login &amp;lsquo;Pomfret\AdventureWorksReadOnly&amp;rsquo;
+Add-DbaDbRoleMember -SqlInstance dscsvr1 -Database AdventureWorks2017 -Role db_datareader -User &amp;lsquo;Pomfret\AdventureWorksReadOnly&amp;rsquo; -Confirm:$false&lt;/p>
+&lt;h1 id="add-ad-user-to-sql-server-and-provide-permissions-db_owner-to-adventureworks">add ad user to sql server and provide permissions (db_owner to AdventureWorks)&lt;/h1>
+&lt;p>New-DbaLogin -SqlInstance dscsvr1 -Login &amp;lsquo;Pomfret\smithA&amp;rsquo;
+New-DbaDbUser -SqlInstance dscsvr1 -Database AdventureWorks2017 -Login &amp;lsquo;Pomfret\smithA&amp;rsquo;
+Add-DbaDbRoleMember -SqlInstance dscsvr1 -Database AdventureWorks2017 -Role db_owner -User &amp;lsquo;Pomfret\smithA&amp;rsquo; -Confirm:$false&lt;/p>
+&lt;h2 id="viewing-database-access">&lt;strong>Viewing database access&lt;/strong>&lt;/h2>
+&lt;p>Now that my lab environment is set up, let’s take a look at database users that have access to the AdventureWorks2017 database.  This is an easy task thanks to dbatools, we can just use &lt;code>Get-DbaDbUser&lt;/code>. Shown below, you can clearly see there is a WindowsUser &amp;lsquo;smithA&amp;rsquo; that has access, as well as a WindowsGroup &amp;lsquo;AdventureWorksReadOnly&amp;rsquo;.&lt;/p>
+&lt;p># Find users that have permissions through group membership
+Get-DbaDbUser -SqlInstance dscsvr1 -Database AdventureWorks2017 -ExcludeSystemUser | Select-Object SqlInstance, Database, Login, LoginType, HasDbAccess&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/01/GetDbaDbUser.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/GetDbaDbUser.png"
+loading="lazy"
+alt="Get-DbaDbUser results"
+>&lt;/a>&lt;/p>
+&lt;p>We can also use &lt;code>Get-DbaDbRoleMember&lt;/code> to see exactly which database roles these users have been granted. &lt;/p>
+&lt;p>Get-DbaDbRoleMember -SqlInstance dscsvr1 -Database AdventureWorks2017 | Select-Object SqlInstance, Database, role, Login&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/01/Get-DbaDbRoleMember.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/Get-DbaDbRoleMember.png"
+loading="lazy"
+alt="Get-DbaDbRoleMember output"
+>&lt;/a>&lt;/p>
+&lt;p>The issue is the same for both these examples, we don’t know which users are inheriting the permissions granted to the &amp;lsquo;AdventureWorksReadOnly&amp;rsquo; group. This is where we need to combine these two modules to get the answers we need.&lt;/p>
+&lt;p>There are several ways you could combine the output of two functions. For this example I’m going to use a calculated property.&lt;/p>
+&lt;p>If I run the exact same code as before to get a list of role members from the dbatools function &lt;code>Get-DbaDbRoleMember&lt;/code>, I can add a calculated property in the Select-Object to lookup the members of that specific group from active directory.  In the example below you can see the &amp;lsquo;AdventureWorksReadOnly&amp;rsquo; group has two members, and we now know that both &amp;lsquo;pomfretJ&amp;rsquo; and &amp;lsquo;jonesP&amp;rsquo; have read access to the AdventureWorks2017 database. &lt;/p>
+&lt;p>You can also still see the WindowsUser, &amp;lsquo;smithA&amp;rsquo;, has db_owner permissions.  Since that lookup didn’t return any results (obviously, since it’s a user not a group), the GroupMembers property remains empty.&lt;/p>
+&lt;p>Get-DbaDbRoleMember -SqlInstance dscsvr1 -Database AdventureWorks2017 |
+Select-Object SqlInstance, Database, Role, LoginType, Login, @{l=&amp;lsquo;GroupMembers&amp;rsquo;;e={ (Get-AdGroupMember -Identity ($_.Login).Split(&amp;rsquo;\&amp;rsquo;)[1]).Name }}&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/01/FinalOutput.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/FinalOutput.png"
+loading="lazy"
+alt="Combining Get-DbaDbRoleMember &amp; Get-AdGroupMember"
+>&lt;/a>&lt;/p>
+&lt;p>You can also use this same code to determine specific user access, for example, by adding a Where-Object to see just the permissions granted to &amp;lsquo;pomfretJ&amp;rsquo;.&lt;/p>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>This should give you an easy option for determining specific user access that is hidden behind AD groups, and I think reduces one of the negatives of using AD groups in this situation.  It also shows us that we can combine multiple functions into one to get all the information we need with one easy line of code.&lt;/p>
+&lt;p>I would also encourage you to explore the other permission related dbatools functions available, including &lt;code>Get-DbaServerRole&lt;/code> and &lt;code>Get-DbaPermission&lt;/code>. These can also be used in combination with &lt;code>Get-AdGroupMember&lt;/code> to enhance the results.&lt;/p></description></item></channel></rss>

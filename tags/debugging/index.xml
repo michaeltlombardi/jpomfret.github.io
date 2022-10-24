@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>debugging on Jess Pomfret</title><link>https://jpomfret.github.io/tags/debugging/</link><description>Recent content in debugging on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 07 Apr 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/debugging/index.xml" rel="self" type="application/rss+xml"/><item><title>Interactive debugging in VSCode</title><link>https://jpomfret.github.io/p/interactive-debugging-in-vscode/</link><pubDate>Tue, 07 Apr 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/interactive-debugging-in-vscode/</guid><description>&lt;p>I was browsing twitter the other day when a tweet about dbatools caught my eye (I use &lt;a class="link" href="https://tweetdeck.twitter.com/" target="_blank" rel="noopener"
+>TweetDeck&lt;/a> and so have a column for tweets that contain &lt;a class="link" href="http://twitter.com/psdbatools" target="_blank" rel="noopener"
+>@PSdbatools&lt;/a>).&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/way0utwest/status/1242891971473137666" target="_blank" rel="noopener"
+>https://twitter.com/way0utwest/status/1242891971473137666&lt;/a>&lt;/p>
+&lt;p>A dbatools bug!! Oh no!&lt;/p>
+&lt;p>One of the reasons this caught my eye was that I’ve seen this error in my environment with that same command. I had discounted that it was a bug and figured it was instead something in my environment. I presumed it was something related to the fact I was using containers and Azure Data Studio connections.&lt;/p>
+&lt;p>Step one for dbatools bug fixing is to check for an issue on the &lt;a class="link" href="http://dbatools.io/bugs" target="_blank" rel="noopener"
+>GitHub repo&lt;/a> and create one if there isn’t one already. It turned out that there was &lt;a class="link" href="https://github.com/sqlcollaborative/dbatools/issues/6292" target="_blank" rel="noopener"
+>one already created&lt;/a> so we’re covered there.&lt;/p>
+&lt;p>So I figured I’d take a look and see what was happening and how we could fix it. Now I’m going to be honest with you, my usual method of debugging involves adding &lt;code>Write-Host 'Hi&lt;/code>&amp;rsquo;, or piping objects to &lt;code>Out-GridView&lt;/code>. I did start down this route, but the &lt;code>Get-DbaRegServer&lt;/code> function calls an internal function, and things quickly got complicated.&lt;/p>
+&lt;p>Luckily, the &lt;a class="link" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.PowerShell" target="_blank" rel="noopener"
+>PowerShell extension for VSCode&lt;/a> includes a debugger so we can level up our game and use that to track down our issues. Since I haven’t already used this for my dbatools folder when I click the ‘Run’ icon on the left navigation bar I see the following:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/startDebug.jpg"
+loading="lazy"
+alt="run and debug window in VSCode"
+>&lt;/p>
+&lt;p>Pressing the ‘Run and Debug’ button will run your active file and, if you have breakpoints set up, then it’ll break at those points for you to troubleshoot. This is really useful if you have written a script and it’s not working correctly. Since I’m troubleshooting the call of a function I could write a simple script with the code to call the function, save it and then press ‘Run and Debug’. However there is another option, and that is to launch an interactive debugger. &lt;/p>
+&lt;p>Pressing the ‘create a launch.json file’ link opens the command palette with the option to choose your PowerShell debug configuration. Choosing the ‘Interactive Session’ configuration means we can use the integrated console within VSCode to call functions and launch the debugger.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/debugConfig.jpg"
+loading="lazy"
+alt="Select a PowerShell debug configuration"
+>&lt;/p>
+&lt;p>This will open a launch.json file that you can edit to add more functionality and customization, but we’ll just save it as is right now.&lt;/p>
+&lt;p>{
+// Use IntelliSense to learn about possible attributes.
+// Hover to view descriptions of existing attributes.
+// For more information, visit: &lt;a class="link" href="https://go.microsoft.com/fwlink/?linkid=830387" target="_blank" rel="noopener"
+>https://go.microsoft.com/fwlink/?linkid=830387&lt;/a>
+&amp;ldquo;version&amp;rdquo;: &amp;ldquo;0.2.0&amp;rdquo;,
+&amp;ldquo;configurations&amp;rdquo;: [
+{
+&amp;ldquo;name&amp;rdquo;: &amp;ldquo;PowerShell: Interactive Session&amp;rdquo;,
+&amp;ldquo;type&amp;rdquo;: &amp;ldquo;PowerShell&amp;rdquo;,
+&amp;ldquo;request&amp;rdquo;: &amp;ldquo;launch&amp;rdquo;,
+&amp;ldquo;cwd&amp;rdquo;: &amp;quot;&amp;quot;
+}
+]
+}&lt;/p>
+&lt;p>As soon as you save it the left ‘Run and Debug’ pane will change to look like this. Now we’re ready to run the interactive debugger by pressing the green play button or F5.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DebugInteractive.jpg"
+loading="lazy"
+alt="Debug and Run window for PowerShell extension"
+>&lt;/p>
+&lt;p>So now that we’re set up, let’s start troubleshooting.&lt;/p>
+&lt;p>Step one is to reproduce this issue. This particular bug was easy to reproduce. The only requirements are that you have Azure Data Studio installed and at least one connection set up, then just running &lt;code>Get-DbaRegServer&lt;/code> caused the error.&lt;/p>
+&lt;p>Next we need to add some breakpoints. These need to be the positions in the code where you want to stop execution and take a look at how things are set in the moment. It’s also a great way to see if you entered certain sections of the code that may be guarded by conditional logic.&lt;/p>
+&lt;p>Running &lt;code>Get-DbaRegServer&lt;/code> in the integrated console you can see the error, even down to the line from the function where the error is being thrown. In the screenshot below you can see hovering over that line in VSCode allows you to follow the link to open the function and navigate to the exact line.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDbaRegServerError.jpg"
+loading="lazy"
+alt="Get-DbaRegServer throws an error"
+>&lt;/p>
+&lt;p>Line 180 of the Get-DbaRegServer is the following:&lt;/p>
+&lt;p>$tempserver.ConnectionString = $adsconn.ConnectionString&lt;/p>
+&lt;p>We’ll insert a breakpoint here by clicking in the gutter at line 180.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/addBreakpoint.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Now pressing F5 the interactive debugger will start, and we can rerun &lt;code>Get-DbaRegServer&lt;/code> in the interactive console. When we do that as soon as the execution gets to line 180 the code will stop, waiting for us to respond.&lt;/p>
+&lt;p>You can see below that we are able to find the &lt;code>$adsconn&lt;/code> variable in the variables pane on the left and see that it’s actually an object with three values – which is the issue here – we’re expecting to only have one returned.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2020/04/breakpoint.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://i2.wp.com/jesspomfret.com/wp-content/uploads/2020/04/breakpoint.jpg?fit=650%2C246&amp;amp;ssl=1"
+loading="lazy"
+alt="VSCode code stopped at breakpoint, displaying variables"
+>&lt;/a>&lt;/p>
+&lt;p>I read back through the &lt;code>Get-DbaRegServer&lt;/code> function to find where the &lt;code>$adsconn&lt;/code> variable was set and found it was from calling the internal function &lt;code>Get-ADSConnection&lt;/code>. I added in another breakpoint within that function to dig in deeper.&lt;/p>
+&lt;p>Adding the breakpoint within the second function means that when we call &lt;code>Get-RegServer&lt;/code> and then that calls &lt;code>Get-ADSConnection&lt;/code> the code will wait within the second function and allow you to inspect variables within that function.&lt;/p>
+&lt;p>This meant that I was able to determine that there were several connection strings being returned for each server and that we needed to filter down to one.&lt;/p>
+&lt;p>Changing line 174 in the &lt;code>Get-DbaRegServer&lt;/code> function to include an additional filter, shown below, meant that only one connection string was returned and solved the problem.&lt;/p>
+&lt;p>$adsconn = $adsconnection | Where-Object { $_.server -eq $server.Options[&amp;lsquo;server&amp;rsquo;] -and -not $_.database }&lt;/p>
+&lt;p>Hopefully this walkthrough shows a useful way of using the interactive debugger to hunt down bugs.&lt;/p></description></item></channel></rss>

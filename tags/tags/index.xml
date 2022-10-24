@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tags on Jess Pomfret</title><link>https://jpomfret.github.io/tags/tags/</link><description>Recent content in tags on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 23 Mar 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/tags/index.xml" rel="self" type="application/rss+xml"/><item><title>Keeping track of Azure resources with tags – Part 2</title><link>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-2/</link><pubDate>Tue, 23 Mar 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-2/</guid><description>&lt;p>Last week, in &lt;a class="link" href="https://jesspomfret.com/azure-tags-part1/" target="_blank" rel="noopener"
+>Part 1&lt;/a>, we talked about how to easily keep track of our resources with tags. There are many strategies for tagging your resources but I specifically focused on adding a ‘dateCreated’ tag so we could see when resources were created – since this isn’t available by default.  During that post we identified the biggest issue we had was that we were relying on a human to remember to add the ‘dateCreated’ tag for every resource they created. I’ve got two ideas on how to fix that – today we’ll look at the first option, using &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/governance/policy/overview" target="_blank" rel="noopener"
+>Azure Policy&lt;/a>.&lt;/p>
+&lt;p>Azure Policy is a way of comparing your Azure estate to defined requirements. You can either use predefined definitions (of which there are many) or create your own specific rules.  These definitions can be assigned to certain scopes (subscriptions, resource groups). Azure Policy then reports on whether you’re in the expected state and in some cases can alter resources to ensure you are.&lt;/p>
+&lt;h2 id="step-1--define-a-policy">&lt;strong>Step 1 – Define a policy&lt;/strong>&lt;/h2>
+&lt;p>In our example, all resources should have a ‘dateCreated’ tag, and if Azure Policy finds the tag is missing, it should add that tag with the current date.&lt;/p>
+&lt;p>There are a few steps to set up our policy for ensuring the ‘dateCreated’ tag exists on all resources. First we need to write a policy definition in JSON.  Don’t panic yet though – there are a lot of examples in the &lt;a class="link" href="https://github.com/Azure/azure-policy" target="_blank" rel="noopener"
+>Azure/azure-policy&lt;/a> GitHub repo that we can start with.  By browsing the repo you can find the ‘&lt;a class="link" href="https://github.com/Azure/azure-policy/tree/master/samples/Tags/add-tag" target="_blank" rel="noopener"
+>add-tag&lt;/a>’ policy which is the perfect base for us to build off of.  &lt;/p>
+&lt;p>When viewing that GitHub page there is a ‘Deploy to Azure’ button- clicking that (presuming you’re logged into the portal) will take you straight to the ‘New Policy Definition’ wizard where we can modify our policy to meet our needs and save it. &lt;/p>
+&lt;p>You’ll need to choose a ‘Definition Location’ (which is the subscription this policy should reside in), name your policy, and edit the description if needed. The GitHub template has already specified this will go in the ‘Tags’ category,but you can change that if you’re keeping custom policies in a new category. Then we get to the policy rule, it’s JSON time.&lt;/p>
+&lt;p>Since we imported the sample from GitHub the JSON is almost exactly what we need. The first section defines the rules and the second section defines parameters.  In this case we’re going to remove the parameter section and change the tag name and values expected to be static. This means that the policy will only ever be used for adding the specific ‘dateCreated’ tag.  The reason for this is we’re going to add some logic to the tag value so it contains the current date. (It is possible that this can be achieved with parameters, but I couldn’t get it to work. Please let me know in the comments if you know differently). &lt;/p>
+&lt;p>The JSON below is pretty simple. There are two main sections: the condition to be met and then the operation to carry out if the conditions are met.  In the conditions section we’re looking to see if the dateCreated tag exists, if it doesn’t we’ll move onto the second section of the JSON. This defines what to do about it, and in this case it’s pretty simple, we’ll modify the target and add the dateCreated tag.  The tag value is dynamic and uses a &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions" target="_blank" rel="noopener"
+>resource manager template function&lt;/a> to get the current date.  There are a &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure#policy-functions" target="_blank" rel="noopener"
+>few restrictions&lt;/a> on using functions within policy definitions, one being that we can’t overload the uctNow function with a format parameter so we’ll only be able to get a date in ISO 8601 (yyyyMMddTHHmmssZ) format.&lt;/p>
+&lt;p>{
+&amp;ldquo;mode&amp;rdquo;: &amp;ldquo;Indexed&amp;rdquo;,
+&amp;ldquo;policyRule&amp;rdquo;: {
+&amp;ldquo;if&amp;rdquo;: {
+&amp;ldquo;field&amp;rdquo;: &amp;ldquo;tags[&amp;lsquo;dateCreated&amp;rsquo;]&amp;rdquo;,
+&amp;ldquo;exists&amp;rdquo;: &amp;ldquo;false&amp;rdquo;
+},
+&amp;ldquo;then&amp;rdquo;: {
+&amp;ldquo;effect&amp;rdquo;: &amp;ldquo;modify&amp;rdquo;,
+&amp;ldquo;details&amp;rdquo;: {
+&amp;ldquo;roleDefinitionIds&amp;rdquo;: [
+&amp;ldquo;/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c&amp;rdquo;
+],
+&amp;ldquo;operations&amp;rdquo;: [
+{
+&amp;ldquo;operation&amp;rdquo;: &amp;ldquo;add&amp;rdquo;,
+&amp;ldquo;field&amp;rdquo;: &amp;ldquo;tags[&amp;lsquo;dateCreated&amp;rsquo;]&amp;rdquo;,
+&amp;ldquo;value&amp;rdquo;: &amp;ldquo;[utcNow()]&amp;rdquo;
+}
+]
+}
+}
+}
+}&lt;/p>
+&lt;p>The final decision to make for our new policy definition is the ‘Role definition’. Since our policy has remediation actions, the operation to add tags if needed, a &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview" target="_blank" rel="noopener"
+>managed identity&lt;/a> will be created for the policy.  The ‘role definition’ is the permissions that will be granted to that managed identity.  The default is ‘Contributor’ which assigns ‘full access to manage all resources’. This can be changed based on what your policy needs access to.&lt;/p>
+&lt;h2 id="step-2--assign-the-policy">&lt;strong>Step 2 – Assign the policy&lt;/strong>&lt;/h2>
+&lt;p>We’ve now defined our policy, but the second part of this process is to assign that policy a scope. This outlines what this policy applies to. The scope can be a subscription or resource group, and can be more finely tuned by excluding specific resources that you don’t want to apply the policy too.  Then it’s as easy as selecting the policy we defined, setting an ‘Assignment name’, which could be a combination of policy name and assigned score, and adding an optional description.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/assignPolicy.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/assignPolicy.png"
+loading="lazy"
+alt="Assign policy screen in Azure"
+>&lt;/a>&lt;/p>
+&lt;h2 id="step-3--test-the-policy">&lt;strong>Step 3 – Test the policy&lt;/strong>&lt;/h2>
+&lt;p>The easiest way to test our policy is to create a resource without the ‘dateCreated’ tag and see what happens. We have scoped our policy assignment to the ‘policyTest’ subscription so I’ll run the following PowerShell to create a new storage account that’s missing my required tag.&lt;/p>
+&lt;p>New-AzStorageAccount -ResourceGroupName policyTest -AccountName mystorageaccountjp77 -Location uksouth -SkuName Standard_GRS&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/createStorageAccount.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/createStorageAccount-1024x124.png"
+loading="lazy"
+alt="create storage account with New-AzStorageAccount"
+>&lt;/a>&lt;/p>
+&lt;p>You can see there is no &lt;code>-Tags&lt;/code> parameter specified, so this storage account was created without any tags. If we now run &lt;code>Get-AzStorageAccount&lt;/code> we can see it has the &amp;lsquo;dateCreated&amp;rsquo; tag.&lt;/p>
+&lt;p>Get-AzStorageAccount -ResourceGroupName policyTest | Select-Object StorageAccountName, Tags&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/storageAccountTagged.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/storageAccountTagged-1024x129.png"
+loading="lazy"
+alt="Get-AzStorageAccount results show the tags"
+>&lt;/a>&lt;/p>
+&lt;p>You can also see the tag in the portal view of our storage account.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/storageAccountTaggedPortal.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>Finally, if we check out the Azure Policy we can see that we are in compliance. All resources in the ‘policyTest’ subscription have the required ‘dateCreated’ tag.  We can also see the specific resources that are in compliance, in our case just the storage account we created.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/policyCompliance.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/policyCompliance-1024x390.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>This is just one option for automatically assigning the ‘dateCreated’ tag on all new resources. In this case we scoped the policy to a specific resource group but have assigned it at the subscription level to cover all resources.  Note – this is specifically to tag resources. If you want to also tag resource groups the policy definition will need to be altered slightly.&lt;/p>
+&lt;p>One downside of this method is I haven’t found a way to control the format of the date in the tag value. This isn’t a big concern but does lack a little flexibility, especially if we wanted to add the date in a different time zone.&lt;/p>
+&lt;p>Next week we’ll look at adding the same functionality using Azure Functions to auto tag new resources.&lt;/p></description></item><item><title>Keeping track of Azure resources with tags – Part 1</title><link>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-1/</link><pubDate>Tue, 16 Mar 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-1/</guid><description>&lt;p>I’ve been working on some Azure exams recently, and I personally learn best by fiddling with things.  The &lt;a class="link" href="https://docs.microsoft.com/en-us/learn/" target="_blank" rel="noopener"
+>Microsoft learn&lt;/a> content is excellent, and I’d highly recommend that for any of the Azure exams I’ve taken so far.  However, I also like to build things myself and experiment a little with all the available options.&lt;/p>
+&lt;p>One of the vital parts of this learning and experimenting needs to be cleaning up after myself.  We all know the risks of leaving things running in Azure- it’s likely to drain your training budget pretty quickly.  To be fair, this is also a good lesson for real world scenarios. Getting used to turning off or scaling down resources based on need is a good way to reduce your Azure spend.&lt;/p>
+&lt;p>This brings me to one morning last week. I logged in to the portal and got a pop up that my credit was down to under $5, which is not what I was expecting. I started looking around and wondering what I’d left running – it isn’t always easy to spot though.&lt;/p>
+&lt;p>Luckily, John Martin (&lt;a class="link" href="https://jqmartin.info/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/jqmtweets" target="_blank" rel="noopener"
+>t&lt;/a>) has instilled in me the importance of adding a tag for creation date on all resources, as it’s not tracked automatically. This means we can easily see what we last deployed and what we might have forgotten about.&lt;/p>
+&lt;p>In Azure, tags are just key value pairs that can be applied to resources and subscriptions to add metadata. You can use them to organise resources by environment, cost centre, business criticality, and anything else that might be important to your individual situation. There is a limit of 50 tags per resource. If you’re getting close to having 50 tags per resource you might need to rethink your tagging strategy to reduce the complexity.&lt;/p>
+&lt;p>You can view tags through the portal either through the dedicated ‘Tags’ pane, on each individual resource, or on the ‘Cost Management’ area. Here you can view your Azure spend broken down by tags, which can be very useful. You can also view tags using either the Azure CLI or PowerShell. I usually opt for PowerShell, so let’s have a look at how we can view resources with certain tags using the &lt;a class="link" href="https://www.powershellgallery.com/packages/Az/" target="_blank" rel="noopener"
+>Az module&lt;/a>.  If you don’t already have the module installed you can run &lt;code>Install-Module az&lt;/code> to get started. More details on prerequisites and options available can be found in the &lt;a class="link" href="https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-5.6.0" target="_blank" rel="noopener"
+>Install Azure PowerShell with PowerShellGet&lt;/a> docs.&lt;/p>
+&lt;h2 id="find-resources-with-a-certain-tag">&lt;strong>Find resources with a certain tag&lt;/strong>&lt;/h2>
+&lt;p>I already mentioned I add a ‘dateCreated’ tag to all resources, but when I’m playing around in Azure and working through training courses I also add a ‘training’ tag and set the value to ‘true’.  This is an easy way for me to find all the resources I’ve created while training and clean them up.&lt;/p>
+&lt;p>We can easily list these resources in PowerShell using the following one liner:&lt;/p>
+&lt;p>Get-AzResource -TagName training -TagValue &amp;rsquo;true&amp;rsquo; |
+Select-Object Name, ResourceGroupName,ResourceType, Tags&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/trainingTrue-1024x198.jpg"
+loading="lazy"
+alt="results of Get-AzResource"
+>&lt;/p>
+&lt;p>If we’re ready to clean them up we can pipe the results from &lt;code>Get-AzResource&lt;/code> straight into &lt;code>Remove-AzResource&lt;/code>, ensuring we haven’t got anything left running and costing us credit.&lt;/p>
+&lt;p>Get-AzResource -TagName training -TagValue &amp;rsquo;true&amp;rsquo; | Remove-AzResource&lt;/p>
+&lt;h2 id="resources-created-in-the-last-x-days">&lt;strong>Resources created in the last x days&lt;/strong>&lt;/h2>
+&lt;p>Another useful snippet since we’re adding ‘dateCreated’ tags to all our resources is to get any resources that have been created in the last few days. Since I have formatted my dates as yyyy-MM-dd in my tags I can easily convert them into dates with PowerShell and then filter based on them.&lt;/p>
+&lt;p>Get-AzResource -TagName dateCreated |
+Select-Object Name, ResourceType, @{l=&amp;lsquo;dateCreated&amp;rsquo;;e={get-date($_.Tags[&amp;lsquo;dateCreated&amp;rsquo;])}} |
+Where-Object dateCreated -gt (get-date).AddDays(-7)&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/resourcesCreatedinLastXDays-1024x327.jpg"
+loading="lazy"
+alt="List of resources created in last 7 days in PowerShell"
+>&lt;/p>
+&lt;h2 id="resources-without-a-tag">&lt;strong>Resources without a tag&lt;/strong>&lt;/h2>
+&lt;p>The final tag related snippets I have for today is to make sure all our resources have the &amp;lsquo;dateCreated&amp;rsquo; tag. Since currently I’m manually adding these tags there is a chance I forget or get lazy and some resources make it through without the tags.&lt;/p>
+&lt;p>We can find these tags by interrogating the key values of the tags:&lt;/p>
+&lt;p>Get-AzResource | where {$_.tags.Keys -notcontains &amp;lsquo;dateCreated&amp;rsquo;} |
+Select-Object Name, ResourceType, Tags&lt;/p>
+&lt;p>Once we know which resources are missing tags we can easily update them using &lt;code>Update-AzTag&lt;/code>, the operation parameter that controls what should happen if there are existing tags. Merge will ensure we don’t overwrite the current tags.&lt;/p>
+&lt;p>$resources = Get-AzResource -ResourceGroupName missingtag |
+Where-Object {$_.tags.Keys -notcontains &amp;lsquo;dateCreated&amp;rsquo;}&lt;/p>
+&lt;p>Update-AzTag -ResourceId $resources.ResourceId -Tag @{&amp;lsquo;dateCreated&amp;rsquo; = (Get-Date -Format &amp;ldquo;yyyy-MM-dd&amp;rdquo;)} -Operation Merge&lt;/p>
+&lt;p>The main problem with this whole idea is we are relying on whoever creates the resources to both remember to create the tag and put the values of the tag in a standard format.  Next week we’ll look at a couple of ways to automate this process.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>aggregation on Jess Pomfret</title><link>https://jpomfret.github.io/tags/aggregation/</link><description>Recent content in aggregation on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Fri, 26 Jul 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/aggregation/index.xml" rel="self" type="application/rss+xml"/><item><title>Aggregating Data with PowerShell</title><link>https://jpomfret.github.io/p/aggregating-data-with-powershell/</link><pubDate>Fri, 26 Jul 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/aggregating-data-with-powershell/</guid><description>&lt;p>As a SQL Server DBA, aggregating data is first nature.  I can easily throw together some T-SQL if I need to get the average sales per product group, or perhaps the number of employees hired per month. Yesterday I was writing a little PowerShell when I came across a problem. I needed to get the size of my database data and log files for several databases on a server, when I realized I didn’t know how to group and sum this data in PowerShell.&lt;/p>
+&lt;p>&lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
+>dbatools&lt;/a> has the &lt;code>Get-DbaDbFile&lt;/code> command, which easily allowed me to collect information about the databases I needed.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Get-DbaDbFile -SqlInstance $svr -Database CompressTest, AdventureWorks2017
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Once I had this data, I wanted to group by the type of file and get the total size.  To start I piped the output to &lt;code>Select-Object&lt;/code> to trim down the fields in the result set, then piped this output to the &lt;code>Group-Object&lt;/code>, specifying the field I wanted to group by.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Get-DbaDbFile -SqlInstance $svr -Database CompressTest, AdventureWorks2017 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Select-Object Database, TypeDescription, Size |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Group-Object TypeDescription
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Group.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Now that the data is grouped you can aggregate the size property for the files, which is within the &lt;code>Group&lt;/code>.  We’ll add an expression to the final &lt;code>Select-Object&lt;/code> which uses the &lt;code>Measure-Object&lt;/code> to sum the sizes.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Get-DbaDbFile -SqlInstance $svr -Database CompressTest, AdventureWorks2017 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Select-Object Database, TypeDescription, Size |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Group-Object TypeDescription |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Select-Object Name, @{l=&amp;#39;Size&amp;#39;;e={($_.Group.Size.MegaByte | Measure-Object -Sum).Sum}}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/images/Final.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Another interesting note here is that since dbatools returns the Size as a special type, &lt;code>Sqlcollaborative.Dbatools.Utility.Size&lt;/code>, you can specify that you want it to be returned in MBs.  If you have very small databases you might want to change that so you don’t lose accuracy with any rounding.&lt;/p>
+&lt;p>The code for the examples in this post was run against a Docker Container I use for demos. You can read more information on getting that set up in my post &lt;a class="link" href="https://jesspomfret.com/data-compression-containers/" target="_blank" rel="noopener"
+>Data Compression Demos in Containers&lt;/a>.&lt;/p></description></item></channel></rss>

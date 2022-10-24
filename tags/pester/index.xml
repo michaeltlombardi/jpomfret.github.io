@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>pester on Jess Pomfret</title><link>https://jpomfret.github.io/tags/pester/</link><description>Recent content in pester on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 29 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/pester/index.xml" rel="self" type="application/rss+xml"/><item><title>Pester test your Cluster Role Owners</title><link>https://jpomfret.github.io/p/pester-test-your-cluster-role-owners/</link><pubDate>Tue, 29 Sep 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/pester-test-your-cluster-role-owners/</guid><description>&lt;p>In an ideal situation it probably shouldn’t matter which node of a failover cluster your resources and roles are hosted on, but the real world is often far from ideal.  This post will talk through how we can record the current owner nodes and then use Pester to ensure we’re in the ideal configuration. This could be useful post maintenance activities or as a daily check to ensure things are as you expect.&lt;/p>
+&lt;h2 id="step-1--store-the-current-resource-owners">&lt;strong>Step 1 – Store the current resource owners&lt;/strong>&lt;/h2>
+&lt;p>If we are going to test that we’re in our expected configuration, we need to record what that configuration looks like.  I have a hard coded list of cluster names. However, you could easily pull them from a text file, or a database.  Once we have the list of clusters we can use &lt;code>Get-ClusterGroup&lt;/code> to determine the cluster roles and their current owners.&lt;/p>
+&lt;p>To persist this owner information I’m using &lt;code>ConvertTo-Json&lt;/code> and then outputting it to a file. This creates a file that can easily be read back into PowerShell as an object using &lt;code>ConvertFrom-Json&lt;/code>.&lt;/p>
+&lt;p>It’s also probably worth mentioning that this ideal configuration can be stored in source control. That’ll keep the file safe and you can easily keep track of any changes that are made to it.&lt;/p>
+&lt;p>$clusters = ‘ClusterName1’,’ClusterName2’
+$owners = $clusters | % { Get-ClusterGroup -Cluster $PSItem | select Cluster, Name, State, OwnerNode }
+$owners | % {
+[PSCustomObject] @{
+Cluster = $_.Cluster.Name
+Name = $_.Name
+OwnerNode = $_.OwnerNode.Name
+State = $_.State -as [string]
+}
+} | ConvertTo-Json | Out-File ClusterGroupOwners.json&lt;/p>
+&lt;p>You’ll notice I’m creating a &lt;code>PSCustomObject&lt;/code> to pipe to the &lt;code>ConvertTo-Json&lt;/code>. Without that, the object from &lt;code>Get-ClusterGroup&lt;/code> is exploded, with all properties, including nested properties exported into the JSON output. This is more than we need, and I think there is some value in having a clear concise output file. &lt;/p>
+&lt;p>I’m also using &lt;code>-as [string]&lt;/code> on the state property. PowerShell automatically translates the real state to a text value when outputted as it’s an enumeration type – but when you pipe that to &lt;code>ConvertTo-Json&lt;/code> you get the raw integer value.&lt;/p>
+&lt;h2 id="step-2--test-the-current-configuration">&lt;strong>Step 2 – Test the current configuration&lt;/strong>&lt;/h2>
+&lt;p>When it’s time to test our configuration we can read in our ClusterGroupOwners.json and then convert it back to a PowerShell object using &lt;code>ConvertFrom-Json&lt;/code>.  Now we have a PowerShell object of our ideal configuration we can loop through each cluster, checking the current group owners using &lt;code>Get-ClusterGroup&lt;/code> again.  This current state can then be matched against the desired configuration.&lt;/p>
+&lt;p>I am using a pretty simple pester test for this work, saving it as Check-ClusterOwners.tests.ps1.&lt;/p>
+&lt;p>$desiredConfig = Get-Content ClusterGroupOwners.json | ConvertFrom-Json
+$clusters = $desiredConfig | Select -Unique Cluster&lt;/p>
+&lt;p>Describe &amp;lsquo;The cluster resources should be owned by the same node as before&amp;rsquo; -Tag ClusterOwner {
+Foreach ($cls in $clusters) {
+Context (&amp;lsquo;Cluster owners are the same for {0}&amp;rsquo; -f $cls.Cluster) {
+$groups = $desiredConfig | Where-Object Cluster -eq $cls.Cluster
+$currentOwner = Get-ClusterGroup -Cluster $cls.Cluster
+foreach ($grp in $groups) {
+It (&amp;rsquo;{0} should be owned by {1}&amp;rsquo; -f $grp.Name, $grp.OwnerNode) {
+($currentOwner | Where-Object name -eq $grp.name).OwnerNode.Name | Should -Be $grp.OwnerNode
+}
+}
+}
+}
+}&lt;/p>
+&lt;p>We’ll call this test using &lt;code>Invoke-Pester .\Check-ClusterOwners.tests.ps1&lt;/code>.&lt;/p>
+&lt;p>If everything is as expected we’ll get output similar to this for each cluster – depending on the resources you have set up in your cluster.&lt;/p>
+&lt;p>Describing The cluster resources should be owned by the same node as before
+Context Cluster owners are the same for clustername
+[+] RoleName should be owned by nodename 56ms
+[+] RoleName2 should be owned by nodename 92ms&lt;/p>
+&lt;p>If you have a resource that is not on the node that is expected, you’ll easily be able to see that in the output:&lt;/p>
+&lt;p>Context Cluster owners are the same for clusterName
+[-] RoleName should be owned by NodeB 102ms
+Expected strings to be the same, but they were different.
+String lengths are both 13.
+Strings differ at index 12.
+Expected: &amp;lsquo;NodeB&amp;rsquo;
+But was: &amp;lsquo;NodeA&amp;rsquo;
+13: ($currentOwner | Where-Object name -eq $grp.name).OwnerNode.Name | Should -Be $grp.OwnerNode&lt;/p>
+&lt;p>This method of testing can be useful to ensure you’re in the ideal state in many scenarios. For example you could store any databases in your estate that are not ‘online’ and then confirm post reboots/patching that all the databases are in the expected state.&lt;/p></description></item><item><title>Keeping the demo gods at bay with Pester</title><link>https://jpomfret.github.io/p/keeping-the-demo-gods-at-bay-with-pester/</link><pubDate>Tue, 10 Mar 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/keeping-the-demo-gods-at-bay-with-pester/</guid><description>&lt;p>A short while ago (it’s getting further and further away, but let’s stick with short for now) I was a football/soccer player. As with many athletes, I was pretty superstitious as far as my pregame routine. I always felt better going out onto the pitch if everything had gone smoothly as I got ready.  I put my boots, shin-pads and socks on in a certain order and even taped my socks up in a certain way. The good news is I’ve managed to find a slightly more reliable way to get ready for my presentations – and I’m going to share the secret.&lt;/p>
+&lt;p>First you put your right sock on, then your left sock on. Follow that by putting on your right shoe, and then your left shoe… just joking. You use Pester tests!&lt;/p>
+&lt;p>If you don’t know what &lt;a class="link" href="https://pester.dev/" target="_blank" rel="noopener"
+>Pester&lt;/a> is, it’s a test framework for PowerShell.  In the simplest explanation, using their Domain-Specific Language (DSL) you describe how things should look. If all looks good it returns output in green and if it doesn’t you get red output.  There are a lot of great use cases for Pester, like using it to ensure your code does what it’s supposed to, using it to validate your SQL Server environment (&lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks&lt;/a>), or in this example using it to make sure your demos are setup and ready to go.&lt;/p>
+&lt;p>When I’m preparing for a presentation I go through the demos over and over again, so it’s easy to accidentally leave things in a state that will cause issues when I go to do my demos in the presentation. If you’re creating a table, for example, during the demo and you already created it practicing and then forgot to drop it, the demo gods will strike and it’ll fail when it matters most! A simple Pester test to check whether the table exists will solve this issue.&lt;/p>
+&lt;p>So what do I test?&lt;/p>
+&lt;p>Last Wednesday I presented my ‘Life hacks: dbatools Edition’ session for the &lt;a class="link" href="https://www.meetup.com/Southampton-Data-Platform-and-Cloud-Group/" target="_blank" rel="noopener"
+>Southampton Data Platform and Cloud meetup&lt;/a> so I’ll talk you through the tests I ran to make sure I was ready to present that session, and it’s a demo heavy one!&lt;/p>
+&lt;p>First things first, I test that I can import the dbatools module. I make sure I’m getting the version and the number of commands I expect. dbatools puts out new versions all the time, so I usually update this in the weeks leading up to my presentation as I’m practicing.&lt;/p>
+&lt;p>Describe &amp;ldquo;Module is good to go&amp;rdquo; {
+Context &amp;ldquo;dbatools imports&amp;rdquo; {
+$null = Import-Module dbatools
+$module = Get-Module dbatools
+It &amp;ldquo;Module was imported&amp;rdquo; {
+$module | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;Module version is 1.0.99&amp;rdquo; {
+$module.Version | Should Be &amp;ldquo;1.0.99&amp;rdquo;
+}
+It &amp;ldquo;Module should import 587 commands&amp;rdquo; {
+(get-command -module dbatools | Measure).Count | Should Be 587
+}
+}
+}&lt;/p>
+&lt;p>My demo setup involves two containers running on my laptop. Because of that, I’m using the sa credential to connect and I’m setting some PSDefaultParameterValues so I don’t have to include the &lt;code>$credential&lt;/code> in every function call. I can test all that is setup correctly like so.&lt;/p>
+&lt;p>Describe &amp;ldquo;Credentials exist&amp;rdquo; {
+Context &amp;ldquo;Credential exists&amp;rdquo; {
+It &amp;ldquo;Credential is not null&amp;rdquo; {
+$credential | Should Not BeNullOrEmpty
+}
+}
+Context &amp;ldquo;username is sa&amp;rdquo; {
+It &amp;ldquo;Username is sa&amp;rdquo; {
+$credential.UserName | Should Be &amp;ldquo;sa&amp;rdquo;
+}
+}
+Context &amp;ldquo;PSDefaultParameterValues are set&amp;rdquo; {
+$params = $PSDefaultParameterValues
+It &amp;ldquo;PSDefaultParameterValues contains expected values&amp;rdquo; {
+$params.Keys -contains &amp;lsquo;*:SqlCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:SourceSqlCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:DestinationCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:DestinationSqlCredential&amp;rsquo; | Should Be True
+}
+}
+}&lt;/p>
+&lt;p>I then have a couple of simple checks to make sure I can connect to both my instances.&lt;/p>
+&lt;p>Describe &amp;ldquo;Two instances are available&amp;rdquo; {
+Context &amp;ldquo;Two instances are up&amp;rdquo; {
+$mssql1 = Connect-DbaInstance -SqlInstance mssql1
+$mssql2 = Connect-DbaInstance -SqlInstance mssql2
+It &amp;ldquo;mssql1 is available&amp;rdquo; {
+$mssql1.Name | Should Not BeNullOrEmpty
+$mssql1.Name | Should Be &amp;lsquo;mssql1&amp;rsquo;
+}
+It &amp;ldquo;mssql2 is available&amp;rdquo; {
+$mssql2.Name | Should Not BeNullOrEmpty
+$mssql2.Name | Should Be &amp;lsquo;mssql2&amp;rsquo;
+}
+}
+}&lt;/p>
+&lt;p>I then make sure that my databases are set up as expected. I am using two databases on my mssql1 SQL Server instance, AdventureWorks2017 and DatabaseAdmin. I make sure each of those exist, are online, and that the compatibility level is set correctly. I also check that the indexes on the Employee table are set up as I expect since I use those in my demos.&lt;/p>
+&lt;p>Describe &amp;ldquo;mssql1 databases are good&amp;rdquo; {
+Context &amp;ldquo;AdventureWorks2017 is good&amp;rdquo; {
+$db = Get-DbaDatabase -SqlInstance mssql1
+$adventureWorks = $db | where name -eq &amp;lsquo;AdventureWorks2017&amp;rsquo;
+It &amp;ldquo;AdventureWorks2017 is available&amp;rdquo; {
+$adventureWorks | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;AdventureWorks status is normal&amp;rdquo; {
+$adventureWorks.Status | Should Be Normal
+}
+It &amp;ldquo;AdventureWorks Compat is 140&amp;rdquo; {
+$adventureWorks.Compatibility | Should Be 140
+}
+}
+Context &amp;ldquo;Indexes are fixed on HumanResources.Employee (bug)&amp;rdquo; {
+$empIndexes = (Get-DbaDbTable -SqlInstance mssql1 -Database AdventureWorks2017 -Table Employee).indexes | select name, IsUnique
+It &amp;ldquo;There are now just two indexes&amp;rdquo; {
+$empIndexes.Count | Should Be 2
+}
+It &amp;ldquo;There should be no unique indexes&amp;rdquo; {
+$empIndexes.IsUnique | Should BeFalse
+}
+}
+Context &amp;ldquo;DatabaseAdmin is good&amp;rdquo; {
+$db = Get-DbaDatabase -SqlInstance mssql1
+$DatabaseAdmin = $db | where name -eq &amp;lsquo;DatabaseAdmin&amp;rsquo;
+It &amp;ldquo;DatabaseAdmin is available&amp;rdquo; {
+$DatabaseAdmin | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;DatabaseAdmin status is normal&amp;rdquo; {
+$DatabaseAdmin.Status | Should Be Normal
+}
+It &amp;ldquo;DatabaseAdmin Compat is 140&amp;rdquo; {
+$DatabaseAdmin.Compatibility | Should Be 140
+}
+}
+}&lt;/p>
+&lt;p>One of my demos shows the backup history for AdventureWorks, so I test that with Pester before I start to make sure there is history to show. Nothing worse than getting up to show a wonderful set of dbatools functions and nothing being returned because I haven’t actually taken any backups!&lt;/p>
+&lt;p>Describe &amp;ldquo;Backups worked&amp;rdquo; {
+Context &amp;ldquo;AdventureWorks was backed up&amp;rdquo; {
+$instanceSplat = @{
+SqlInstance = &amp;lsquo;mssql1&amp;rsquo;
+}
+It &amp;ldquo;AdventureWorks has backup history&amp;rdquo; {
+Get-DbaDbBackupHistory @instanceSplat | Should Not BeNullOrEmpty
+}
+}
+}&lt;/p>
+&lt;p>While I was writing my demos I came across issues where my PowerShell environment was set to x86 so I added a test for that to make sure it doesn’t happen again.&lt;/p>
+&lt;p>Describe &amp;ldquo;Proc architecture is x64&amp;rdquo; {
+Context &amp;ldquo;Proc arch is good&amp;rdquo; {
+It &amp;ldquo;env:processor_architecture should be AMD64&amp;rdquo; {
+$env:PROCESSOR_ARCHITECTURE | Should Be &amp;ldquo;AMD64&amp;rdquo;
+}
+}
+}&lt;/p>
+&lt;p>Finally, I check to see what’s running on my computer. Zoomit, everyone’s favourite screen zoom tool should be running, and we should make sure that Slack and Teams are not.&lt;/p>
+&lt;p>Describe &amp;ldquo;Check what&amp;rsquo;s running&amp;rdquo; {
+$processes = Get-Process zoomit*, teams, slack -ErrorAction SilentlyContinue
+Context &amp;ldquo;ZoomIt is running&amp;rdquo; {
+It &amp;ldquo;ZoomIt64 is running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Zoomit64&amp;rsquo;) | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;Slack is not running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Slack&amp;rsquo;) | Should BeNullOrEmpty
+}
+It &amp;ldquo;Teams is not running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Teams&amp;rsquo;) | Should BeNullOrEmpty
+}
+}
+}&lt;/p>
+&lt;p>Now there are obviously ways that the demo gods can still strike, but using Pester to test your demos is a great way to try and tilt the odds in your favour.&lt;/p>
+&lt;p>You can view all the code, including the tests, for this presentation on my &lt;a class="link" href="https://github.com/jpomfret/demos/tree/master/LifeHacks_dbatools" target="_blank" rel="noopener"
+>Github&lt;/a>.&lt;/p>
+&lt;p>Here&amp;rsquo;s what the output looks like:&lt;/p>
+&lt;p>Executing all tests in &amp;lsquo;.\Tests\demo.tests.ps1&amp;rsquo;&lt;/p>
+&lt;p>Executing script .\Tests\demo.tests.ps1&lt;/p>
+&lt;p>Describing Module is good to go&lt;/p>
+&lt;pre>&lt;code>Context dbatools imports
+\[+\] Module was imported 1.59s
+\[+\] Module version is 1.0.99 287ms
+\[+\] Module should import 587 commands 162ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Credentials exist&lt;/p>
+&lt;pre>&lt;code>Context Credential exists
+\[+\] Credential is not null 263ms
+Context username is sa
+\[+\] Username is sa 83ms
+Context PSDefaultParameterValues are set
+\[+\] PSDefaultParameterValues contains expected values 80ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Two instances are available&lt;/p>
+&lt;pre>&lt;code>Context Two instances are up
+\[+\] mssql1 is available 592ms
+\[+\] mssql2 is available 26ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing mssql1 databases are good&lt;/p>
+&lt;pre>&lt;code>Context AdventureWorks2017 is good
+\[+\] AdventureWorks2017 is available 863ms
+\[+\] AdventureWorks status is normal 32ms
+\[+\] AdventureWorks Compat is 140 46ms
+Context Indexes are fixed on HumanResources.Employee (bug)
+\[+\] There are now just two indexes 1.53s
+\[+\] There should be no unique indexes 49ms
+Context DatabaseAdmin is good
+\[+\] DatabaseAdmin is available 256ms
+\[+\] DatabaseAdmin status is normal 15ms
+\[+\] DatabaseAdmin Compat is 140 17ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Backups worked&lt;/p>
+&lt;pre>&lt;code>Context AdventureWorks was backed up
+\[+\] AdventureWorks has backup history 627ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Proc architecture is x64&lt;/p>
+&lt;pre>&lt;code>Context Proc arch is good
+\[+\] env:processor\_architecture should be AMD64 125ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Check what&amp;rsquo;s running&lt;/p>
+&lt;pre>&lt;code>Context ZoomIt is running
+\[+\] ZoomIt64 is running 150ms
+\[+\] Slack is not running 43ms
+\[+\] Teams is not running 17ms
+&lt;/code>&lt;/pre>
+&lt;p>Tests completed in 6.86s
+Tests Passed: 21, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0&lt;/p>
+&lt;p>Good news, all passed and I&amp;rsquo;m ready to give my demos!&lt;/p></description></item></channel></rss>

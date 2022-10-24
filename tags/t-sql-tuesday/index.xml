@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>t-sql-tuesday on Jess Pomfret</title><link>https://jpomfret.github.io/tags/t-sql-tuesday/</link><description>Recent content in t-sql-tuesday on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Wed, 13 Oct 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/t-sql-tuesday/index.xml" rel="self" type="application/rss+xml"/><item><title>T-SQL Tuesday #143: Short code examples</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#143-short-code-examples/</link><pubDate>Wed, 13 Oct 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#143-short-code-examples/</guid><description>&lt;p>&lt;a class="link" href="https://johnmccormack.it/2021/10/t-sql-tuesday-143-short-code-examples/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>Well folks, it’s Wednesday here in the UK, which means I’m a day late to get my blog post in for T-SQL Tuesday. However, if I was in Hawaii it would be still Tuesday so let&amp;rsquo;s go for it&amp;hellip;&lt;/p>
+&lt;p>I used a handy short script this morning and I figured it was worth a quick, late entry! Hopefully John Mccormack (&lt;a class="link" href="https://johnmccormack.it/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/actualjohn" target="_blank" rel="noopener"
+>t&lt;/a>), will forgive me for stretching the deadline!&lt;/p>
+&lt;p>First of all, shout out to John for hosting the monthly blog party, he has got a great prompt and I’m really excited to see the wrap-up post as I’m sure it’ll be full of great little code snippets.&lt;/p>
+&lt;blockquote>
+&lt;p>T-SQL Tuesday this month is going back to basics and its all about code. I’d like to know &lt;strong>“What are your go to handy short scripts”?&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;p>This morning I was working on pulling together some information which included whether certain accounts were in the local administrator’s group on some remote servers. I had the perfect snippet saved in my code repo so I was quickly able to answer that question – and then I realised I should share that with you all.&lt;/p>
+&lt;p>The following PowerShell snippet uses the &lt;code>net localgroup&lt;/code> command line tool to retrieve the results and parse them so we just get the account names.  The final line includes the &lt;code>-ComputerName&lt;/code> parameter so you can easily run it against remote machines.&lt;/p>
+&lt;p>Invoke-Command -ScriptBlock { net localgroup administrators |
+Where-Object { $_ -AND $_ -notmatch &amp;ldquo;command completed successfully&amp;rdquo; } |
+Select -skip 4
+} -ComputerName mssql1&lt;/p>
+&lt;p>Hope this comes in handy, and sorry again John for sneaking in late.&lt;/p></description></item><item><title>T-SQL Tuesday #136: Blog About Your Favorite Data Type (Or Least Favorite)</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#136-blog-about-your-favorite-data-type-or-least-favorite/</link><pubDate>Tue, 09 Mar 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#136-blog-about-your-favorite-data-type-or-least-favorite/</guid><description>&lt;p>&lt;a class="link" href="https://www.brentozar.com/archive/2021/03/tsql2sday-136-invitation-blog-about-your-favorite-data-type-or-least-favorite/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>Shout out to Brent Ozar (&lt;a class="link" href="http://brentozar.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/BrentO" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this month&amp;rsquo;s TSQL2sday. It’s time again for this monthly blog party and he wants to know all about our favourite or least favourite data types. To start with I was having a hard time thinking of a favourite data type. I know I have favourite words (merge and plethora, in case you’re wondering), but it seems a bit wrong to pick favourites here – I mean lots of them are great in their own right. Then it came to me- my favourite data type is the right one for the job at hand. Feels like I’m skirting the question a little here, but bear with me.&lt;/p>
+&lt;p>Let’s talk about accuracy and precision, and how much of it you actually need.  The rest of this post is going to focus on datetime datatypes, but these thoughts could easily apply elsewhere (for example tinyint vs int vs bigint).&lt;/p>
+&lt;p>First things first, let’s review our options when it comes to storing dates in a SQL Server table. These are the 6 current datatype options for datetime data in SQL Server:&lt;/p>
+&lt;p>Let’s talk about accuracy and precision, and how much of it you actually need.  The rest of this post is going to focus on datetime datatypes, but these thoughts could easily apply elsewhere (for example tinyint vs int vs bigint).&lt;/p>
+&lt;p>First things first, let’s review our options when it comes to storing dates in a SQL Server table. These are the 6 current datatype options for datetime data in SQL Server:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Datatype&lt;/th>
+&lt;th>Accuracy&lt;/th>
+&lt;th>Storage Size&lt;/th>
+&lt;th>Notes&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>Date&lt;/td>
+&lt;td>One day&lt;/td>
+&lt;td>3 bytes&lt;/td>
+&lt;td>Doesn&amp;rsquo;t include time&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>SmallDateTime&lt;/td>
+&lt;td>One minute&lt;/td>
+&lt;td>4 bytes&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>DateTime&lt;/td>
+&lt;td>Rounded to increments of .000, .003, or .007 seconds&lt;/td>
+&lt;td>8 bytes&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>DateTime2&lt;/td>
+&lt;td>100 nanoseconds&lt;/td>
+&lt;td>6 bytes for precision less than 3.&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>7 bytes for precision 3 or 4.&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>All other precision require 8 bytes.&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;td>&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>Time&lt;/td>
+&lt;td>100 nanoseconds (1 millisecond in Informatica)&lt;/td>
+&lt;td>5 bytes&lt;/td>
+&lt;td>Doesn&amp;rsquo;t include date&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>DateTimeOffset&lt;/td>
+&lt;td>100 nanoseconds&lt;/td>
+&lt;td>10 bytes&lt;/td>
+&lt;td>Includes time zone awareness&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>This table was created from information on Microsoft Docs, and there is plenty more information if you’re interested: &lt;a class="link" href="https://docs.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver15" target="_blank" rel="noopener"
+>Data types (Transact-SQL) - SQL Server | Microsoft Docs&lt;/a>.&lt;/p>
+&lt;h2 id="the-setup">The Setup&lt;/h2>
+&lt;p>For this example, let’s say I have a table that gets loaded by a daily batch job. The column we will discuss needs to store just the date, no time and no need for time zone awareness. This leaves us with 4 options to investigate.&lt;/p>
+&lt;p>In order to demonstrate the importance of choosing the right datatype I’m going to create 4 really simple tables. They will each have one column, with a default value of today&amp;rsquo;s date, and no time information.  These tables are totally unrealistic, but it isolates the storage required for a single column and will allow us to focus in on the differences our decision here can cause in a small test case.&lt;/p>
+&lt;p>create table dataTypeDate (
+batchDate date default (convert(date,getdate()))
+)&lt;/p>
+&lt;p>create table dataTypeSmallDateTime (
+batchSmallDateTime smalldatetime default (convert(date,getdate()))
+)&lt;/p>
+&lt;p>create table dataTypeDateTime (
+batchDateTime datetime default (convert(date,getdate()))
+)&lt;/p>
+&lt;p>create table dataTypeDateTime2 (
+batchDateTime2 datetime2 default (convert(date,getdate()))
+)&lt;/p>
+&lt;p>Once we have four tables we can run the following to load our batch for the day. To simulate this we’re going to insert the default values, 500,000 times.  You can see here I’m using the &lt;code>GO 500000&lt;/code> syntax to run each insert half a million times.&lt;/p>
+&lt;p>insert into dataTypeDate
+default values;
+GO 500000&lt;/p>
+&lt;p>insert into dataTypeSmallDateTime
+default values;
+GO 500000&lt;/p>
+&lt;p>insert into dataTypeDateTime
+default values;
+GO 500000&lt;/p>
+&lt;p>insert into dataTypeDateTime2
+default values;
+GO 500000&lt;/p>
+&lt;h2 id="the-comparison">The Comparison&lt;/h2>
+&lt;p>First, let’s take a look at the first row in each table so we can see the different accuracies of our columns:&lt;/p>
+&lt;p>SELECT TOP 1 batchDate FROM dataTypeDate
+SELECT TOP 1 batchSmallDateTime FROM dataTypeSmallDateTime
+SELECT TOP 1 batchDateTime FROM dataTypeDateTime
+SELECT TOP 1 batchDateTime2 FROM dataTypeDateTime2&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/topOneRow.jpg"
+loading="lazy"
+alt="query results from SSMS for select top 1 from each table"
+>&lt;/p>
+&lt;p>We have the exact same data in these columns, just a date, no time. However, because of the different datatypes we used when we defined our tables, you can clearly see the different accuracies that were available to us.  The requirement for the datatype to be able to meet stricter accuracies is where the additional storage comes in. As you saw in the table above, storing just a date, which is all we need in this situation, will cost us 3 bytes. Any other datatype we choose will add unnecessary storage. While we’re talking bytes, and it doesn’t seem like a big deal for one row with one column, it adds up quickly when we’re talking millions of rows with multiple columns that are inappropriate typed.&lt;/p>
+&lt;p>The following query will display some information about our four tables, including the number of 8k pages that each table is using.&lt;/p>
+&lt;p>SELECT
+schema_name(obj.SCHEMA_ID) as SchemaName,
+obj.name as TableName,
+ind.type_desc as IndexType,
+pas.row_count as NumberOfRows,
+pas.used_page_count as UsedPageCount,
+(pas.used_page_count * 8)/1024 as SizeUsedMB,
+par.data_compression_desc as DataCompression,
+(pas.reserved_page_count * 8)/1024 as SizeReservedMB
+FROM sys.objects obj
+INNER JOIN sys.indexes ind
+ON obj.object_id = ind.object_id
+INNER JOIN sys.partitions par
+ON par.index_id = ind.index_id
+AND par.object_id = obj.object_id
+INNER JOIN sys.dm_db_partition_stats pas
+ON pas.partition_id = par.partition_id
+WHERE obj.schema_id &amp;lt;&amp;gt; 4
+ORDER BY UsedPageCount desc&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/tables-1024x135.jpg"
+loading="lazy"
+alt="results of query to show number of pages used by each table"
+>&lt;/p>
+&lt;p>We can see that there are 500,000 rows in each of our tables and even with only one column there is a sizable difference in the number of pages needed if we chose DateTime or DateTime2 over just the Date type. It’s about a 25% savings- multiply that out by multiple columns across multiple tables and we’re going to start seeing a pretty sizable difference in our storage needs.&lt;/p>
+&lt;p>This is still a pretty small dataset, but it does clearly show that there is a significant difference in the amount of storage needed if we choose an unnecessarily accurate datatype for our date values.&lt;/p>
+&lt;h2 id="storage-is-cheap--why-do-i-care">&lt;strong>Storage is cheap – why do I care?&lt;/strong>&lt;/h2>
+&lt;p>Storage might not be our biggest concern, although enterprise grade storage is not as cheap as the USB drives at the supermarket checkout, but there are several other reasons why this wasted space is a big deal. Here’s a few:&lt;/p>
+&lt;p>&lt;strong>Buffer Cache&lt;/strong> – When SQL Server needs to interact with our data it first reads it into memory. Wasted space on disk then becomes wasted space in memory. That means we can store less data in the buffer cache and will have to flush out pages more quickly than if they were optimised.&lt;/p>
+&lt;p>&lt;strong>Backup\restore&lt;/strong> – The bigger your database the longer it’s going to take to perform backup and restore activities.&lt;/p>
+&lt;p>&lt;strong>Transaction log activity&lt;/strong> – The bigger the record in SQL Server the more space it’ll need when any operations are written to the transaction log. This means you’ll need more disk space for your transaction log and your t-log backups will be larger. More wasted space.&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>So in a truly diplomatic fashion, I rate all the datatypes equally. We’ve only looked at types specific to datetimes in this post, but each and every datatype is suitable for storing certain data. The most important point is that we make solid decisions on both the type of data we want to store and the accuracy/precision needed to store that data.&lt;/p>
+&lt;p>Thanks for reading, and thanks again to Brent for hosting.&lt;/p></description></item><item><title>T-SQL Tuesday #134 - Give me a break</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#134-give-me-a-break/</link><pubDate>Tue, 12 Jan 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#134-give-me-a-break/</guid><description>&lt;p>&lt;a class="link" href="https://jimbabwe.co.za/2021/01/04/tsqltuesday-134-invitation/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>It’s the first T-SQL Tuesday of 2021, and James Mcgillivray (&lt;a class="link" href="https://jimbabwe.co.za/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/JamesMcG_MSBI" target="_blank" rel="noopener"
+>t&lt;/a>) is our host for January’s edition of this monthly blog party.  This month’s topic is around how we escape with vacation/holiday plans.  They gave us a few options on what to blog about and I’m going to take you on a virtual trip to Hawaii.&lt;/p>
+&lt;h2 id="what-is-the-best-vacationholiday-youve-ever-had">What is the best vacation/holiday you’ve ever had?&lt;/h2>
+&lt;p>The best holiday I’ve ever had would have to be my honeymoon to Hawaii in 2018.  We spent 10 days exploring two islands and it was fantastic.  This is a great prompt as it has encouraged me to look back at my photos from that time and record some memories.  I have a pretty horrible memory, but that trip I will never forget. I hope that as you follow along with this post it will take you on a virtual holiday, welcome to ‘Team Jelcie’s Hawaii Honeymoon’.&lt;/p>
+&lt;h3 id="first-stop-maui">First stop Maui&lt;/h3>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/FB_IMG_1540745531257.jpg"
+loading="lazy"
+alt="Jess &amp; Kelcie in Wedding outfits"
+>&lt;/p>
+&lt;p>We got married on Saturday 27th of October 2018 in Ohio, not far from where we were living.  We were lucky to be surrounded by friends and family from both sides of the Atlantic, and apart from the constant rain all day, we had an amazing time. &lt;/p>
+&lt;p>The following Monday we boarded a plane for Maui, Hawaii. It’s actually a longer flight time from Ohio to Maui than it is from Ohio to England.  Until we started planning this trip I had no idea how far off the coast of the continental USA it actually is.&lt;/p>
+&lt;p>One of the benefits of this long flight time, jet lag had us waking up really early the first few days. We brewed some coffee in the room and took it down to the beach.  We were treated to the most amazing sunrises. The longer we stood there the more impressive the colours.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/20181031_062105-scaled.jpg"
+loading="lazy"
+alt="Hawaii sunrise from the beach on Maui"
+>&lt;/p>
+&lt;p>We’d planned our honeymoon using a travel agent,  so we pre-booked several excursions for our time away. The first being a sunset sail, which didn’t disappoint, since the sunsets were almost as beautiful as the sunrises.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/20181031_174225-1024x768.jpg"
+loading="lazy"
+alt="Picture of the sunset from our sailing boat"
+>&lt;/p>
+&lt;p>The second excursion was one of the top memories of the trip, a snorkelling excursion to &lt;a class="link" href="https://en.wikipedia.org/wiki/Molokini" target="_blank" rel="noopener"
+>Molokini&lt;/a>, a ‘crescent-shaped, partially submerged volcanic crater’. I have never seen such clear water- you could see the bottom of the ocean and it was 40m deep in parts.  Also so many fish, every shape and size and colour. It was fantastic. &lt;/p>
+&lt;p>We also hiked, dropped into a Crossfit gym, relaxed and ate plenty of delicious food, before it was time to board a flight to the next stop of our trip.&lt;/p>
+&lt;h3 id="second-island--kauai">Second island – Kauai&lt;/h3>
+&lt;p>A short flight and we were on our second island.  At the airport I surprised Kelc by renting a Jeep for us to drive, her dream car, and it made our options of exploring Kauai a lot easier. &lt;/p>
+&lt;p>The first picture I have, apart from the Jeep, was this Poke bowl.  We found this stand inside a grocery store, and it was probably the most delicious thing I’ve ever eaten – this was not the only time we ate this within our few days here.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/20181103_132824-768x1024.jpg"
+loading="lazy"
+alt="Poke bowl"
+>&lt;/p>
+&lt;p>This island felt totally different from Maui. Maui wasn’t that commercialised, but Kauai was even less so. We definitely felt like we were enjoying island life in all its glory.&lt;/p>
+&lt;p>We love to hike and we were not disappointed. One of the days we took the Jeep up to Waimea Canyon and hiked several miles into these hidden waterfalls.  There was a lot of elevation gain and at some points there were helicopters flying in the canyon beneath us.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/20181104_112329-768x1024.jpg"
+loading="lazy"
+alt="Waimea Canyon waterfall"
+>&lt;/p>
+&lt;p>We were also lucky to see some Hawaiian Monk Seals. I love seals, so it was amazing to see them rock up on to the beach to rest in the sun for the day.  They are protected so when they do beach themselves volunteers run out and cordon them off so they are protected for the day.  When the sun sets they roll and wiggle down the beach and back into the ocean, prompting the volunteers to collect their signs and wait to see where they appear the next day. &lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/20181104_072245-768x1024.jpg"
+loading="lazy"
+alt="Monk seals resting in the sun"
+>&lt;/p>
+&lt;p>Our third excursion was an ATV trip through a historic sugar plantation. This was great- we got filthy and had a lot of fun touring around beautiful scenery that’s featured in many movies, including Jurassic Park, although we saw no dinosaurs.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/IMG-20181105-WA0081-769x1024.jpg"
+loading="lazy"
+alt="Muddy, driving an ATV"
+>&lt;/p>
+&lt;h3 id="summary">Summary&lt;/h3>
+&lt;p>Overall we both thoroughly enjoyed this holiday, a great mix of relaxation and adventure.  I think we would both say that Maui was our favourite of the two islands, but Kauai offered a great second perspective of what Hawaii is all about.&lt;/p>
+&lt;p>I really enjoyed looking back over my Hawaii trip, and I hope you enjoyed this virtual holiday in one of the most beautiful spots in the world.&lt;/p>
+&lt;h3 id="whats-next">What’s next?&lt;/h3>
+&lt;p>If I was to write about my next dream holiday, it would be the Maldives. Back in June, when we had almost nothing to look forward to, we booked a 10 day holiday in the Maldives for January 16th, 2021. It felt like ages away, and surely things would be better by then. Well, if you’re reading this when it was posted, that’s next week, and it’s already been postponed.&lt;/p>
+&lt;p>We’re now a couple of weeks into our third lockdown in the UK and we’re hoping we’ll get to take the trip in April now, fingers crossed.&lt;/p></description></item><item><title>T-SQL Tuesday #133: What (Else) Have You Learned from Presenting?</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#133-what-else-have-you-learned-from-presenting/</link><pubDate>Tue, 08 Dec 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#133-what-else-have-you-learned-from-presenting/</guid><description>&lt;p>&lt;a class="link" href="https://lisagb.info/archives/77" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>It’s December, the last T-SQL Tuesday for 2020. I’ve managed to participate in seven this year, including hosting in February – I wonder if in 2021 I will be able to complete a full year. I always look forward to these monthly blog parties, so thanks to Lisa for hosting this month. &lt;/p>
+&lt;p>Lisa has asked us to share something we’ve learnt from presenting that didn’t relate directly to the topic we were presenting on.  I think this is a great topic. We already know that to present on a topic you have to really know it, so preparing for a presentation does wonders for your own personal knowledge on that topic.  Lisa has identified another bonus- all the ancillary knowledge that comes along with it.&lt;/p>
+&lt;p>I gave my first presentation in June 2018, and although it’s only been around 2.5 years since then, I have learnt so much from both presenting and contributing to the community.  I have a couple of areas I’m going to mention here.&lt;/p>
+&lt;h2 id="git--github">&lt;strong>Git &amp;amp; GitHub&lt;/strong>&lt;/h2>
+&lt;p>My first real contributions were not presenting but writing code and tests for dbatools.  Writing PowerShell was not something that was new to me, so I felt comfortable writing the function I wanted to add. Through code review it did get some much needed tweaking to ensure it met the standards and format of the project.  Getting the code from my laptop into the dbatools GitHub repo was another story – it was totally foreign to me.&lt;/p>
+&lt;p>Luckily the dbatools team is fantastic. They have written great guides on using git and GitHub in order to make your first pull request, and Chrissy even coached me through how to get my code into GitHub that first time. &lt;/p>
+&lt;p>As I continued to contribute I got more familiar with using Git and GitHub for source control, and since then there have been many times where I’ve needed that knowledge both for community projects as well as my real job. I even host my &lt;a class="link" href="https://github.com/jpomfret/demos" target="_blank" rel="noopener"
+>presentation demos and slides&lt;/a> there now.&lt;/p>
+&lt;h2 id="docker">&lt;strong>Docker&lt;/strong>&lt;/h2>
+&lt;p>I think one thing that every presenter has had to learn is how to set up some form of a lab to be able to run demos in a reliable and repeatable way.  I started off with a VM on my local laptop that I could connect to and run demos against. This took some learning to get the networking setup. Something I still consider a weak area!&lt;/p>
+&lt;p>After a while I started reading more about containers, and specifically running SQL Server in containers.  I now (where possible) run all my demos for presentations against demo environments in containers that run on my laptop. I have already written a post on this, &lt;a class="link" href="https://jesspomfret.com/data-compression-containers/" target="_blank" rel="noopener"
+>Data Compression Demos in Containers&lt;/a>, but this has given me a great opportunity to learn and play with a really interesting technology.&lt;/p>
+&lt;p>One of the main benefits I see when running demos against containers is how easy it is to wipe away your practice runs and have a fresh environment ready for the presentation.  I’ve even built pester tests into my setup script to ensure everything is in the perfect state for the demo gods. I’ve also written about that if you’re interested in what I test, &lt;a class="link" href="https://jesspomfret.com/demo-gods-pester/" target="_blank" rel="noopener"
+>Keeping the demo gods at bay with Pester&lt;/a>.&lt;/p>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>It took me a long time to make the first step into giving back and presenting content in front of people, but if I look back at the fun I’ve had over the last 2.5 years and all the knowledge I’ve gained it’s easy to see what a great decision that was. If you are considering speaking I would highly recommend giving it a go – as Lisa mentioned in her prompt, Allen White’s famous speech, everyone has something to teach.&lt;/p>
+&lt;p>Thanks again for hosting Lisa, and I look forward to reading all the other responses.&lt;/p></description></item><item><title>T-SQL Tuesday #132: How Are You Coping with Pandemic?</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#132-how-are-you-coping-with-pandemic/</link><pubDate>Tue, 10 Nov 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#132-how-are-you-coping-with-pandemic/</guid><description>&lt;p>&lt;a class="link" href="https://sqlworldwide.com/t-sql-tuesday-132-how-are-you-coping-with-pandemic/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>This month’s blog party is hosted by Taiob Ali (&lt;a class="link" href="https://sqlworldwide.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/SqlWorldWide" target="_blank" rel="noopener"
+>t&lt;/a>), and they ask how are we coping with the pandemic. Last week England entered its second national lockdown, which is slated to last until December 2nd, so now more than ever is a good time to reflect on some effective coping strategies.  Thanks Taiob for hosting and I’m looking forward to reading everyone else’s mechanisms.&lt;/p>
+&lt;p>In the prompt it was suggested we could break this post down into three buckets: mental health, physical health and professional growth. Three really important areas so I’ll do just that.&lt;/p>
+&lt;h2 id="physical-health">&lt;strong>Physical Health&lt;/strong>&lt;/h2>
+&lt;p>Changing the order slightly, I’m going to start with physical health – as it’s easier for me to talk about. &lt;/p>
+&lt;p>Fitness and being active has always been a big part of my life.  I played football (soccer) from the time I could walk until I graduated college in 2009. After that my fitness floundered until around 2011 when a friend encouraged me to try CrossFit. &lt;/p>
+&lt;p>CrossFit gets a bad rap in some circles, but my experiences with the sport have been almost all positive.  I know that when I show up to class someone is going to tell me exactly what the plan for the day is and then I’m going to get after it with a group of people from every corner of life.  This is perfect for me, it feels like I’m playing a team sport again, and the workouts are varied and challenging.&lt;/p>
+&lt;p>In the UK, gyms were closed during the first national lockdown from March until almost the end of July. Our gym was kind enough to let members checkout some equipment and still posted daily workouts that we could complete at home.  This was great, except I struggled to stay motivated without the structure of going to the gym for a class. I started to skip workouts, which made me feel worse about the whole situation (physically and mentally).&lt;/p>
+&lt;p>When gyms were able to re-open on July 25th things felt a lot easier for me, even though there were still a lot of restrictions in place. To start with I was really anxious about whether it was going to be safe, but the gym did a fantastic job of implementing COVID measures to enable us to workout safely.  My wife and I figured out a new routine, with me working from home we were able to go to the gym at lunch most days, and I almost immediately started feeling more in shape and healthier again. We found a new ‘normal’ that worked pretty well for us.&lt;/p>
+&lt;p>Then November 5th happened. England has now entered lockdown 2 and gyms are back to being closed. Add in another factor, sunset today is 4:29pm! The days are getting shorter and it’s dark after work which is going to make it harder to stay motivated.  It’s been a bit of a ramble up until now, but this is where my coping strategies come in!&lt;/p>
+&lt;p>My strategy is just to do something. I know that I feel better when I’m active so I just need to dig in and do it, easier said than done. I’m going to split this into three parts:&lt;/p>
+&lt;p>1.      Lunchtime workouts&lt;/p>
+&lt;p>I’m unbelievably lucky that my wife is the most motivated person ever and I know she’ll work out most days. I just need to stick with her and I’ll be ok. My goal is to workout, bike, or walk on lunch as many days as possible.&lt;/p>
+&lt;p>2.      Yoga (3-4x a week)&lt;/p>
+&lt;p>I also want to add in some yoga. My flexibility is shockingly bad and I can easily do yoga inside which will be a good after work activity.&lt;/p>
+&lt;p>3.      Plank Challenge&lt;/p>
+&lt;p>I saw a tweet from Kendra Little last week on her fitness plans for lockdown and she included working on planks every day. I am also terrible at planks so I’m going to jump in on this and join her with a plank a day.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/Kendra" target="_blank" rel="noopener"
+>https://twitter.com/Kendra&lt;/a>_Little/status/1323192706064142336&lt;/p>
+&lt;p>With a bit of a plan under my belt I hope that I can stay more active this time around and I know it’ll make everything else associated with this lockdown easier.&lt;/p>
+&lt;h2 id="mental-health">&lt;strong>Mental Health&lt;/strong>&lt;/h2>
+&lt;p>The second topic is something that I (and I think a lot of people) find harder to talk about. This year has been tough (understatement!) as my wife and I uprooted our lives in Ohio and moved to England in January.  I had a great career opportunity and we decided to take the leap, with the biggest pros being the opportunity to travel around Europe more easily and to be able to spend time with my family, neither of which have really worked out.&lt;/p>
+&lt;p>Instead we had just a couple of months of that plan before we were locked down, unable to travel and unable to even visit my family for several months. We now lived in a place where we knew basically no-one, perfect for a global pandemic.&lt;/p>
+&lt;p>However, we managed to make the most of what we did have available.  The rules during the first lockdown were that we could leave our house 1 time per day for exercise, so we did a lot of walking.  We are lucky that where we live there are miles of public footpaths through beautiful English countryside.  We had fun making new routes and mostly being able to follow them (I have zero sense of direction).&lt;/p>
+&lt;p>&lt;a class="link" href="https://www.instagram.com/p/B" target="_blank" rel="noopener"
+>https://www.instagram.com/p/B&lt;/a>_AuvMuBsal/?utm_source=ig_web_copy_link&lt;/p>
+&lt;p>We also watched lots of movies. I’ve probably watched more movies in 2020 than I have in the rest of my life all together. It was nice to have some time to do that.&lt;/p>
+&lt;p>The coping strategy here is to simply make the most of what you have. I will work on being grateful for the things I do have available and overall try and stay positive.&lt;/p>
+&lt;p>&lt;strong>Professional Growth&lt;/strong>&lt;/p>
+&lt;p>One benefit of this global pandemic is I have more time on my hands. Without the commute to work everyday I get almost 2 hours back in my day.  Also my calendar has never been this low on social events, so there is free time everywhere! Have I put this to good use and worked hard in this professional growth category? Not really, no. &lt;/p>
+&lt;p>I’ve found it really hard to be motivated to blog, something I’d previously worked hard on making more consistent. I have made a couple of short videos and spoken at a couple of virtual conferences, but overall I’ve been struggling to get content out.&lt;/p>
+&lt;p>I did manage to find some motivation during &lt;a class="link" href="https://hacktoberfest.digitalocean.com/" target="_blank" rel="noopener"
+>Hacktoberfest&lt;/a>, which is a month-long party to get people contributing to open source projects.  I submitted some PRs and was reminded how much fun it is to fix bugs and write new dbatools commands.&lt;/p>
+&lt;p>My coping strategy here is to ride this renewed excitement and get some content created.  I have a whole list of ideas, I just need to set aside some time and work on them. &lt;/p>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>This has turned into quite the ramble, so thanks for reading if you’re still with me! To sum it up, I know I need to stay active – this is really the base for everything else. If I workout I feel better about everything else. It’s as simple as that.&lt;/p>
+&lt;p>I know that this year has been tough for everyone. I hope some of these strategies will be useful to other people too.  Feel free to reach out to me on Twitter if there is anything I can do to help. We can get through this together.&lt;/p></description></item><item><title>T-SQL Tuesday #104 – Code you can't live without</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#104-code-you-cant-live-without/</link><pubDate>Tue, 10 Jul 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#104-code-you-cant-live-without/</guid><description>&lt;p>&lt;a class="link" href="https://bertwagner.com/2018/07/03/code-youd-hate-to-live-without-t-sql-tuesday-104-invitation/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues-300x300.png"
+loading="lazy"
+>&lt;/a>As soon as I saw Bert Wagner (&lt;a class="link" href="https://twitter.com/bertwagner" target="_blank" rel="noopener"
+>t&lt;/a>|&lt;a class="link" href="https://bertwagner.com/" target="_blank" rel="noopener"
+>b&lt;/a>) post his T-SQL Tuesday topic last week I knew this was going to be a great one. I’m really looking forward to reading about everyone’s favorite code snippets so thanks Bert for hosting and choosing a fantastic subject!&lt;/p>
+&lt;p>A lot of the code I can&amp;rsquo;t live without is either downloaded from the community (e.g. &lt;a class="link" href="http://whoisactive.com/" target="_blank" rel="noopener"
+>sp_whoisactive&lt;/a>, &lt;a class="link" href="http://karaszi.com/spindexinfo-enhanced-index-information-procedure" target="_blank" rel="noopener"
+>sp_indexinfo&lt;/a>, &lt;a class="link" href="https://www.brentozar.com/blitz/" target="_blank" rel="noopener"
+>sp_blitz&lt;/a>), or very specific to my workplace so I&amp;rsquo;m going to share some code that I&amp;rsquo;ve been meaning to blog about.&lt;/p>
+&lt;p>I’ve been using this at work recently and it also relates to the presentation I gave at the &lt;a class="link" href="http://jesspomfret.com/first-user-group-presentation-i-survived/" target="_blank" rel="noopener"
+>ONSSUG June meeting&lt;/a> around data compression. The beginnings of this script originated online as I dug into learning about the DMVs that related to objects and compression and then customized for what I needed.&lt;/p>
+&lt;p>If you run the below as is it will provide basic information about all objects in your database, except those in the &amp;lsquo;sys&amp;rsquo; schema, along with their current size and compression level.&lt;/p>
+&lt;p>SELECT
+schema_name(obj.SCHEMA_ID) as SchemaName,
+obj.name as TableName,
+ind.name as IndexName,
+ind.type_desc as IndexType,
+pas.row_count as NumberOfRows,
+pas.used_page_count as UsedPageCount,
+(pas.used_page_count * 8)/1024 as SizeUsedMB,
+par.data_compression_desc as DataCompression
+FROM sys.objects obj
+INNER JOIN sys.indexes ind
+ON obj.object_id = ind.object_id
+INNER JOIN sys.partitions par
+ON par.index_id = ind.index_id
+AND par.object_id = obj.object_id
+INNER JOIN sys.dm_db_partition_stats pas
+ON pas.partition_id = par.partition_id
+WHERE obj.schema_id &amp;lt;&amp;gt; 4 &amp;ndash; exclude objects in &amp;lsquo;sys&amp;rsquo; schema
+&amp;ndash;AND schema_name(obj.schema_id) = &amp;lsquo;schemaName&amp;rsquo;
+&amp;ndash;AND obj.name = &amp;rsquo;tableName&amp;rsquo;
+ORDER BY SizeUsedMB desc&lt;/p>
+&lt;p>(This is also available in my &lt;a class="link" href="https://github.com/jpomfret/ScriptsAndTips/blob/master/ObjectSizeAndCompression.sql" target="_blank" rel="noopener"
+>GitHub Tips and Scripts Repo&lt;/a>)&lt;/p>
+&lt;p>Now this T-SQL is great for a quick look at one database, but what if I want to run this script against every database in my environment? Well I popped over to PowerShell, fired up &lt;a class="link" href="http://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> and ran the following:&lt;/p>
+&lt;p>get-command -Module dbatools -Name *compression*&lt;/p>
+&lt;p>Bad news, there was no Get-DbaDbCompression, there were commands for compressing objects (Set-DbaDbCompression) and for getting suggested compression setting based on the &lt;a class="link" href="https://blogs.msdn.microsoft.com/blogdoezequiel/2011/01/03/the-sql-swiss-army-knife-6-evaluating-compression-gains/" target="_blank" rel="noopener"
+>Tiger Teams best practices&lt;/a> (Test-DbaDbCompression), but nothing to just return the current compression status of the objects.&lt;/p>
+&lt;p>What’s more exciting than just using the greatest PowerShell module ever created? Making it better by contributing! So I made sure I had the latest development branch synced up and got to work writing Get-DbaDbCompression.  This has now been merged into the main branch and is therefore available in the Powershell gallery, so if your dbatools module is up to date you can now run the following to get the same information as above from one database:&lt;/p>
+&lt;p>Get-DbaDbCompression -SqlInstance serverName -Database databaseName&lt;/p>
+&lt;p>Or go crazy and run it against a bunch of servers.&lt;/p>
+&lt;p>$servers = Get-DbaRegisteredServer -SqlInstance cmsServer | select -expand servername
+$compression = Get-DbaDbCompression -SqlInstance $servers
+$compression | Out-GridView&lt;/p>
+&lt;p>I hope this post might come in handy for anyone who is curious about data compression in their environments. Both the T-SQL and PowerShell versions provide not just the current compression setting but the size of the object too. Useful if you are about to apply compression and would like a before and after comparison to see how much space you saved.&lt;/p></description></item></channel></rss>

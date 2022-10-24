@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>azure on Jess Pomfret</title><link>https://jpomfret.github.io/categories/azure/</link><description>Recent content in azure on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Wed, 31 Mar 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/categories/azure/index.xml" rel="self" type="application/rss+xml"/><item><title>Keeping track of Azure resources with tags – Part 3</title><link>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-3/</link><pubDate>Wed, 31 Mar 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-3/</guid><description>&lt;p>This is now the third post in a series on Azure tags. You can read the other two posts here to get up to speed with where we’ve been, however that isn’t required for this post .&lt;/p>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://jesspomfret.com/azure-tags-part1/" target="_blank" rel="noopener"
+>Keeping track of Azure resources with tags – Part 1&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://jesspomfret.com/azure-tags-part2/" target="_blank" rel="noopener"
+>Keeping track of Azure resources with tags – Part 2&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>In part one I discussed how useful Azure tags can be, and specifically about how adding a ‘dateCreated’ tag can help you keep track of your resources, and how to find resources with certain tags using PowerShell.  Part 2 and 3 are based around the fact that adding the ‘dateCreated’ tag is a great idea, but relying on a human to remember to add it is less than ideal. In part 2 we looked at using Azure Policy to automatically add the tag. Today’s post will cover another option using Azure Functions.&lt;/p>
+&lt;p>Azure Functions gives us a way of running serverless code, written in a number of different languages, triggered by specific events or timings.  Looking through the &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-overview" target="_blank" rel="noopener"
+>documentation&lt;/a> there are many use cases from processing files to analysing IoT workstreams.  Our use case is to run a PowerShell script that tags any resources that are missing the ‘dateCreated’.&lt;/p>
+&lt;h2 id="step-1---create-a-function">Step 1 - Create a function&lt;/h2>
+&lt;p>Azure Functions live within a function app, so the first thing we have to do is create this logical container. At this level we’ll decide on a ‘Function App name’, I’ve called mine ‘resourceTagJp’, and choosing ‘Code’ for the publish option we can then choose PowerShell as our language of choice. There are some other options for selecting a storage account and configuring ‘Application Insights’, but for now I’ve left those all as the defaults.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/functionApp.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/functionApp.png"
+loading="lazy"
+alt="create a function app pane"
+>&lt;/a>&lt;/p>
+&lt;p>Once the ‘Function App’ is created we are ready to create our function.  On the left hand pane choose ‘Functions’ and then ‘Add’. This will open a pane for you to choose how to develop the function, either in the portal or on your local machine in VSCode, for example, and the template to base your function off of.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/CreateFunction-1.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/CreateFunction-1.png"
+loading="lazy"
+alt="Create an Azure Function"
+>&lt;/a>&lt;/p>
+&lt;p>One of the simplest options is to choose ‘Timer Trigger’, which as expected will execute the function code based on a schedule. The schedule is set using a cron expression. For it to run once an hour at the top of the hour we’ll use the following:&lt;/p>
+&lt;p>0 0 * * * *&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/cronSchedule.png"
+loading="lazy"
+alt="cron schedule popup"
+>&lt;/p>
+&lt;p>Once the function is created we’ll choose ‘Code + Test’ on the left hand pane of the portal to actually add the function code. The code for my function is going to be pretty simple, but if you are writing more complicated functions there is a &lt;a class="link" href="https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions" target="_blank" rel="noopener"
+>VSCode extension&lt;/a> that can be used to develop and test functions locally before publishing them to Azure.&lt;/p>
+&lt;p>We have three files within our function:&lt;/p>
+&lt;ul>
+&lt;li>Readme.md – for documentation in markdown&lt;/li>
+&lt;li>Function.json – the config file, currently contains our timer binding information&lt;/li>
+&lt;li>Run.ps1 – the main function code, in PowerShell as that’s what we chose&lt;/li>
+&lt;/ul>
+&lt;p>The code for the function is below and makes use of the &lt;code>Update-AzTag&lt;/code> cmdlet to add the ‘dateCreated’ tag. In this example, since I’m using PowerShell, I can easily format the date to be exactly how I want it to be displayed. If you read part 2 in this series, that was a downfall of using Azure Policy, I only had one datetime format option. The &lt;code>Update-AzTag&lt;/code> also has a &lt;code>-Merge&lt;/code> parameter which ensures any tags already on the resource aren’t overwritten by this function.&lt;/p>
+&lt;p># Input bindings are passed in via param block.
+param($Timer)&lt;/p>
+&lt;h1 id="select-the-subscription">Select the subscription&lt;/h1>
+&lt;p>$null = Select-AzSubscription -SubscriptionId (Get-AzSubscription -SubscriptionName &amp;lsquo;MSDN Platforms&amp;rsquo;)&lt;/p>
+&lt;h1 id="tag-any-resources-that-are-missing-tags">tag any resources that are missing tags&lt;/h1>
+&lt;p>$res = Get-AzResource -ResourceGroupName functionTest | Where { $_.tags.keys -notcontains &amp;lsquo;dateCreated&amp;rsquo; }
+$res.Foreach{
+Update-AzTag -ResourceId $psitem.ResourceId -Tag @{&amp;lsquo;dateCreated&amp;rsquo; = (Get-Date -Format &amp;ldquo;yyyy-MM-dd&amp;rdquo;)} -Operation Merge
+}&lt;/p>
+&lt;p>That’s all it is to create our function – however, it doesn’t currently have the authorisation to view or update resources.&lt;/p>
+&lt;h2 id="step-2---add-a-managed-identity">Step 2 - Add a managed identity&lt;/h2>
+&lt;p>To provision access to allow our function to work we can make use of &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/app-service/overview-managed-identity?tabs=dotnet" target="_blank" rel="noopener"
+>Azure Managed Identities&lt;/a>. These are similar to Managed Service Accounts in that there is no need to set or rotate passwords. This means we can configure our function with a managed identity and then forget about it- we know it’ll remain secure and the password/secret will be rotated often.&lt;/p>
+&lt;p>There are two options for managed identities: system-assigned or user-assigned. The system-assigned identity is tied directly to your application – if we delete the function the identity will also be deleted, and that’s fine for this purpose.&lt;/p>
+&lt;p>Configuring the system-assigned identity is pretty straightforward. On our function pane under identity, change the status to ‘On’.  After a couple of minutes the identity will be deployed and you’ll see the option to assign ‘Azure role assignments’.&lt;/p>
+&lt;p>Clicking on ‘Azure role assignments’ will open a pane where you can assign whatever permissions your function will need to run. This can be scoped at the subscription or resource group level. For this example my function is just tagging anything within the ‘functionTest’ resource group so I can set the permissions to that scope.  I have chosen the ‘contributor’ role as that gives us enough permissions to view and tag resources.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/ManagedIdentity.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/ManagedIdentity.png"
+loading="lazy"
+alt="Setting up a system assigned managed identity for our function"
+>&lt;/a>&lt;/p>
+&lt;h2 id="step-3---test-our-function">Step 3 - Test our function&lt;/h2>
+&lt;p>We have created our function and set up the managed identity to enable the function to access our resources, now it’s time to make sure it’s working as expected. From the ‘Code + Test’ page there is a ‘Test/Run’ at the top that brings out the pane on the right. In that pane pressing run will simulate the time trigger being met and our function executing.&lt;/p>
+&lt;p>In the console you can see exactly what the function does and any output you’ve configured – in this example you can see a storage account was tagged.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/TestFunction-1.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/TestFunction-1.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>We can also test this function by creating an untagged resource in the ‘functionTest’ resource group and waiting for the timer to be triggered.&lt;/p>
+&lt;p>However we test our function we can see the tag is now on our storage account and we no longer have to rely on a human to remember the tag when they create resources.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/storageAccountFunctionTagged.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/storageAccountFunctionTagged.png"
+loading="lazy"
+alt="Showing a storage account has been tagged with our specified date format"
+>&lt;/a>&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>This has been as much a learning experience for me as it hopefully has been for you. My journey into Azure is still pretty new but I’m enjoying the adventure.&lt;/p>
+&lt;p>To wrap this up, having a tagging strategy is important and there are multiple ways to ensure that tagging strategy is followed. Both Azure Policy and Azure Functions give us a good option for automatically tagging resources that are missing tags. If you’re using Terraform to deploy Azure resources &lt;a class="link" href="https://jqmartin.info/2021/03/02/terraform-timestamps-and-tagging/" target="_blank" rel="noopener"
+>John Martin has written about adding the a tag for date created to all resources as they are deployed&lt;/a>, which is definitely worth a read.&lt;/p></description></item><item><title>Keeping track of Azure resources with tags – Part 2</title><link>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-2/</link><pubDate>Tue, 23 Mar 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-2/</guid><description>&lt;p>Last week, in &lt;a class="link" href="https://jesspomfret.com/azure-tags-part1/" target="_blank" rel="noopener"
+>Part 1&lt;/a>, we talked about how to easily keep track of our resources with tags. There are many strategies for tagging your resources but I specifically focused on adding a ‘dateCreated’ tag so we could see when resources were created – since this isn’t available by default.  During that post we identified the biggest issue we had was that we were relying on a human to remember to add the ‘dateCreated’ tag for every resource they created. I’ve got two ideas on how to fix that – today we’ll look at the first option, using &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/governance/policy/overview" target="_blank" rel="noopener"
+>Azure Policy&lt;/a>.&lt;/p>
+&lt;p>Azure Policy is a way of comparing your Azure estate to defined requirements. You can either use predefined definitions (of which there are many) or create your own specific rules.  These definitions can be assigned to certain scopes (subscriptions, resource groups). Azure Policy then reports on whether you’re in the expected state and in some cases can alter resources to ensure you are.&lt;/p>
+&lt;h2 id="step-1--define-a-policy">&lt;strong>Step 1 – Define a policy&lt;/strong>&lt;/h2>
+&lt;p>In our example, all resources should have a ‘dateCreated’ tag, and if Azure Policy finds the tag is missing, it should add that tag with the current date.&lt;/p>
+&lt;p>There are a few steps to set up our policy for ensuring the ‘dateCreated’ tag exists on all resources. First we need to write a policy definition in JSON.  Don’t panic yet though – there are a lot of examples in the &lt;a class="link" href="https://github.com/Azure/azure-policy" target="_blank" rel="noopener"
+>Azure/azure-policy&lt;/a> GitHub repo that we can start with.  By browsing the repo you can find the ‘&lt;a class="link" href="https://github.com/Azure/azure-policy/tree/master/samples/Tags/add-tag" target="_blank" rel="noopener"
+>add-tag&lt;/a>’ policy which is the perfect base for us to build off of.  &lt;/p>
+&lt;p>When viewing that GitHub page there is a ‘Deploy to Azure’ button- clicking that (presuming you’re logged into the portal) will take you straight to the ‘New Policy Definition’ wizard where we can modify our policy to meet our needs and save it. &lt;/p>
+&lt;p>You’ll need to choose a ‘Definition Location’ (which is the subscription this policy should reside in), name your policy, and edit the description if needed. The GitHub template has already specified this will go in the ‘Tags’ category,but you can change that if you’re keeping custom policies in a new category. Then we get to the policy rule, it’s JSON time.&lt;/p>
+&lt;p>Since we imported the sample from GitHub the JSON is almost exactly what we need. The first section defines the rules and the second section defines parameters.  In this case we’re going to remove the parameter section and change the tag name and values expected to be static. This means that the policy will only ever be used for adding the specific ‘dateCreated’ tag.  The reason for this is we’re going to add some logic to the tag value so it contains the current date. (It is possible that this can be achieved with parameters, but I couldn’t get it to work. Please let me know in the comments if you know differently). &lt;/p>
+&lt;p>The JSON below is pretty simple. There are two main sections: the condition to be met and then the operation to carry out if the conditions are met.  In the conditions section we’re looking to see if the dateCreated tag exists, if it doesn’t we’ll move onto the second section of the JSON. This defines what to do about it, and in this case it’s pretty simple, we’ll modify the target and add the dateCreated tag.  The tag value is dynamic and uses a &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions" target="_blank" rel="noopener"
+>resource manager template function&lt;/a> to get the current date.  There are a &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure#policy-functions" target="_blank" rel="noopener"
+>few restrictions&lt;/a> on using functions within policy definitions, one being that we can’t overload the uctNow function with a format parameter so we’ll only be able to get a date in ISO 8601 (yyyyMMddTHHmmssZ) format.&lt;/p>
+&lt;p>{
+&amp;ldquo;mode&amp;rdquo;: &amp;ldquo;Indexed&amp;rdquo;,
+&amp;ldquo;policyRule&amp;rdquo;: {
+&amp;ldquo;if&amp;rdquo;: {
+&amp;ldquo;field&amp;rdquo;: &amp;ldquo;tags[&amp;lsquo;dateCreated&amp;rsquo;]&amp;rdquo;,
+&amp;ldquo;exists&amp;rdquo;: &amp;ldquo;false&amp;rdquo;
+},
+&amp;ldquo;then&amp;rdquo;: {
+&amp;ldquo;effect&amp;rdquo;: &amp;ldquo;modify&amp;rdquo;,
+&amp;ldquo;details&amp;rdquo;: {
+&amp;ldquo;roleDefinitionIds&amp;rdquo;: [
+&amp;ldquo;/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c&amp;rdquo;
+],
+&amp;ldquo;operations&amp;rdquo;: [
+{
+&amp;ldquo;operation&amp;rdquo;: &amp;ldquo;add&amp;rdquo;,
+&amp;ldquo;field&amp;rdquo;: &amp;ldquo;tags[&amp;lsquo;dateCreated&amp;rsquo;]&amp;rdquo;,
+&amp;ldquo;value&amp;rdquo;: &amp;ldquo;[utcNow()]&amp;rdquo;
+}
+]
+}
+}
+}
+}&lt;/p>
+&lt;p>The final decision to make for our new policy definition is the ‘Role definition’. Since our policy has remediation actions, the operation to add tags if needed, a &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview" target="_blank" rel="noopener"
+>managed identity&lt;/a> will be created for the policy.  The ‘role definition’ is the permissions that will be granted to that managed identity.  The default is ‘Contributor’ which assigns ‘full access to manage all resources’. This can be changed based on what your policy needs access to.&lt;/p>
+&lt;h2 id="step-2--assign-the-policy">&lt;strong>Step 2 – Assign the policy&lt;/strong>&lt;/h2>
+&lt;p>We’ve now defined our policy, but the second part of this process is to assign that policy a scope. This outlines what this policy applies to. The scope can be a subscription or resource group, and can be more finely tuned by excluding specific resources that you don’t want to apply the policy too.  Then it’s as easy as selecting the policy we defined, setting an ‘Assignment name’, which could be a combination of policy name and assigned score, and adding an optional description.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/assignPolicy.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/assignPolicy.png"
+loading="lazy"
+alt="Assign policy screen in Azure"
+>&lt;/a>&lt;/p>
+&lt;h2 id="step-3--test-the-policy">&lt;strong>Step 3 – Test the policy&lt;/strong>&lt;/h2>
+&lt;p>The easiest way to test our policy is to create a resource without the ‘dateCreated’ tag and see what happens. We have scoped our policy assignment to the ‘policyTest’ subscription so I’ll run the following PowerShell to create a new storage account that’s missing my required tag.&lt;/p>
+&lt;p>New-AzStorageAccount -ResourceGroupName policyTest -AccountName mystorageaccountjp77 -Location uksouth -SkuName Standard_GRS&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/createStorageAccount.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/createStorageAccount-1024x124.png"
+loading="lazy"
+alt="create storage account with New-AzStorageAccount"
+>&lt;/a>&lt;/p>
+&lt;p>You can see there is no &lt;code>-Tags&lt;/code> parameter specified, so this storage account was created without any tags. If we now run &lt;code>Get-AzStorageAccount&lt;/code> we can see it has the &amp;lsquo;dateCreated&amp;rsquo; tag.&lt;/p>
+&lt;p>Get-AzStorageAccount -ResourceGroupName policyTest | Select-Object StorageAccountName, Tags&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/storageAccountTagged.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/storageAccountTagged-1024x129.png"
+loading="lazy"
+alt="Get-AzStorageAccount results show the tags"
+>&lt;/a>&lt;/p>
+&lt;p>You can also see the tag in the portal view of our storage account.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/storageAccountTaggedPortal.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>Finally, if we check out the Azure Policy we can see that we are in compliance. All resources in the ‘policyTest’ subscription have the required ‘dateCreated’ tag.  We can also see the specific resources that are in compliance, in our case just the storage account we created.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2021/03/policyCompliance.png" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/policyCompliance-1024x390.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>This is just one option for automatically assigning the ‘dateCreated’ tag on all new resources. In this case we scoped the policy to a specific resource group but have assigned it at the subscription level to cover all resources.  Note – this is specifically to tag resources. If you want to also tag resource groups the policy definition will need to be altered slightly.&lt;/p>
+&lt;p>One downside of this method is I haven’t found a way to control the format of the date in the tag value. This isn’t a big concern but does lack a little flexibility, especially if we wanted to add the date in a different time zone.&lt;/p>
+&lt;p>Next week we’ll look at adding the same functionality using Azure Functions to auto tag new resources.&lt;/p></description></item><item><title>Keeping track of Azure resources with tags – Part 1</title><link>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-1/</link><pubDate>Tue, 16 Mar 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/keeping-track-of-azure-resources-with-tags-part-1/</guid><description>&lt;p>I’ve been working on some Azure exams recently, and I personally learn best by fiddling with things.  The &lt;a class="link" href="https://docs.microsoft.com/en-us/learn/" target="_blank" rel="noopener"
+>Microsoft learn&lt;/a> content is excellent, and I’d highly recommend that for any of the Azure exams I’ve taken so far.  However, I also like to build things myself and experiment a little with all the available options.&lt;/p>
+&lt;p>One of the vital parts of this learning and experimenting needs to be cleaning up after myself.  We all know the risks of leaving things running in Azure- it’s likely to drain your training budget pretty quickly.  To be fair, this is also a good lesson for real world scenarios. Getting used to turning off or scaling down resources based on need is a good way to reduce your Azure spend.&lt;/p>
+&lt;p>This brings me to one morning last week. I logged in to the portal and got a pop up that my credit was down to under $5, which is not what I was expecting. I started looking around and wondering what I’d left running – it isn’t always easy to spot though.&lt;/p>
+&lt;p>Luckily, John Martin (&lt;a class="link" href="https://jqmartin.info/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/jqmtweets" target="_blank" rel="noopener"
+>t&lt;/a>) has instilled in me the importance of adding a tag for creation date on all resources, as it’s not tracked automatically. This means we can easily see what we last deployed and what we might have forgotten about.&lt;/p>
+&lt;p>In Azure, tags are just key value pairs that can be applied to resources and subscriptions to add metadata. You can use them to organise resources by environment, cost centre, business criticality, and anything else that might be important to your individual situation. There is a limit of 50 tags per resource. If you’re getting close to having 50 tags per resource you might need to rethink your tagging strategy to reduce the complexity.&lt;/p>
+&lt;p>You can view tags through the portal either through the dedicated ‘Tags’ pane, on each individual resource, or on the ‘Cost Management’ area. Here you can view your Azure spend broken down by tags, which can be very useful. You can also view tags using either the Azure CLI or PowerShell. I usually opt for PowerShell, so let’s have a look at how we can view resources with certain tags using the &lt;a class="link" href="https://www.powershellgallery.com/packages/Az/" target="_blank" rel="noopener"
+>Az module&lt;/a>.  If you don’t already have the module installed you can run &lt;code>Install-Module az&lt;/code> to get started. More details on prerequisites and options available can be found in the &lt;a class="link" href="https://docs.microsoft.com/en-us/powershell/azure/install-az-ps?view=azps-5.6.0" target="_blank" rel="noopener"
+>Install Azure PowerShell with PowerShellGet&lt;/a> docs.&lt;/p>
+&lt;h2 id="find-resources-with-a-certain-tag">&lt;strong>Find resources with a certain tag&lt;/strong>&lt;/h2>
+&lt;p>I already mentioned I add a ‘dateCreated’ tag to all resources, but when I’m playing around in Azure and working through training courses I also add a ‘training’ tag and set the value to ‘true’.  This is an easy way for me to find all the resources I’ve created while training and clean them up.&lt;/p>
+&lt;p>We can easily list these resources in PowerShell using the following one liner:&lt;/p>
+&lt;p>Get-AzResource -TagName training -TagValue &amp;rsquo;true&amp;rsquo; |
+Select-Object Name, ResourceGroupName,ResourceType, Tags&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/trainingTrue-1024x198.jpg"
+loading="lazy"
+alt="results of Get-AzResource"
+>&lt;/p>
+&lt;p>If we’re ready to clean them up we can pipe the results from &lt;code>Get-AzResource&lt;/code> straight into &lt;code>Remove-AzResource&lt;/code>, ensuring we haven’t got anything left running and costing us credit.&lt;/p>
+&lt;p>Get-AzResource -TagName training -TagValue &amp;rsquo;true&amp;rsquo; | Remove-AzResource&lt;/p>
+&lt;h2 id="resources-created-in-the-last-x-days">&lt;strong>Resources created in the last x days&lt;/strong>&lt;/h2>
+&lt;p>Another useful snippet since we’re adding ‘dateCreated’ tags to all our resources is to get any resources that have been created in the last few days. Since I have formatted my dates as yyyy-MM-dd in my tags I can easily convert them into dates with PowerShell and then filter based on them.&lt;/p>
+&lt;p>Get-AzResource -TagName dateCreated |
+Select-Object Name, ResourceType, @{l=&amp;lsquo;dateCreated&amp;rsquo;;e={get-date($_.Tags[&amp;lsquo;dateCreated&amp;rsquo;])}} |
+Where-Object dateCreated -gt (get-date).AddDays(-7)&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/resourcesCreatedinLastXDays-1024x327.jpg"
+loading="lazy"
+alt="List of resources created in last 7 days in PowerShell"
+>&lt;/p>
+&lt;h2 id="resources-without-a-tag">&lt;strong>Resources without a tag&lt;/strong>&lt;/h2>
+&lt;p>The final tag related snippets I have for today is to make sure all our resources have the &amp;lsquo;dateCreated&amp;rsquo; tag. Since currently I’m manually adding these tags there is a chance I forget or get lazy and some resources make it through without the tags.&lt;/p>
+&lt;p>We can find these tags by interrogating the key values of the tags:&lt;/p>
+&lt;p>Get-AzResource | where {$_.tags.Keys -notcontains &amp;lsquo;dateCreated&amp;rsquo;} |
+Select-Object Name, ResourceType, Tags&lt;/p>
+&lt;p>Once we know which resources are missing tags we can easily update them using &lt;code>Update-AzTag&lt;/code>, the operation parameter that controls what should happen if there are existing tags. Merge will ensure we don’t overwrite the current tags.&lt;/p>
+&lt;p>$resources = Get-AzResource -ResourceGroupName missingtag |
+Where-Object {$_.tags.Keys -notcontains &amp;lsquo;dateCreated&amp;rsquo;}&lt;/p>
+&lt;p>Update-AzTag -ResourceId $resources.ResourceId -Tag @{&amp;lsquo;dateCreated&amp;rsquo; = (Get-Date -Format &amp;ldquo;yyyy-MM-dd&amp;rdquo;)} -Operation Merge&lt;/p>
+&lt;p>The main problem with this whole idea is we are relying on whoever creates the resources to both remember to create the tag and put the values of the tag in a standard format.  Next week we’ll look at a couple of ways to automate this process.&lt;/p></description></item><item><title>dbachecks and Azure SQL Databases</title><link>https://jpomfret.github.io/p/dbachecks-and-azure-sql-databases/</link><pubDate>Tue, 01 Dec 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/dbachecks-and-azure-sql-databases/</guid><description>&lt;p>Last week I gave a presentation at &lt;a class="link" href="https://www.meetup.com/SQL-South-West/" target="_blank" rel="noopener"
+>Data South West&lt;/a> on dbachecks and dbatools. One of the questions I got was whether you could run dbachecks against Azure SQL Databases, to which I had no idea. I always try to be prepared for potential questions that might come up, but I had only been thinking about on-premises environments and hadn’t even considered the cloud.  The benefit is this gives me a great topic for a blog post.&lt;/p>
+&lt;h2 id="step-1--create-an-azure-sql-database">&lt;strong>Step 1 – Create an Azure SQL Database&lt;/strong>&lt;/h2>
+&lt;p>I created a SQL Database through the &lt;a class="link" href="https://portal.azure.com/" target="_blank" rel="noopener"
+>Azure Portal&lt;/a>. The wizard is pretty straightforward and the only real decisions needed were around sizing. Since this is just going to be for a test environment I chose a small ‘Basic’ database.&lt;/p>
+&lt;h2 id="step-2--connect-to-the-database">&lt;strong>Step 2 – Connect to the Database&lt;/strong>&lt;/h2>
+&lt;p>Once the database had been created I navigated to the resource pane in the portal. At the top there is a drop down that helps you get connected using Azure Data Studio.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/Connect-1024x203.jpg"
+loading="lazy"
+alt="Azure SQL Database pane in Azure Portal"
+>&lt;/p>
+&lt;p>Once Azure Data Studio opened, I was asked to confirm I wanted to connect:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ConnectSure.jpg"
+loading="lazy"
+alt="Confirmation prompt for connection"
+>&lt;/p>
+&lt;p>Then a pane opened which enabled me to easily add a firewall rule so client IP could access the Azure SQL Database.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/firewall.jpg"
+loading="lazy"
+alt="Pane in ADS to configure a firewall rule"
+>&lt;/p>
+&lt;p>Once that was completed I was connected through Azure Data Studio and able to interact with my server and database.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ADSConnected-1024x382.jpg"
+loading="lazy"
+alt="ADS connected to Azure SQL Database"
+>&lt;/p>
+&lt;p>Connecting first through Azure Data Studio is not a requirement, but it does help us to get the firewall rules configured and confirm that connecting from our client machine will not be an issue.&lt;/p>
+&lt;p>Another good check to ensure we can connect to our database from PowerShell is to use dbatools’ &lt;code>Connect-DbaInstance&lt;/code>:&lt;/p>
+&lt;p>$cred = Get-Credential
+Connect-DbaInstance -SqlInstance &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo; -SqlCredential $cred&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/connectDbatools-1024x90.jpg"
+loading="lazy"
+alt="Connect-DbaInstance results"
+>&lt;/p>
+&lt;p>The results show we were able to connect successfully.&lt;/p>
+&lt;h2 id="step-3--run-some-dbachecks">&lt;strong>Step 3 – Run some dbachecks&lt;/strong>&lt;/h2>
+&lt;p>First of all let’s run a single check to ensure our database is online and in the expected state. For this we can use the ‘DatabaseStatus’ check.&lt;/p>
+&lt;p>$checkSplat = @{
+SqlInstance = &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo;
+SqlCredential = $cred
+Check = &amp;lsquo;DatabaseStatus&amp;rsquo;
+}
+Invoke-DbcCheck @checkSplat&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/databaseStatus-1-1024x210.jpg"
+loading="lazy"
+alt="DatabaseStatus checks succeed"
+>&lt;/p>
+&lt;p>Here you can easily see, both because of the green result text and plus icon to the left, that our tests were successful. Both the database we created, AzDb01, and the master database are online and have the expected status.&lt;/p>
+&lt;p>dbachecks uses tags on the pester tests to enable you to either call specific tests or groups of checks. Each check has a unique tag. In our previous example it was &lt;code>DatabaseStatus&lt;/code> as well as tags that group like checks, for example &lt;code>Database&lt;/code>.&lt;/p>
+&lt;p>$checkSplat = @{
+SqlInstance = &amp;lsquo;xxxxxx.database.windows.net&amp;rsquo;
+SqlCredential = $cred
+Check = &amp;lsquo;Database’
+}
+Invoke-DbcCheck @checkSplat&lt;/p>
+&lt;p>Running all the database checks against our Azure SQL Database we get some failures.&lt;/p>
+&lt;p>Tests completed in 70.68s
+Tests Passed: 37, Failed: 28, Skipped: 8, Pending: 0, Inconclusive: 0&lt;/p>
+&lt;p>There are a lot of tests that pass or fail with valid reasons. However, some of the failures are due to errors running the check. These are to be expected since this is a PaaS (Platform as a Service) database offering. One example is the suspect pages check.&lt;/p>
+&lt;p>The test failed due to an error in the context block, and it clearly states that the &amp;lsquo;msdb.dbo.suspect_pages&amp;rsquo; table isn’t available in this version of SQL Server.&lt;/p>
+&lt;p>SqlException: Reference to database and/or server name in &amp;lsquo;msdb.dbo.suspect_pages&amp;rsquo; is not supported in this version of SQL Server.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/FailedSuspectPages-1024x192.jpg"
+loading="lazy"
+alt="dbachecks output fails for suspect pages"
+>&lt;/p>
+&lt;p>There are plenty of tests that do work against an Azure SQL Database though, allowing you to keep tabs on many different aspects of your database including:&lt;/p>
+&lt;ul>
+&lt;li>Database Collation&lt;/li>
+&lt;li>Database Owners&lt;/li>
+&lt;li>Column Identity Usage&lt;/li>
+&lt;li>Duplicate Index&lt;/li>
+&lt;li>Disabled Index&lt;/li>
+&lt;li>Auto Shrink&lt;/li>
+&lt;li>Database Orphaned User&lt;/li>
+&lt;li>Compatibility Level&lt;/li>
+&lt;li>Database Status&lt;/li>
+&lt;li>Database Exists&lt;/li>
+&lt;li>And more…&lt;/li>
+&lt;/ul>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>So to answer the question: yes, we can run dbachecks against our Azure SQL Databases. As long as we can connect and the version of SQL Supports the features needed to run the test we can ensure our databases in the cloud are configured just how we like them.&lt;/p></description></item><item><title>Creating my first SQL Managed Instance</title><link>https://jpomfret.github.io/p/creating-my-first-sql-managed-instance/</link><pubDate>Mon, 04 Nov 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/creating-my-first-sql-managed-instance/</guid><description>&lt;p>I’ve been thinking about the cloud a lot lately, and I feel it’s an area that I would benefit from learning more about. I’ve attended a couple of presentations on SQL Managed Instances and have read enough to be dangerous (or accidentally spend a lot of money, one of my biggest fears when working in the cloud). However, I always find I learn best and really get to understanding a topic by building something.&lt;/p>
+&lt;p>This post will be the first in at least a two part series on SQL Managed Instances (MI). My goal in this post is just to deploy an MI and have it ready to use for my next post.&lt;/p>
+&lt;p>I’ve chosen to start with MI as it feels like the easiest route to the cloud. Microsoft advertises an easy ‘Lift &amp;amp; Shift’ experience to move your on-premise applications to the cloud and offers “near 100% compatibility with on-premise”. Along with these you still get the existing benefits from using a SQL Database (PaaS) with reduced administration and management needs.&lt;/p>
+&lt;p>You can read more about the specifics of “Azure SQL Database managed instance”, including pricing, in the &lt;a class="link" href="https://docs.microsoft.com/en-us/azure/sql-database/sql-database-managed-instance" target="_blank" rel="noopener"
+>Microsoft docs&lt;/a>.&lt;/p>
+&lt;h2 id="creating-a-sql-managed-instance">&lt;strong>Creating a SQL managed instance&lt;/strong>&lt;/h2>
+&lt;p>Step one is to head to the portal (&lt;a class="link" href="https://portal.azure.com/" target="_blank" rel="noopener"
+>https://portal.azure.com&lt;/a>) and get logged in. From there you can search ‘SQL’ and then select ‘SQL managed instances’.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/SQLMI_Create.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>On the next pane you’ll see any existing managed instances you have setup. I have none at this point so I’ll select the ‘+Add’ button on the toolbar to start creating one (One thing to note in this blog post, Azure changes often and quickly so these screenshots and steps might not be exact by the time you get to reading this).&lt;/p>
+&lt;h3 id="basics">Basics&lt;/h3>
+&lt;p>The creation wizard takes you through several tabs. The first ‘Basics’ is where you’ll create a resource group (to group like resources and easily manage them), name your server, size your server, and setup the administrator account (cut off in the below screenshot).  Your server name can’t contain reserved words, and also can only contain lowercase letters, numbers and a hyphen.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/create1-1024x434.jpg"
+loading="lazy"
+alt="Basics for SQL MI setup"
+>&lt;/p>
+&lt;p>To size your managed instance you’ll need to choose between the two tier options. Business critical has faster disks (local SSD) for high I/O workloads and built in high availability with Always On. For today we’re going to stick with a general purpose instance.&lt;/p>
+&lt;p>An interesting note here is that I chose the smallest managed instance I could, and if I selected the same in different regions the price estimation was slightly different.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/sizing.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="networking">Networking&lt;/h3>
+&lt;p>On the networking tab you will create a virtual network for your managed instance to live in. You can also define the connection type (proxy or redirect) and enable a public endpoint. If you enable the public endpoint your managed instance will be available over the internet, which adds some security considerations that should be fully understood before simply enabling the option.&lt;/p>
+&lt;h3 id="additional-settings">Additional Settings&lt;/h3>
+&lt;p>The third and final settings tab allows you to configure your instance collation and time zone. The default time zone is UTC so you might want to change that to match your usual time zone for servers you build on premise.&lt;/p>
+&lt;h3 id="review--create">Review &amp;amp; Create&lt;/h3>
+&lt;p>The final tab reviews your settings to ensure they are all valid and allows you to create your managed instance. Depending on whether this also requires changes to the underlying cluster that your managed instance will be deployed on top of, this operation could take a while. Since this is my first managed instance I don’t have an existing cluster so Azure warns me this could take up to 6 hours to complete.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/hourstocomplete.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;h2 id="until-next-time">Until Next Time&lt;/h2>
+&lt;p>It’s really quite simple to get a managed instance created. There are not too many decisions to make along the way. I imagine the most important part is to understand the networking aspect to ensure we’re going to be able to securely connect to the database from the application.&lt;/p>
+&lt;p>Once my underlying cluster is created and my managed instance is ready to go the next step will be to migrate some databases from my on-premise lab up into the cloud.&lt;/p></description></item></channel></rss>

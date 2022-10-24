@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>life-hacks on Jess Pomfret</title><link>https://jpomfret.github.io/tags/life-hacks/</link><description>Recent content in life-hacks on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Wed, 06 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/life-hacks/index.xml" rel="self" type="application/rss+xml"/><item><title>Changing focus on code execution in VSCode</title><link>https://jpomfret.github.io/p/changing-focus-on-code-execution-in-vscode/</link><pubDate>Wed, 06 May 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/changing-focus-on-code-execution-in-vscode/</guid><description>&lt;p>I wrote previously about how I loved little life hacks and shortcuts for my &lt;a class="link" href="https://jesspomfret.com/t-sql-tuesday-123-summary" target="_blank" rel="noopener"
+>February T-SQL Tuesday prompt&lt;/a>. If you read that you’ll know I use VSCode a lot and really love all the shortcuts available in that program. This is just a quick tip that I’m so glad I found, read – took the time to work out.&lt;/p>
+&lt;p>I specifically write a lot of PowerShell in VSCode and so often find myself using F8 to run the selected line in the integrated console. One thing that always drove me a little crazy was that my cursor stayed in the integrated console after execution, rather than returning to the script I was writing.  I hadn’t managed to find the shortcut to return to the editor window I was working in until recently when I decided to figure it out.&lt;/p>
+&lt;p>Since I started writing this post a couple of weeks ago, I discovered an even better solution thanks to the following tweet from &lt;a class="link" href="http://twitter.com/simon_sabin" target="_blank" rel="noopener"
+>Simon Sabin&lt;/a>. The tweet also links to a GitHub issue where there is a discussion on why this is the default behaviour.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/simon" target="_blank" rel="noopener"
+>https://twitter.com/simon&lt;/a>_sabin/status/1252253795603681281&lt;/p>
+&lt;p>So by adding the following to your &lt;code>settings.json&lt;/code> file you can override that behaviour, and keep the focus in your script pane.&lt;/p>
+&lt;p>&amp;ldquo;powershell.integratedConsole.focusConsoleOnExecute&amp;rdquo;: false&lt;/p>
+&lt;h2 id="original-solution">&lt;strong>Original Solution&lt;/strong>&lt;/h2>
+&lt;p>The original solution to this dilemma is to use the keyboard shortcut to return focus to the script pane. Using Ctrl+1 will return you to the first editor group (unless you are using ZoomIt!).&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/onepanev2-1.gif"
+loading="lazy"
+alt="Use Ctrl&amp;#43;1 to get to editor from console"
+>&lt;/p>
+&lt;p>If you have more than one editor group open you can use CTRL+2 to get to the second group, or CTRL+3 to get to the third group.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/twoPanev2-1.gif"
+loading="lazy"
+alt="ctrl&amp;#43;2 to get back to pane 2"
+>&lt;/p>
+&lt;p>Also, as with most shortcuts in VSCode, you can also customise the key bindings, by opening the command palette (F1) and choosing ‘Open Keyboard Shortcuts’ either in the GUI or JSON format.&lt;/p>
+&lt;p>The commands to customise are below with the defaults:&lt;br>
+- workbench.action.focusFirstEditorGroup: Ctrl+1&lt;br>
+- workbench.action.focusSecondEditorGroup: Ctrl+2&lt;br>
+- workbench.action.focusThirdEditorGroup: Ctrl+3 (and so on up to the eighth editor group)&lt;/p>
+&lt;p>A bonus tip for you: If you’re in the GUI keyboard shortcut editor and you right click and copy, or press Ctrl+C, you’ll actually copy the JSON you’d need to customise your key bindings in the keyboard shortcuts (JSON) file.&lt;/p>
+&lt;p>{
+&amp;ldquo;key&amp;rdquo;: &amp;ldquo;ctrl+5&amp;rdquo;,
+&amp;ldquo;command&amp;rdquo;: &amp;ldquo;workbench.action.focusFifthEditorGroup&amp;rdquo;
+}&lt;/p>
+&lt;p>I’m really excited to have discovered a couple of optimisations so now when I’m writing a script and I execute a line of PowerShell in the integrated console I will easily be able to navigate back to my editor pane using Ctrl+1 instead of having to reach for the mouse.&lt;/p></description></item><item><title>T-SQL Tuesday #123: Summary of Life Hacks</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#123-summary-of-life-hacks/</link><pubDate>Tue, 18 Feb 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#123-summary-of-life-hacks/</guid><description>&lt;p>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>There was an amazing response to my &lt;a class="link" href="https://jesspomfret.com/t-sql-tuesday-123/" target="_blank" rel="noopener"
+>TSQL2sday prompt for February&lt;/a> 2020 where I encouraged folks to share their life hacks. So firstly, thanks to everyone who participated.&lt;/p>
+&lt;p>A lot of people had more than one life hack so I recommend reading all of the posts linked to below. For this summary post I’ve tried to pick one or two hacks from each post and group them into logical buckets.&lt;/p>
+&lt;p>There are several hacks shared that I plan on integrating into my life, and I hope this post will serve as a good reference for us all going forward.&lt;/p>
+&lt;p>If I missed any posts please let me know!&lt;/p>
+&lt;h2 id="sql-server-management-studio">&lt;strong>SQL Server Management Studio&lt;/strong>&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://allthezerosmatter.com/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier-custom-shortcuts-in-ssms-ads/" target="_blank" rel="noopener"
+>Chris&lt;/a>, a first time TSQL2sday poster (welcome!), talks about adding shortcuts to run common queries, for example selecting the top 100 rows, or getting the number of rows in a table.&lt;/li>
+&lt;li>&lt;a class="link" href="https://jasonbrimhall.info/2020/02/12/top-3-database-life-hacks/" target="_blank" rel="noopener"
+>Jason&lt;/a> has three life hacks for us, my favourite being the scroll bar map in SSMS. I use that a lot in VSCode, and had no idea you could do that in SSMS as well.&lt;/li>
+&lt;li>&lt;a class="link" href="https://sqlstudies.com/2020/02/11/configure-your-tools-t-sql-tuesday-123/" target="_blank" rel="noopener"
+>Kenneth’s&lt;/a> hack is to configure your tools and shows some great tips for making SQL Server Management Studio work for you.&lt;/li>
+&lt;li>&lt;a class="link" href="https://dallasdbas.com/tsqltuesday-life-hacks/" target="_blank" rel="noopener"
+>Kevin&lt;/a> talks us through executing sp_whoisactive as a temporary procedure to leave no trace and using SSMS registered servers.&lt;/li>
+&lt;li>&lt;a class="link" href="http://sqlworldwide.com/t-sql-tuesday-123-ssms-tips-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Taiob&lt;/a> has some great tips to make using SSMS more effective, including adding your own keyboard shortcuts.&lt;/li>
+&lt;li>&lt;a class="link" href="https://timharkin.com/life-hacks-to-make-your-day-easier-t-sql-tuesday-123/" target="_blank" rel="noopener"
+>Tim&lt;/a> shares a few hacks including multiline editing in SSMS, and a homemade bread proofing box.&lt;/li>
+&lt;/ul>
+&lt;h2 id="t-sqlpowershell">T-SQL/PowerShell&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://jimbabwe.co.za/2020/02/12/t-sql-tuesday-123-life-hacking-by-opening-windows/" target="_blank" rel="noopener"
+>James&lt;/a> has a hack for using windowing functions in T-SQL to aggregate aggregates and a really well laid out post to explain that concept.&lt;/li>
+&lt;li>&lt;a class="link" href="https://lisagb.info/archives/71" target="_blank" rel="noopener"
+>Lisa&lt;/a> has a couple of stored procedures to add to your toolbelt. One that recursively finds objects your code calls, and one that recursively finds code that calls your objects.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.sqlstad.nl/rants-and-rambling/t-sql-tuesday-123-life-hacks-that-make-your-life-easier/" target="_blank" rel="noopener"
+>Sander’s&lt;/a> life hack is to make the most out of your PowerShell profile, and discusses the contents of his profile.&lt;/li>
+&lt;/ul>
+&lt;h2 id="keyboardword-shortcuts">Keyboard/word Shortcuts&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://www.cathrinewilhelmsen.net/2020/02/11/keyboard-shortcuts-moving-text-lines-moving-windows/" target="_blank" rel="noopener"
+>Cathrine&lt;/a> has some great keyboard shortcuts to make us more productive, showing us how to move both lines of text and windows around.&lt;/li>
+&lt;li>&lt;a class="link" href="https://msurasky.wixsite.com/sqlcorner/post/t-sql-tuesday-life-hacks-to-make-your-day-easier" target="_blank" rel="noopener"
+>Martin&lt;/a> levels up from using keyboard shortcuts to keyWORD shortcuts, including some to insert useful code snippets into SSMS for tasks he completes often.&lt;/li>
+&lt;/ul>
+&lt;h2 id="organisationtime-management">&lt;strong>Organisation/Time management&lt;/strong>&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://flxsql.com/t-sql-tuesday-123-lifehacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Andy&lt;/a> has several great life hacks which he mentions are also habits at this point. He includes using cloud storage to sync up your documents and VSCode extensions across computers.&lt;/li>
+&lt;li>&lt;a class="link" href="https://sqlblog.org/2020/02/11/t-sql-tuesday-123-life-hacks" target="_blank" rel="noopener"
+>Aaron&lt;/a> has a ton of little life hacks built into his daily schedule while he works from home. My favourites are a scheduled hour of ‘disengagement’ time to focus on non-collaborative work and his travel pack of gear.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.brentozar.com/archive/2020/02/tsql2sday-my-life-hack-is-an-hourglass-yes-an-hourglass/" target="_blank" rel="noopener"
+>Brent&lt;/a> suggests using a (half) hour glass to assess progress made and keep him on track. He also links to a beautiful wallet damaging hourglass.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.drewsk.tech/2020/02/11/t-sql-tuesday-123/" target="_blank" rel="noopener"
+>Drew&lt;/a> highlights the Eisenhower matrix to improve delegation, and then goes on to list several more great productivity tips. Also bonus points for including a February fact!&lt;/li>
+&lt;li>&lt;a class="link" href="https://curiousaboutdata.com/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/amp/?__twitter_impression=true" target="_blank" rel="noopener"
+>Mala&lt;/a> has two great tips for us, first to get the benefits of both working at home and in the office. Secondly, a way to squeeze in some learning time.&lt;/li>
+&lt;li>&lt;a class="link" href="https://nocolumnname.blog/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Shane’s&lt;/a> life hack is not just to use the Pomodoro technique, which is pretty manual. He’s written a PowerShell script for it complete with toast notifications.&lt;/li>
+&lt;li>&lt;a class="link" href="https://tracyboggiano.com/archive/2020/02/t-sql-tuesday-123-life-hacks/" target="_blank" rel="noopener"
+>Tracey&lt;/a> has a host of useful life hacks including queuing Ola’s index maintenance scripts and using a real paper planner for goals. Tracey also reveals she is the host for next month’s TSQL2sday!&lt;/li>
+&lt;/ul>
+&lt;h2 id="toolsapps">Tools/Apps&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://eitanblumin.com/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Eitan&lt;/a> talks about moving from an individual contributor to a manager and now utilising a bunch of “digital assistants” to get his menial tasks done.&lt;/li>
+&lt;li>&lt;a class="link" href="https://sqlzelda.wordpress.com/2020/02/11/t-sql-tuesday-123-improve-focus-through-speech" target="_blank" rel="noopener"
+>Elizabeth’s&lt;/a> life hack helped her to get her book written (I saw it just came out!). She’s been using dictation software to get the ideas out of her head and onto paper.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.sqlskills.com/blogs/erin/life-hacks/" target="_blank" rel="noopener"
+>Erin&lt;/a> has two life hacks for us. First, using the Toggl app to track your time. The second is listening to movies in the background while working to improve focus.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.kevinrchant.com/2020/02/11/t-sql-tuesday-123-favourite-sql-server-life-hack/" target="_blank" rel="noopener"
+>Kevin&lt;/a> shares several tools he likes to use including Glenn Berry’s diagnostic scripts especially for finding indexes, dbatools and some other free community tools. Plus wearing jackets with lots of pockets for short flights.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.michaelscalise.com/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Mike&lt;/a>, another first time TSQL2sday poster (welcome to you too!), is using Apple’s ‘Speak Screen’ option to catch up on his backlog of blogs to read.&lt;/li>
+&lt;/ul>
+&lt;h2 id="personalhealth">Personal/Health&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="http://dataperfpro.com/t-sql-tuesday-123-being-will-parker/" target="_blank" rel="noopener"
+>Allen&lt;/a> has a great life hack for dealing with people. Inspired by a role he played, Will Parker, he tries to be friendly and open to everyone.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.bronowski.it/blog/2020/02/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Mikey&lt;/a> has a simple but effective hack- get involved with #SQLFamily. He has a good list on where to find people.&lt;/li>
+&lt;li>&lt;a class="link" href="https://richbenner.com/2020/02/t-sql-123/" target="_blank" rel="noopener"
+>Rich&lt;/a> has a life hack that I can relate to, getting your exercise in, and I’d agree it’s a great life hack both physically and mentally.&lt;/li>
+&lt;li>&lt;a class="link" href="http://blogs.lobsterpot.com.au/2020/02/11/shortcuts-good-and-bad/" target="_blank" rel="noopener"
+>Rob&lt;/a> talks about a shortcut from his childhood French lessons to handle pronouns, and goes on to talk about the importance of us all doing better with each individual’s pronouns after this past week&amp;rsquo;s SQLFamily discussions.&lt;/li>
+&lt;li>&lt;a class="link" href="https://toddkleinhans.wordpress.com/2020/02/11/tsql-tuesday-123-my-life-hack-flowing-in-the-morning/" target="_blank" rel="noopener"
+>Todd’s&lt;/a> life hack is to use virtual reality in the morning to get into the flow zone before he starts his day. The videos shared in this post were amazing, and I’ve added the book he references to my to-read list.&lt;/li>
+&lt;/ul></description></item></channel></rss>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>xevents on Jess Pomfret</title><link>https://jpomfret.github.io/categories/xevents/</link><description>Recent content in xevents on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 07 Dec 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/categories/xevents/index.xml" rel="self" type="application/rss+xml"/><item><title>Using Extended Events to determine the best batch size for deletes</title><link>https://jpomfret.github.io/p/using-extended-events-to-determine-the-best-batch-size-for-deletes/</link><pubDate>Tue, 07 Dec 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/using-extended-events-to-determine-the-best-batch-size-for-deletes/</guid><description>&lt;p>I found myself needing to clear out a large amount of data from a table this week as part of a clean up job.  In order to avoid the transaction log catching fire from a long running, massive delete, I wrote the following T-SQL to chunk through the rows that needed to be deleted in batches. The question is though, what’s the optimal batch size?&lt;/p>
+&lt;p>It’s worth noting that an index on the date column was required for this to be as efficient as possible. The table I was deleting from had 4 billion rows and I didn’t want to scan that each time!&lt;/p>
+&lt;p>DECLARE @Before DATE = DATEADD(DAY,-30,GETDATE()),
+@BatchSize INT = 50000&lt;/p>
+&lt;p>WHILE (1=1)
+BEGIN&lt;/p>
+&lt;pre>&lt;code>DELETE TOP (@BatchSize) t
+FROM dbo.bigTable t
+WHERE Date &amp;lt; @Before
+-- if we deleted less than a full batch we're done
+IF @@rowcount &amp;lt; @BatchSize
+BREAK;
+-- add a delay between batches
+WAITFOR DELAY '00:00:01'
+&lt;/code>&lt;/pre>
+&lt;p>END&lt;/p>
+&lt;p>Time for a science experiment. The easiest way to determine the optimal batch size is to run some tests. I decided to test deleting in batches of 10k, 25k, 50k and 100k and measure the delete durations with extended events.&lt;/p>
+&lt;p>My goal was two part - to delete as many rows as possible in a two-hour maintenance window, but also to reduce the amount of time locks were held on the target table.&lt;/p>
+&lt;p>The following T-SQL creates an extended events session that captures one event, &lt;code>sqlserver.sql_statement_completed&lt;/code>, and filters on both my username and the statement like ‘delete top%’. I didn’t choose a target as I just chose to watch the live data, but you could easily add an event_file if you want to persist the data.&lt;/p>
+&lt;p>CREATE EVENT SESSION [DeleteExperiment] ON SERVER
+ADD EVENT sqlserver.sql_statement_completed(SET collect_statement=(1)
+ACTION(sqlserver.nt_username)
+WHERE ([sqlserver].[equal_i_sql_unicode_string]([sqlserver].[session_nt_user],N&amp;rsquo;JessUserName&amp;rsquo;)
+AND [sqlserver].[like_i_sql_unicode_string]([statement],N&amp;rsquo;delete top%&amp;rsquo;)
+)
+)
+GO&lt;/p>
+&lt;p>Once the extended events session had been successfully created and was running, I opened the ‘Watch Live Data’ pane and started running my deletes in another window.  I left each experiment running for a while to make sure I got a decent sample size for each batch size.&lt;/p>
+&lt;p>Once I’d cycled through the different batch sizes, I used the grouping and aggregation features in the Extended events wizard, shown on the toolbar below:&lt;/p>
+&lt;p>&lt;img src="https://lh6.googleusercontent.com/1tCeCwFt3DECWGZha_oV0qjLs0tYq3d3JSxccZc7Fy931ZkgvrMeZrn0665AOrR4GtFe0kBEPgrwBSNcGbx7-axO5QflWksX6BkB58AF6gvydBSV-7S0lrMfwSwIH2qBp1Jm6K7N"
+loading="lazy"
+>&lt;/p>
+&lt;p>I grouped by ‘last_row_count’ which is my batch size, and then calculated the average duration for each group. You can see in the screenshot below the values for each.&lt;/p>
+&lt;p>&lt;img src="https://lh5.googleusercontent.com/uku5O7ozzE8RSSh1ehpNdNj5EEWdizFtbC0ndXZfPMh5G5zCSEsIP8Vk3R3sdt7c3DsGf9If2__M7LdmjQ3WHSce5LDjMyhtRbmxLLPmOtMF4XVWlGovW3ZdDaTUIn3l-pwMOUXI"
+loading="lazy"
+>&lt;/p>
+&lt;p>The duration unit is microseconds for the sp_statement_completed event so after some squinting and calculations the results are as follows:&lt;/p>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>Batch Size&lt;/th>
+&lt;th>Average Duration (Seconds)&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>10,000&lt;/td>
+&lt;td>0.46&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>25,000&lt;/td>
+&lt;td>1.74&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>50,000&lt;/td>
+&lt;td>3.31&lt;/td>
+&lt;/tr>
+&lt;tr>
+&lt;td>100,000&lt;/td>
+&lt;td>7.57&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;p>For now, I’ve decided to go with batches of 50,000 for the deletes. Depending on how things go I might change this to 25,000 as in my mind both those batch sizes met my criteria.&lt;/p>
+&lt;p>Hope this blog post has given you some ideas for testing out different scenarios with Extended Events.&lt;/p></description></item><item><title>Extended Events - Hidden Treasure</title><link>https://jpomfret.github.io/p/extended-events-hidden-treasure/</link><pubDate>Tue, 29 May 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/extended-events-hidden-treasure/</guid><description>&lt;p>I was troubleshooting an issue last week which led to me firing up extended events to look at records being written to the transaction log, I typed into the search bar ‘Transaction’ hoping to find something that would do the trick and didn’t quite find what I was looking for.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/XEvents_Transaction.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>After a few more failed attempts I headed to the internet and found a &lt;a class="link" href="https://www.sqlskills.com/blogs/paul/t-sql-tuesday-67-monitoring-log-activity-with-extended-events/" target="_blank" rel="noopener"
+>post by Paul Randal&lt;/a> describing exactly what I needed for this situation, using the [sqlserver].[transaction_log] event. Hold on, that’s exactly what I searched for.  I ran the T-SQL within his blog post, the event was successfully created and gave me the information I was looking for.&lt;/p>
+&lt;p>I then noticed someone asked in the comments whether it was a bug that the transaction_log event doesn’t show up in the XEvents GUI and Paul had replied:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/PaulRandal.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>It took me a second to find it but by default there is a filter on the ‘Channel’ column that doesn’t include ‘Debug’. Selecting that gives you a whole host of new XEvents to investigate (and use carefully, for example the transaction_log event can generate a lot of activity).&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/XEvents_ChannelTransaction.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>I’m not sure how often I’ll need these ‘Debug’ events, but it sure is nice to know they exist. I feel like there should be some notation in the GUI that there is a filter being applied, similar to the icon in Excel when you have something filtered.&lt;/p></description></item></channel></rss>

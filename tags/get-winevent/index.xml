@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>get-winevent on Jess Pomfret</title><link>https://jpomfret.github.io/tags/get-winevent/</link><description>Recent content in get-winevent on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 04 Aug 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/get-winevent/index.xml" rel="self" type="application/rss+xml"/><item><title>Using Get-WinEvent to look into the past</title><link>https://jpomfret.github.io/p/using-get-winevent-to-look-into-the-past/</link><pubDate>Tue, 04 Aug 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/using-get-winevent-to-look-into-the-past/</guid><description>&lt;p>Recently I was tasked with troubleshooting an incident on a SQL Server at a certain point in the past, the issue being a high CPU alert.  It’s hard (without monitoring solutions set up) to go back in time and determine what the issue is.  However, one thing we can check is the windows event log to see if there was anything happening on the server at that time.&lt;/p>
+&lt;p>Now, you probably know that my favourite tool of choice is PowerShell, so let&amp;rsquo;s take a look at how we can use &lt;code>Get-WinEvent&lt;/code> to see what was happening in the past.&lt;/p>
+&lt;p>&lt;code>Get-WinEvent&lt;/code> is the newer revamped version of &lt;code>Get-EventLog&lt;/code>, and there are two improvements I believe are worth mentioning. Firstly, with the introduction of filter parameters we can now find certain events much easier, which we’ll talk about a little later. Secondly, the performance of &lt;code>Get-WinEvent&lt;/code> is much faster than using the legacy command.  I believe this is due to the filtering happening at the event engine instead of within PowerShell.&lt;/p>
+&lt;h2 id="finding-some-logs">Finding some logs&lt;/h2>
+&lt;p>First things first, let&amp;rsquo;s see what logs we have available on our target machine. I’m targeting a remote machine with the code below, but if we’re investigating an issue on our local machine we can just exclude the &lt;code>-ComputerName&lt;/code> parameter.&lt;/p>
+&lt;p>This snippet will output all of the logs on my remote machine that contain records to a gridview. I love to use &lt;code>Out-GridView&lt;/code> for these kinds of tasks because this returned 101 logs and I can now add some text into the search bar to filter for things I might be interested in.&lt;/p>
+&lt;p>Get-WinEvent -ListLog * -ComputerName dscsvr2 |
+Where-Object RecordCount |
+Out-GridView&lt;/p>
+&lt;p>You can see if I add dsc into the search bar of &lt;code>Out-Grid View&lt;/code> I have one log with records in that I could investigate further.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/viewlogs.jpg"
+loading="lazy"
+alt="Out-GridView displaying results from Get-WinEvent -ListLog *"
+>&lt;/p>
+&lt;h2 id="filtering-events">Filtering events&lt;/h2>
+&lt;p>I already mentioned this, but the new &lt;code>Get-WinEvent&lt;/code> gives us three options for filtering events. I’ll show this example using &lt;code>-FilterHashTable&lt;/code>, but just know there are two other options available, &lt;code>-FilterXPath&lt;/code> and &lt;code>-FilterXml&lt;/code>.&lt;/p>
+&lt;p>The full list of key/value pairs that we can use to filter on are under the &lt;code>-FilterHashTable&lt;/code> parameter section of the &lt;a class="link" href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-winevent?view=powershell-7" target="_blank" rel="noopener"
+>Microsoft Docs&lt;/a>. For now, we’ll look at filtering based on log name and time.&lt;/p>
+&lt;p>So, say I have an alert for high CPU at 21:30 on 2020-07-31 and I want to know what was happening around that time on the server.&lt;/p>
+&lt;p>First I’ll set up a few parameters. I’m going to set the &lt;code>$computerName&lt;/code> (I could add multiple here if I wanted to collect logs from more than one server) and the &lt;code>$issueDateTime&lt;/code>. I’ve then also specified the &lt;code>$windowMins&lt;/code>, I’m going to use to create a window of time around my issue to collect events for.&lt;/p>
+&lt;p>$computerName = &amp;lsquo;dscsvr2&amp;rsquo;
+$issueDateTime = get-date(&amp;lsquo;2020-07-31 21:30&amp;rsquo;)
+$windowMins = 30&lt;/p>
+&lt;p>Next we’ll build the filter hash table. You can do this inline when you call the command, but I personally like to break it out just for readability.&lt;/p>
+&lt;p>$winEventFilterHash = @{
+LogName = &amp;lsquo;system&amp;rsquo;,&amp;lsquo;application&amp;rsquo;
+StartTime = $issueDateTime.AddMinutes(-($windowMins/2))
+EndTime = $issueDateTime.AddMinutes(($windowMins/2))
+}&lt;/p>
+&lt;p>Finally, we’ll call &lt;code>Get-WinEvent&lt;/code>, then pass in the filter hash table and the computer name.  I’m selecting just a few standard properties, as well as a calculated property to get the username instead of just the sid. The final piece of this pipeline is to use &lt;code>Format-Table&lt;/code>. I would also recommend using Export-Excel to pipe it straight to an excel file for analysis.&lt;/p>
+&lt;p>(Note - I use Export-Excel in this post if you&amp;rsquo;re interested in that - &lt;a class="link" href="https://jesspomfret.com/getting-versions/" target="_blank" rel="noopener"
+>Getting OS and SQL Version information with dbatools&lt;/a>)&lt;/p>
+&lt;p>Get-WinEvent -FilterHashtable $winEventFilterHash -ComputerName $computerName | Select-Object LogName,
+ProviderName,
+TimeCreated,
+Id,
+LevelDisplayName,
+@{l=&amp;lsquo;UserName&amp;rsquo;;e={(New-Object System.Security.Principal.SecurityIdentifier($_.UserId)).Translate([System.Security.Principal.NTAccount])}},
+Message | Format-Table&lt;/p>
+&lt;p>As you can see below, the results are returned from both the application and system logs along with the time, level, username and message.  Now, this is just a test box in my lab, but this is a great way of grabbing a window of events from your server to help troubleshoot issues in the past.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/eventoutput.png"
+loading="lazy"
+alt="Results from Get-WinEvent"
+>&lt;/p></description></item></channel></rss>

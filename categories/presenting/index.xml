@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>presenting on Jess Pomfret</title><link>https://jpomfret.github.io/categories/presenting/</link><description>Recent content in presenting on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 05 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/categories/presenting/index.xml" rel="self" type="application/rss+xml"/><item><title>Some 2021 Goals Guaranteed To Keep Me On Track</title><link>https://jpomfret.github.io/p/some-2021-goals-guaranteed-to-keep-me-on-track/</link><pubDate>Tue, 05 Jan 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/some-2021-goals-guaranteed-to-keep-me-on-track/</guid><description>&lt;p>Well 2020 was certainly an interesting year. I’m pretty sure none of us could have predicted how the world would look now and it won’t be regarded as the best year ever. However, there were definitely still some bright points I’d like to make note of before setting some targets for 2021.&lt;/p>
+&lt;h2 id="looking-back-on-2020">Looking back on 2020&lt;/h2>
+&lt;p>One of my biggest achievements of the year was being awarded &lt;a class="link" href="https://mvp.microsoft.com/en-us/PublicProfile/5003655?fullName=Jess%20Pomfret" target="_blank" rel="noopener"
+>MVP for Cloud and Datacenter Management&lt;/a> in February. I’m really proud of this and my ability to positively contribute to our data and PowerShell communities. Along with that I managed to publish 25 blog posts and added two videos to my &lt;a class="link" href="https://www.youtube.com/channel/UC0D3eA_natUs91YcuPE_tLg" target="_blank" rel="noopener"
+>YouTube channel&lt;/a>.  I also gave 10 presentations, only one in person, and also sat on two diversity and inclusion panels. I’ve also continued to contribute to dbatools, dbachecks and other open source software.&lt;/p>
+&lt;p>Outside of the tech world, it was a year of cancelled plans and lockdowns.  I will say this gave me and my wife plenty of time to explore our local footpaths. I recorded over 460 miles of walking last year. Something we usually wouldn’t have had time for.  I also cycled just over 700 miles after getting a new bike in June.&lt;/p>
+&lt;h2 id="looking-forward-to-2021">Looking forward to 2021&lt;/h2>
+&lt;p>Now, I’m not going to say 2021 is going to be back to normal, who knows if we’ll ever go back to that normal.  However, I’m hopeful that things will be better than 2020, and I hope sooner rather than later we can get back to travelling and actually meeting up with people in person!&lt;/p>
+&lt;p>I’m going to set some targets to aim for that won’t depend on what 2021 looks like.&lt;/p>
+&lt;ul>
+&lt;li>Publish 26 blog posts – this would average to one every fortnight. I also aim to publish at a regular cadence.&lt;/li>
+&lt;li>Create 10 YouTube videos – my short ‘life hack’ videos that I’ve published have got positive reviews. I aim to get more of those recorded and available on YouTube&lt;/li>
+&lt;li>Speaking – I don’t have a specific number target here, but I’d like to think I can beat last year&amp;rsquo;s total of 10 presentations. Perhaps even some at in person events?!?&lt;/li>
+&lt;li>Open source contributions – Again, no specific numbers here but just a goal to continue contributing. I also have some ideas for this area that need a little love and time, but I hope to work on those this year as well.&lt;/li>
+&lt;li>Cycle 1000 miles – this would be more than I’ve ever cycled in a year, but without a commute in 2020 I found a lot more time for cycling before/after work.&lt;/li>
+&lt;li>Duolingo streak – another non tech goal. I’ve been using Duolingo to work on my French and hope to keep the streak alive throughout 2021.&lt;/li>
+&lt;/ul>
+&lt;p>All in all, I hope 2021 is an improvement on 2020 – here’s to doing everything I can to make it a good one. I&amp;rsquo;ll leave you with a couple of local views I&amp;rsquo;ve enjoyed while cycling\walking this past year.&lt;/p>
+&lt;p>&lt;a class="link" href="https://www.instagram.com/p/CDhAVEXBjLq/?utm" target="_blank" rel="noopener"
+>https://www.instagram.com/p/CDhAVEXBjLq/?utm&lt;/a>_source=ig_web_copy_link&lt;/p>
+&lt;p>&lt;a class="link" href="https://www.instagram.com/p/CAP8ta7huch/?utm" target="_blank" rel="noopener"
+>https://www.instagram.com/p/CAP8ta7huch/?utm&lt;/a>_source=ig_web_copy_link&lt;/p></description></item><item><title>T-SQL Tuesday #133: What (Else) Have You Learned from Presenting?</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#133-what-else-have-you-learned-from-presenting/</link><pubDate>Tue, 08 Dec 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#133-what-else-have-you-learned-from-presenting/</guid><description>&lt;p>&lt;a class="link" href="https://lisagb.info/archives/77" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>It’s December, the last T-SQL Tuesday for 2020. I’ve managed to participate in seven this year, including hosting in February – I wonder if in 2021 I will be able to complete a full year. I always look forward to these monthly blog parties, so thanks to Lisa for hosting this month. &lt;/p>
+&lt;p>Lisa has asked us to share something we’ve learnt from presenting that didn’t relate directly to the topic we were presenting on.  I think this is a great topic. We already know that to present on a topic you have to really know it, so preparing for a presentation does wonders for your own personal knowledge on that topic.  Lisa has identified another bonus- all the ancillary knowledge that comes along with it.&lt;/p>
+&lt;p>I gave my first presentation in June 2018, and although it’s only been around 2.5 years since then, I have learnt so much from both presenting and contributing to the community.  I have a couple of areas I’m going to mention here.&lt;/p>
+&lt;h2 id="git--github">&lt;strong>Git &amp;amp; GitHub&lt;/strong>&lt;/h2>
+&lt;p>My first real contributions were not presenting but writing code and tests for dbatools.  Writing PowerShell was not something that was new to me, so I felt comfortable writing the function I wanted to add. Through code review it did get some much needed tweaking to ensure it met the standards and format of the project.  Getting the code from my laptop into the dbatools GitHub repo was another story – it was totally foreign to me.&lt;/p>
+&lt;p>Luckily the dbatools team is fantastic. They have written great guides on using git and GitHub in order to make your first pull request, and Chrissy even coached me through how to get my code into GitHub that first time. &lt;/p>
+&lt;p>As I continued to contribute I got more familiar with using Git and GitHub for source control, and since then there have been many times where I’ve needed that knowledge both for community projects as well as my real job. I even host my &lt;a class="link" href="https://github.com/jpomfret/demos" target="_blank" rel="noopener"
+>presentation demos and slides&lt;/a> there now.&lt;/p>
+&lt;h2 id="docker">&lt;strong>Docker&lt;/strong>&lt;/h2>
+&lt;p>I think one thing that every presenter has had to learn is how to set up some form of a lab to be able to run demos in a reliable and repeatable way.  I started off with a VM on my local laptop that I could connect to and run demos against. This took some learning to get the networking setup. Something I still consider a weak area!&lt;/p>
+&lt;p>After a while I started reading more about containers, and specifically running SQL Server in containers.  I now (where possible) run all my demos for presentations against demo environments in containers that run on my laptop. I have already written a post on this, &lt;a class="link" href="https://jesspomfret.com/data-compression-containers/" target="_blank" rel="noopener"
+>Data Compression Demos in Containers&lt;/a>, but this has given me a great opportunity to learn and play with a really interesting technology.&lt;/p>
+&lt;p>One of the main benefits I see when running demos against containers is how easy it is to wipe away your practice runs and have a fresh environment ready for the presentation.  I’ve even built pester tests into my setup script to ensure everything is in the perfect state for the demo gods. I’ve also written about that if you’re interested in what I test, &lt;a class="link" href="https://jesspomfret.com/demo-gods-pester/" target="_blank" rel="noopener"
+>Keeping the demo gods at bay with Pester&lt;/a>.&lt;/p>
+&lt;h2 id="summary">&lt;strong>Summary&lt;/strong>&lt;/h2>
+&lt;p>It took me a long time to make the first step into giving back and presenting content in front of people, but if I look back at the fun I’ve had over the last 2.5 years and all the knowledge I’ve gained it’s easy to see what a great decision that was. If you are considering speaking I would highly recommend giving it a go – as Lisa mentioned in her prompt, Allen White’s famous speech, everyone has something to teach.&lt;/p>
+&lt;p>Thanks again for hosting Lisa, and I look forward to reading all the other responses.&lt;/p></description></item><item><title>Keeping the demo gods at bay with Pester</title><link>https://jpomfret.github.io/p/keeping-the-demo-gods-at-bay-with-pester/</link><pubDate>Tue, 10 Mar 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/keeping-the-demo-gods-at-bay-with-pester/</guid><description>&lt;p>A short while ago (it’s getting further and further away, but let’s stick with short for now) I was a football/soccer player. As with many athletes, I was pretty superstitious as far as my pregame routine. I always felt better going out onto the pitch if everything had gone smoothly as I got ready.  I put my boots, shin-pads and socks on in a certain order and even taped my socks up in a certain way. The good news is I’ve managed to find a slightly more reliable way to get ready for my presentations – and I’m going to share the secret.&lt;/p>
+&lt;p>First you put your right sock on, then your left sock on. Follow that by putting on your right shoe, and then your left shoe… just joking. You use Pester tests!&lt;/p>
+&lt;p>If you don’t know what &lt;a class="link" href="https://pester.dev/" target="_blank" rel="noopener"
+>Pester&lt;/a> is, it’s a test framework for PowerShell.  In the simplest explanation, using their Domain-Specific Language (DSL) you describe how things should look. If all looks good it returns output in green and if it doesn’t you get red output.  There are a lot of great use cases for Pester, like using it to ensure your code does what it’s supposed to, using it to validate your SQL Server environment (&lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks&lt;/a>), or in this example using it to make sure your demos are setup and ready to go.&lt;/p>
+&lt;p>When I’m preparing for a presentation I go through the demos over and over again, so it’s easy to accidentally leave things in a state that will cause issues when I go to do my demos in the presentation. If you’re creating a table, for example, during the demo and you already created it practicing and then forgot to drop it, the demo gods will strike and it’ll fail when it matters most! A simple Pester test to check whether the table exists will solve this issue.&lt;/p>
+&lt;p>So what do I test?&lt;/p>
+&lt;p>Last Wednesday I presented my ‘Life hacks: dbatools Edition’ session for the &lt;a class="link" href="https://www.meetup.com/Southampton-Data-Platform-and-Cloud-Group/" target="_blank" rel="noopener"
+>Southampton Data Platform and Cloud meetup&lt;/a> so I’ll talk you through the tests I ran to make sure I was ready to present that session, and it’s a demo heavy one!&lt;/p>
+&lt;p>First things first, I test that I can import the dbatools module. I make sure I’m getting the version and the number of commands I expect. dbatools puts out new versions all the time, so I usually update this in the weeks leading up to my presentation as I’m practicing.&lt;/p>
+&lt;p>Describe &amp;ldquo;Module is good to go&amp;rdquo; {
+Context &amp;ldquo;dbatools imports&amp;rdquo; {
+$null = Import-Module dbatools
+$module = Get-Module dbatools
+It &amp;ldquo;Module was imported&amp;rdquo; {
+$module | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;Module version is 1.0.99&amp;rdquo; {
+$module.Version | Should Be &amp;ldquo;1.0.99&amp;rdquo;
+}
+It &amp;ldquo;Module should import 587 commands&amp;rdquo; {
+(get-command -module dbatools | Measure).Count | Should Be 587
+}
+}
+}&lt;/p>
+&lt;p>My demo setup involves two containers running on my laptop. Because of that, I’m using the sa credential to connect and I’m setting some PSDefaultParameterValues so I don’t have to include the &lt;code>$credential&lt;/code> in every function call. I can test all that is setup correctly like so.&lt;/p>
+&lt;p>Describe &amp;ldquo;Credentials exist&amp;rdquo; {
+Context &amp;ldquo;Credential exists&amp;rdquo; {
+It &amp;ldquo;Credential is not null&amp;rdquo; {
+$credential | Should Not BeNullOrEmpty
+}
+}
+Context &amp;ldquo;username is sa&amp;rdquo; {
+It &amp;ldquo;Username is sa&amp;rdquo; {
+$credential.UserName | Should Be &amp;ldquo;sa&amp;rdquo;
+}
+}
+Context &amp;ldquo;PSDefaultParameterValues are set&amp;rdquo; {
+$params = $PSDefaultParameterValues
+It &amp;ldquo;PSDefaultParameterValues contains expected values&amp;rdquo; {
+$params.Keys -contains &amp;lsquo;*:SqlCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:SourceSqlCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:DestinationCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:DestinationSqlCredential&amp;rsquo; | Should Be True
+}
+}
+}&lt;/p>
+&lt;p>I then have a couple of simple checks to make sure I can connect to both my instances.&lt;/p>
+&lt;p>Describe &amp;ldquo;Two instances are available&amp;rdquo; {
+Context &amp;ldquo;Two instances are up&amp;rdquo; {
+$mssql1 = Connect-DbaInstance -SqlInstance mssql1
+$mssql2 = Connect-DbaInstance -SqlInstance mssql2
+It &amp;ldquo;mssql1 is available&amp;rdquo; {
+$mssql1.Name | Should Not BeNullOrEmpty
+$mssql1.Name | Should Be &amp;lsquo;mssql1&amp;rsquo;
+}
+It &amp;ldquo;mssql2 is available&amp;rdquo; {
+$mssql2.Name | Should Not BeNullOrEmpty
+$mssql2.Name | Should Be &amp;lsquo;mssql2&amp;rsquo;
+}
+}
+}&lt;/p>
+&lt;p>I then make sure that my databases are set up as expected. I am using two databases on my mssql1 SQL Server instance, AdventureWorks2017 and DatabaseAdmin. I make sure each of those exist, are online, and that the compatibility level is set correctly. I also check that the indexes on the Employee table are set up as I expect since I use those in my demos.&lt;/p>
+&lt;p>Describe &amp;ldquo;mssql1 databases are good&amp;rdquo; {
+Context &amp;ldquo;AdventureWorks2017 is good&amp;rdquo; {
+$db = Get-DbaDatabase -SqlInstance mssql1
+$adventureWorks = $db | where name -eq &amp;lsquo;AdventureWorks2017&amp;rsquo;
+It &amp;ldquo;AdventureWorks2017 is available&amp;rdquo; {
+$adventureWorks | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;AdventureWorks status is normal&amp;rdquo; {
+$adventureWorks.Status | Should Be Normal
+}
+It &amp;ldquo;AdventureWorks Compat is 140&amp;rdquo; {
+$adventureWorks.Compatibility | Should Be 140
+}
+}
+Context &amp;ldquo;Indexes are fixed on HumanResources.Employee (bug)&amp;rdquo; {
+$empIndexes = (Get-DbaDbTable -SqlInstance mssql1 -Database AdventureWorks2017 -Table Employee).indexes | select name, IsUnique
+It &amp;ldquo;There are now just two indexes&amp;rdquo; {
+$empIndexes.Count | Should Be 2
+}
+It &amp;ldquo;There should be no unique indexes&amp;rdquo; {
+$empIndexes.IsUnique | Should BeFalse
+}
+}
+Context &amp;ldquo;DatabaseAdmin is good&amp;rdquo; {
+$db = Get-DbaDatabase -SqlInstance mssql1
+$DatabaseAdmin = $db | where name -eq &amp;lsquo;DatabaseAdmin&amp;rsquo;
+It &amp;ldquo;DatabaseAdmin is available&amp;rdquo; {
+$DatabaseAdmin | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;DatabaseAdmin status is normal&amp;rdquo; {
+$DatabaseAdmin.Status | Should Be Normal
+}
+It &amp;ldquo;DatabaseAdmin Compat is 140&amp;rdquo; {
+$DatabaseAdmin.Compatibility | Should Be 140
+}
+}
+}&lt;/p>
+&lt;p>One of my demos shows the backup history for AdventureWorks, so I test that with Pester before I start to make sure there is history to show. Nothing worse than getting up to show a wonderful set of dbatools functions and nothing being returned because I haven’t actually taken any backups!&lt;/p>
+&lt;p>Describe &amp;ldquo;Backups worked&amp;rdquo; {
+Context &amp;ldquo;AdventureWorks was backed up&amp;rdquo; {
+$instanceSplat = @{
+SqlInstance = &amp;lsquo;mssql1&amp;rsquo;
+}
+It &amp;ldquo;AdventureWorks has backup history&amp;rdquo; {
+Get-DbaDbBackupHistory @instanceSplat | Should Not BeNullOrEmpty
+}
+}
+}&lt;/p>
+&lt;p>While I was writing my demos I came across issues where my PowerShell environment was set to x86 so I added a test for that to make sure it doesn’t happen again.&lt;/p>
+&lt;p>Describe &amp;ldquo;Proc architecture is x64&amp;rdquo; {
+Context &amp;ldquo;Proc arch is good&amp;rdquo; {
+It &amp;ldquo;env:processor_architecture should be AMD64&amp;rdquo; {
+$env:PROCESSOR_ARCHITECTURE | Should Be &amp;ldquo;AMD64&amp;rdquo;
+}
+}
+}&lt;/p>
+&lt;p>Finally, I check to see what’s running on my computer. Zoomit, everyone’s favourite screen zoom tool should be running, and we should make sure that Slack and Teams are not.&lt;/p>
+&lt;p>Describe &amp;ldquo;Check what&amp;rsquo;s running&amp;rdquo; {
+$processes = Get-Process zoomit*, teams, slack -ErrorAction SilentlyContinue
+Context &amp;ldquo;ZoomIt is running&amp;rdquo; {
+It &amp;ldquo;ZoomIt64 is running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Zoomit64&amp;rsquo;) | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;Slack is not running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Slack&amp;rsquo;) | Should BeNullOrEmpty
+}
+It &amp;ldquo;Teams is not running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Teams&amp;rsquo;) | Should BeNullOrEmpty
+}
+}
+}&lt;/p>
+&lt;p>Now there are obviously ways that the demo gods can still strike, but using Pester to test your demos is a great way to try and tilt the odds in your favour.&lt;/p>
+&lt;p>You can view all the code, including the tests, for this presentation on my &lt;a class="link" href="https://github.com/jpomfret/demos/tree/master/LifeHacks_dbatools" target="_blank" rel="noopener"
+>Github&lt;/a>.&lt;/p>
+&lt;p>Here&amp;rsquo;s what the output looks like:&lt;/p>
+&lt;p>Executing all tests in &amp;lsquo;.\Tests\demo.tests.ps1&amp;rsquo;&lt;/p>
+&lt;p>Executing script .\Tests\demo.tests.ps1&lt;/p>
+&lt;p>Describing Module is good to go&lt;/p>
+&lt;pre>&lt;code>Context dbatools imports
+\[+\] Module was imported 1.59s
+\[+\] Module version is 1.0.99 287ms
+\[+\] Module should import 587 commands 162ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Credentials exist&lt;/p>
+&lt;pre>&lt;code>Context Credential exists
+\[+\] Credential is not null 263ms
+Context username is sa
+\[+\] Username is sa 83ms
+Context PSDefaultParameterValues are set
+\[+\] PSDefaultParameterValues contains expected values 80ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Two instances are available&lt;/p>
+&lt;pre>&lt;code>Context Two instances are up
+\[+\] mssql1 is available 592ms
+\[+\] mssql2 is available 26ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing mssql1 databases are good&lt;/p>
+&lt;pre>&lt;code>Context AdventureWorks2017 is good
+\[+\] AdventureWorks2017 is available 863ms
+\[+\] AdventureWorks status is normal 32ms
+\[+\] AdventureWorks Compat is 140 46ms
+Context Indexes are fixed on HumanResources.Employee (bug)
+\[+\] There are now just two indexes 1.53s
+\[+\] There should be no unique indexes 49ms
+Context DatabaseAdmin is good
+\[+\] DatabaseAdmin is available 256ms
+\[+\] DatabaseAdmin status is normal 15ms
+\[+\] DatabaseAdmin Compat is 140 17ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Backups worked&lt;/p>
+&lt;pre>&lt;code>Context AdventureWorks was backed up
+\[+\] AdventureWorks has backup history 627ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Proc architecture is x64&lt;/p>
+&lt;pre>&lt;code>Context Proc arch is good
+\[+\] env:processor\_architecture should be AMD64 125ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Check what&amp;rsquo;s running&lt;/p>
+&lt;pre>&lt;code>Context ZoomIt is running
+\[+\] ZoomIt64 is running 150ms
+\[+\] Slack is not running 43ms
+\[+\] Teams is not running 17ms
+&lt;/code>&lt;/pre>
+&lt;p>Tests completed in 6.86s
+Tests Passed: 21, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0&lt;/p>
+&lt;p>Good news, all passed and I&amp;rsquo;m ready to give my demos!&lt;/p></description></item><item><title>T-SQL Tuesday #121 - Gifts received for this year</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#121-gifts-received-for-this-year/</link><pubDate>Tue, 10 Dec 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#121-gifts-received-for-this-year/</guid><description>&lt;p>&lt;a class="link" href="https://curiousaboutdata.com/2019/12/03/tsql-tuesday-121-gifts-received-for-this-year/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>&lt;em>This is a time for material gift giving, for many of us. It might also be a time to consider the many gifts we have received through the year, and perhaps use this opportunity to appreciate people or situations that we were blessed with.&lt;/em>&lt;/p>
+&lt;p>When I first saw Mala’s post last week for the last T-SQL Tuesday of the year I immediately started thinking of all the gifts I have received this year and how thankful I was with how 2019 has turned out. So first things first, thanks to Mala (&lt;a class="link" href="https://curiousaboutdata.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/sqlmal/" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this final prompt of 2019.&lt;/p>
+&lt;h2 id="the-gift-of-sqlfamily">The gift of #SQLFamily&lt;/h2>
+&lt;p>Around this time I found my local user group in Cleveland and started attending meetings. Attending meetings, talking to no one and going home, but still learning a lot from the great speakers and topics that were shared. This really started my journey as I started to interact with the community.&lt;/p>
+&lt;p>I was also starting to follow members of the SQL Server community on Twitter. I occasionally used the &lt;a class="link" href="https://twitter.com/hashtag/sqlhelp?src=hashtag_click" target="_blank" rel="noopener"
+>#SQLHelp&lt;/a> hashtag to get some guidance, but mostly played the role of lurker. I’d read articles that were shared, learning plenty, but not fully realizing the potential here.&lt;/p>
+&lt;p>In 2015 I changed jobs, which meant in 2016 I had the chance to attend my first PASS Summit. What an experience. It was like our local user group on steroids, all day, for 3 whole days.  I was exhausted by the end of the week and that was just from the conference portion as I mostly kept to myself during the evenings.&lt;/p>
+&lt;p>As time went on I still attended my local user group almost every month. I started talking to the people there more and more and began to understand this concept of #SQLFamily that I had heard mentioned so many times before.&lt;/p>
+&lt;p>My friends at the user group continually provided support, guidance, and encouragement and eventually I started to believe I could give something back to the community. I started this blog in February 2018 and gave my first user group presentation in June 2018. This is when I really started to believe in the magic of the #SQLFamily.&lt;/p>
+&lt;p>Since that slightly shaky presentation on Data Compression in June 2018, I’ve presented 3 different sessions a total of 14 times at various user groups, SQL Saturdays and conferences. Although I still feel like I have a long way to go, it was really great to present back to my local user group this last month to show them I’m getting better and their support is working!&lt;/p>
+&lt;p>I will also give a special shout out to the Grillen guys. In June 2019 I was lucky enough to present my DSC &amp;amp; SQL Server presentation at DataGrillen. This was my first big conference- I had a few SQL Saturdays under my belt but this felt huge. William (&lt;a class="link" href="http://williamdurkin.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/sql_williamd" target="_blank" rel="noopener"
+>t&lt;/a>) and Ben (&lt;a class="link" href="https://www.solisyon.de/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/bweissman" target="_blank" rel="noopener"
+>t&lt;/a>) were the most amazing hosts, not only having created an amazing space to present and learn in, but also ensuring both myself and my wife had the best trip possible. I highly recommend checking this conference out if you can. The good news is, at this time, the c&lt;a class="link" href="https://datagrillen.com/" target="_blank" rel="noopener"
+>all for speakers for 2020&lt;/a> is still open for 5 more days!&lt;/p>
+&lt;p>We are so lucky to live and work in a community that has this concept of #SQLFamily. It took me a while to see it but now I can truly appreciate it and I can honestly say I wouldn’t be where I am today without every one of you!&lt;/p>
+&lt;h2 id="the-gift-of-supportive-family--friends">The gift of supportive family &amp;amp; friends&lt;/h2>
+&lt;p>The second gift I will talk about is I have the most supportive friends and family. Thanks to the #SQLFamily, I have met and made connections with folks from all over the world.  Thanks to Twitter, I randomly stumbled across this tweet one afternoon:&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/SQLDiplomat/status/1161342206675955713" target="_blank" rel="noopener"
+>https://twitter.com/SQLDiplomat/status/1161342206675955713&lt;/a>&lt;/p>
+&lt;p>I’m originally from Chippenham in the South West of England (about 1.5 hours from Southampton), and my wife, who’s American, wasn’t opposed to living in England at some point in our lives. Although it wasn’t in the immediate plan we decided to find out more and it turned out this opportunity was too good to miss. I’m really looking forward to 2020 and this new opportunity.&lt;/p>
+&lt;p>I’m so excited to move back to England, to be closer to my family, and explore the UK and Europe with my wife. With the excitement comes absolute chaos as we prepare to move the 3,500 miles across the Atlantic. We’re currently working through selling our home, cars, things and packing up our lives in the US. We are very lucky to have the most supportive family on both sides of the pond as well as so many amazing friends that, although are sad to see us move, are being amazing at helping us realize (I guess it’s realise now!) this dream.&lt;/p>
+&lt;p>&lt;img src="https://i1.wp.com/jesspomfret.com/wp-content/uploads/2019/12/IMG-20191207-WA0002.jpg?fit=650%2C867&amp;amp;ssl=1"
+loading="lazy"
+>&lt;/p>
+&lt;p>Literally carrying me into 2020!&lt;/p>
+&lt;p>The final shoutout is to my wife, who to be fair has the rougher deal here. I am moving towards my family, with a job lined up that I’m excited about. She is stepping into a world of unknown, leaving her family and her dream job in the US for an adventure in England. You wouldn’t know this though, she’s the one keeping us organized and on track while I write blog posts to avoid packing ?. Her support and sense of adventure is the gift I’m most thankful for, as I know I couldn’t have accomplished half the things I did this year without her in my corner.&lt;/p>
+&lt;p>I’ve had a great 2019. It is ending in no way how I expected, and that’s largely due to the amazing gifts I’ve received from #SQLFamily and my own friends and family. So a big thank you to everyone involved!&lt;/p>
+&lt;p>I hope everyone has a safe and enjoyable holiday season. Thanks again Mala for hosting!&lt;/p></description></item><item><title>T-SQL Tuesday #119 - Changing your mind</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#119-changing-your-mind/</link><pubDate>Tue, 08 Oct 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#119-changing-your-mind/</guid><description>&lt;p>&lt;a class="link" href="http://workingwithdevs.com/tsql2sday-119-changing-your-mind/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>It’s time for our monthly T-SQL Tuesday blog party again and we have another interesting prompt to write about. Thanks goes to Alex Yates (&lt;a class="link" href="http://workingwithdevs.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/_AlexYates_" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this month.&lt;/p>
+&lt;p>I’ve thought about this a lot over the last few days and really wanted to find a technical topic to write about, but over and over I came back to the same thoughts. This last week I attended two conferences and gave three presentations (one topic twice), and I still can’t believe I’ve given a single technical presentation.&lt;/p>
+&lt;p>Allen White (&lt;a class="link" href="http://dataperfpro.com" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/SQLRunr" target="_blank" rel="noopener"
+>t&lt;/a>) has a famous spiel that he gives before every one of his presentations, encouraging his audience that everyone has something they can teach others. I created my PASS profile in 2011, and that was about the time I first heard Allen present. I remember laughing to myself that I would never be able to do that.  Giving presentations during my college years was something I dreaded, why on earth would I volunteer now to do that.&lt;/p>
+&lt;p>Well, fast forward to June 2018, I gave &lt;a class="link" href="https://jesspomfret.com/first-user-group-presentation-i-survived/" target="_blank" rel="noopener"
+>my first user group presentation&lt;/a>. I stepped way out of my comfort zone for that, but since then I have presented 11 additional times.  I’ve presented at a mixture of SQL Saturdays, online virtual groups and conferences, and every time I’ve got extremely nervous beforehand, and experienced an unbelievable high after.&lt;/p>
+&lt;p>This past week I gave my DSC &amp;amp; SQL Server presentation on Friday in Columbus at &lt;a class="link" href="https://dogfoodcon.com/" target="_blank" rel="noopener"
+>DogFoodCon&lt;/a> (a great conference with a very different crowd than my usual data platform events) and then I gave two sessions at &lt;a class="link" href="https://sqlsaturday.com/907/eventhome.aspx" target="_blank" rel="noopener"
+>SQL Saturday Pittsburgh&lt;/a>.&lt;/p>
+&lt;p>At this point I still feel like I’m not really a speaker, every time I walk into the speaker room at an event I expect someone to ask what I’m doing in there. However, I’ve received a lot of great feedback, and more importantly had a lot of great conversations with people about things they learnt in my session. I’m getting there.&lt;/p>
+&lt;p>The other amazing part of this adventure is I’ve had so much fun, I’ve met and become friends with some great people and I’ve traveled as far as Germany to explore the world and deliver my sessions.&lt;/p>
+&lt;p>I can 100% say I’ve changed my opinion on whether I can become a speaker in this community, and I’ve bought into Allen’s spiel that everyone has something to give back. &lt;/p>
+&lt;p>If you are reading this and laughing to yourself that it can’t mean you, it does! Maybe you’re not ready to speak, but start a blog and share some things you’ve done – other people are one month behind you, trying to work out how to do what you just did. If writing isn’t your style, go contribute some code to open source software- &lt;a class="link" href="https://github.com/sqlcollaborative/dbatools" target="_blank" rel="noopener"
+>dbatools&lt;/a> and &lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks&lt;/a> are on GitHub and always looking for new contributors. Go squash some bugs or add new functionality.&lt;/p>
+&lt;p>Thanks again to Alex for the great prompt.&lt;/p></description></item><item><title>T-SQL Tuesday #112 - Dipping into your Cookie Jar</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#112-dipping-into-your-cookie-jar/</link><pubDate>Tue, 12 Mar 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#112-dipping-into-your-cookie-jar/</guid><description>&lt;p>&lt;a class="link" href="https://nocolumnname.blog/2019/03/05/t-sql-tuesday-112-dipping-into-your-cookie-jar/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues-300x300.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>It’s T-SQL Tuesday time again and our host this week, Shane O&amp;rsquo;Neill (&lt;a class="link" href="https://nocolumnname.blog/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/SOZDBA" target="_blank" rel="noopener"
+>t&lt;/a>), has challenged us to a humble brag. This really is a challenge for most of us as we do awesome things quietly, so thanks to Shane for forcing us to share some ‘cookies’.  This is also the second time in a couple of weeks that &lt;a class="link" href="https://www.amazon.com/Cant-Hurt-Me-Master-Your-ebook/dp/B07H453KGH" target="_blank" rel="noopener"
+>David Goggins’ book&lt;/a> has been mentioned, which means I need to move it up on my to-read list.&lt;/p>
+&lt;p>Imposter syndrome is something a lot of us struggle with. I am going to share a couple of things that I’m proud of and that I can look back on when things get tough.  As I’ve written before I’m working hard on stepping out of my comfort zone to prepare and deliver technical presentations. Recently I’ve been building a presentation that has caused me to wonder many times, what was I thinking.  Hopefully this recap will remind me that I can do it.&lt;/p>
+&lt;h3 id="automating-nonproduction-refreshes">Automating Nonproduction Refreshes&lt;/h3>
+&lt;p>This first story is a technical one. I was working on a project a year or so ago that involved complicated changes to business processes and therefore it was decided that development and test environments needed to be as similar to production as possible.  This meant that I was inundated with requests to take backups of production and restore to many nonproduction environments.  This got old fast.&lt;/p>
+&lt;p>The process not only involved the backup/restore piece, the data in production was both sensitive and encrypted using TDE.  I started writing PowerShell scripts for each step in the process, restoring certificates and databases, unencrypting and then removing certificates and then masking the sensitive data (which involved calling a T-SQL stored procedure built by my colleague, &lt;a class="link" href="https://twitter.com/awickham" target="_blank" rel="noopener"
+>Andrew&lt;/a>).  This was fine to begin with, but as the production data grew the process took longer and longer, which meant that the nonproduction environment was unavailable for longer each time.&lt;/p>
+&lt;p>After awhile this process was no longer acceptable because the test environments were down for too long. I met with the team and we came up with a plan.  We ended up agreeing that we would create a process to create ‘restore points’.  These would basically be points in time from production, that were prepared for nonproduction use, off hours in a temporary environment.  I utilized a combination of &lt;a class="link" href="https://developer.ibm.com/urbancode/products/urbancode-deploy/" target="_blank" rel="noopener"
+>Urban Code Deploy&lt;/a> (UCD), a product we already had in house, and PowerShell scripts to give the developers the power to first create a restore point, and then to be able to refresh environments from these prepackaged backups.&lt;/p>
+&lt;p>The process in UCD to create a restore point took the scripts I had been using manually and packaged them up so the result was a folder of already unencrypted, masked databases that were safe to restore to any of the test environments.  Everyone was happy, I no longer had to do this mundane, boring request and the team could refresh whenever they needed to, only having to wait for the restore to finish.&lt;/p>
+&lt;p>There is still plenty of room for improvement in this process. Perhaps we could use some kind of database cloning technology to minimize space requirements and reduce the time to restore. Another option would be running the databases in containers. The developers could then just spin up an environment when they needed to test something. For now, though, the process is making everyone’s life easier, and that was a big win for both myself and the project team.&lt;/p>
+&lt;h3 id="speaking-in-front-of-people">Speaking in Front of People!&lt;/h3>
+&lt;p>The second humble brag is that I’m speaking in front of people! A year ago I had just agreed to give my first user group presentation and I was terrified.  I had set a goal of giving back to the community by blogging/writing and speaking, but the speaking part was by far the most difficult for me to get my head around. &lt;/p>
+&lt;p>Thinking back to college, I dreaded finding out that class projects included final presentations. This hasn’t changed, and now I was voluntarily going to present.  In the last year I’ve put together a pretty decent hour-long presentation on data compression that I’ve delivered not once, but four times.  Each time I’ve grown in confidence and felt more like I could be myself in front of a crowd.  One of my demos that I’m particularly proud of shows how data compression affects the data storage on the page.  I then &lt;a class="link" href="https://jesspomfret.com/data-compression-internals/" target="_blank" rel="noopener"
+>wrote about this demo&lt;/a> and it was picked up and featured in &lt;a class="link" href="https://www.brentozar.com" target="_blank" rel="noopener"
+>Brent Ozar’s&lt;/a> weekly links.&lt;/p>
+&lt;p>I’ve also had my second presentation topic selected for &lt;a class="link" href="https://datagrillen.com" target="_blank" rel="noopener"
+>DataGrillen&lt;/a> and &lt;a class="link" href="https://www.sqlsaturday.com/827/eventhome.aspx" target="_blank" rel="noopener"
+>SQL Saturday Cincinnati&lt;/a>. I’m working hard to make sure I can deliver an informative and useful session on the possibilities of using PowerShell Desired State Configuration to install and configure SQL Server. During this process it has often felt like I’ve bitten off more than I can chew, both on my topic choice and the fact I submitted it to an international conference with a superstar line up of speakers.&lt;/p>
+&lt;p>But here’s to remember the wins, and knowing I’ve already overcome these same doubts and challenges to get my first presentation up and running. This will be a great post to come back to when I need to dip in the cookie jar.&lt;/p></description></item><item><title>First User Group Presentation - I Survived!</title><link>https://jpomfret.github.io/p/first-user-group-presentation-i-survived/</link><pubDate>Wed, 27 Jun 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/first-user-group-presentation-i-survived/</guid><description>&lt;p>Well tonight marks three weeks since I gave my first user group presentation and you know what, it’s been a total whirlwind since then so I’ve had little time to reflect.  Myself and the fiancé closed on our first house and my parents flew in to visit. It’s very useful to have people on hand the first couple of weeks so we didn’t feel like completely unqualified homeowners. I spent some time right after the presentation to start breathing again and to jot down some thoughts, but this is the first chance I’ve had to report back.&lt;/p>
+&lt;p>TL;DR I didn’t die, the SQL Server community is fantastic and I have amazing supportive friends.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/Pittfurg/status/1004125722082934784" target="_blank" rel="noopener"
+>https://twitter.com/Pittfurg/status/1004125722082934784&lt;/a>&lt;/p>
+&lt;p>&lt;strong>Why Present?&lt;/strong>&lt;/p>
+&lt;p>The answer to this is twofold. Firstly this year I’ve challenged myself to get more involved in the SQL Server community. For several years now I’ve attended user group meetings, SQL Saturday’s and even made it to the PASS Summit a couple of times, but I’ve never contributed anything. It’s been all take.   Last year I got involved with dbatools and that started my quest to return the favour.  I’m still currently wrestling with the ideas of “who wants to listen to what I have to say” and “do I really have anything to contribute anyway,” but I’m doing my best to keep one foot in front of the other and see what happens.&lt;/p>
+&lt;p>Secondly, whenever I review my strengths and weaknesses at annual review time, communication, or more precisely public speaking is always something that I consider a weakness.  I’m not sure of a better way to improve in this area than to put myself out there and practice, so here’s to some professional development. I’m certain that gaining some knowledge, experience and confidence in this area will help me in many areas of my life.&lt;/p>
+&lt;p>&lt;strong>What to Present?&lt;/strong>&lt;/p>
+&lt;p>I ended up presenting on SQL Server data compression.  I talked about the types of data compression, and how the internals work before focusing on what you can compress, how to compress and how to decide what should be compressed.  This topic stemmed mainly from an issue at work where data compression was implemented with a large performance benefit.  This issue at work also encouraged me to spend some time looking at dbatools and compression. There were existing commands for Set-DbaDbCompression and Test-DbaDbCompression that I added some improvements to, and then I added Get-DbaDbCompression.&lt;/p>
+&lt;p>The culmination of both the issue at work and working on dbatools commands for compression left me feeling like this was a great topic to share.  Since 2016 SP1 data compression is now a standard level feature, opening up the possibilities to a lot more people.&lt;/p>
+&lt;p>&lt;strong>Improvements&lt;/strong>&lt;/p>
+&lt;p>Overall I think the presentation went well, I delivered most of what I had planned on saying and my demo’s did a decent job of explaining the process for deciding what to compress and then applying compression through T-SQL, SSMS and PowerShell.  I was lucky to have some great friends in the audience (&lt;a class="link" href="https://twitter.com/awickham" target="_blank" rel="noopener"
+>Andrew&lt;/a>, &lt;a class="link" href="https://twitter.com/Pittfurg" target="_blank" rel="noopener"
+>Drew&lt;/a> and &lt;a class="link" href="https://twitter.com/erinstellato" target="_blank" rel="noopener"
+>Erin&lt;/a>) who asked great questions which helped me to drive home certain points.&lt;/p>
+&lt;p>My timing was definitely a bit off. I’d prepared for what I thought would be 45-60 minutes of content and it was a bit shorter than that.  I plan on adding some additional content and delivering slightly slower the next time I give this talk to fix this problem.&lt;/p>
+&lt;p>I got some great feedback both from the speaker evaluations and from &lt;a class="link" href="https://www.sqlskills.com/blogs/erin/" target="_blank" rel="noopener"
+>Erin Stellato&lt;/a> who went above and beyond my request for any tips and feedback she may have.  I’ll make sure to incorporate some real life stories on where compression has had an impact as well as adding some more demos.&lt;/p>
+&lt;p>&lt;strong>What’s next?&lt;/strong>&lt;/p>
+&lt;p>That’s right, there is a next! I took a chance and submitted my session to &lt;a class="link" href="http://www.sqlsaturday.com/736/eventhome.aspx" target="_blank" rel="noopener"
+>SQL Saturday Columbus&lt;/a> and was lucky enough to be selected.  I’ve been to quite a few SQL Saturdays in Cleveland, Columbus, Pittsburgh and even Minneapolis, but this will be my first as a speaker.  If you’re in the area on July 28th and want to learn more about data compression I’ll be on at 8:30am in Room 6.&lt;/p>
+&lt;p>I’m also going to work on some blog posts around data compression and the dbatools commands so watch out for that also.&lt;/p></description></item></channel></rss>

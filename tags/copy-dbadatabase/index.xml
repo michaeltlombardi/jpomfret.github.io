@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>copy-dbadatabase on Jess Pomfret</title><link>https://jpomfret.github.io/tags/copy-dbadatabase/</link><description>Recent content in copy-dbadatabase on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 19 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/copy-dbadatabase/index.xml" rel="self" type="application/rss+xml"/><item><title>Easily Create A Copy Of Your Database For Testing</title><link>https://jpomfret.github.io/p/easily-create-a-copy-of-your-database-for-testing/</link><pubDate>Tue, 19 Jan 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/easily-create-a-copy-of-your-database-for-testing/</guid><description>&lt;p>Have you ever wanted to quickly backup/restore a database to the same instance to do some side by side testing? Perhaps to make some index changes or code changes, without actually changing the live copy of the database?  Ideally you’d already have another environment for this sort of work, but even then sometimes it’s handy to have a quick option.&lt;/p>
+&lt;p>Let’s first take a look at the databases on my SQL Server- we can use a GUI tool for that (SSMS, ADS) or we can use dbatools.&lt;/p>
+&lt;p>Get-DbaDatabase -SqlInstance mssql1 | Select-Object SqlInstance, Name, Status, Size&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDatabase.jpg"
+loading="lazy"
+alt="Get-DbaDatabase"
+>&lt;/p>
+&lt;p>We’re working hard on the AdventureWorks2017 database, perhaps getting it ready for an upgrade – since it’s now 3+ years out of date.&lt;/p>
+&lt;p>dbatools has so many functions, and I know I’ve mentioned it before, but &lt;code>Find-DbaCommand&lt;/code> is a great way of looking for what we need. I want to know what the default backup path is set to, and since I’m just backing up and restoring to the same server, we already know that the instance has the required permissions here. If only there was an easy button for this…&lt;/p>
+&lt;p>Find-DbaCommand *default*path*backup*&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/findcommand.jpg"
+loading="lazy"
+alt="results of Find-DbaCommand"
+>&lt;/p>
+&lt;p>Even just reading the synopsis, I can see that &lt;code>Get-DbaDefaultPath&lt;/code> will give me exactly what I need.  I recommend the next step is running &lt;code>Get-Help Get-DbaDefaultPath -ShowWindow&lt;/code>, that’ll create a popup that provides all the information you need about the function.&lt;/p>
+&lt;p>The only required parameter is a SqlInstance, and you can see the backup property returns gives us the path we need for our copy.&lt;/p>
+&lt;p>Get-DbaDefaultPath -SqlInstance mssql1&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDbaDefaultPath.jpg"
+loading="lazy"
+alt="Get-DbaDefaultPath output"
+>&lt;/p>
+&lt;p>That’s all the groundwork done- we have our instance, database, and a location to backup/restore from.  We’re going to want to check we have enough disk space available on both the instance and that backup path, then we’re ready to go.&lt;/p>
+&lt;h2 id="using-copy-dbadatabase">&lt;strong>Using Copy-DbaDatabase&lt;/strong>&lt;/h2>
+&lt;p>I’ve already spoken and blogged a lot about the power of this command (related links at the end of this post), but today’s tip is centred around a less than well-known parameter.  Hidden deep in the comment based help (another great reason to read all of &lt;code>Get-Help Copy-DbaDatabase -ShowWindow&lt;/code>) you’ll find the ‘Prefix’ parameter. This will allow us to easily add a prefix to both the database and the associated files, meaning we won’t have any issues restoring the database to the same server.&lt;/p>
+&lt;p>-Prefix &lt;!-- raw HTML omitted --> &lt;br>
+All copied database names and physical files will be prefixed with this string&lt;/p>
+&lt;p>This option is mutually exclusive of NewName&lt;/p>
+&lt;p>Required? false
+Position? named
+Default value &lt;br>
+Accept pipeline input? False
+Accept wildcard characters? false&lt;/p>
+&lt;p>Here I’ve set a SqlInstance variable so I can reuse the same value multiple times in my code. Then created a hash table ‘$copySplat’ with the necessary parameters so we can utilise splatting (a way to improve code readability) to pass the whole set into &lt;code>Copy-DbaDatabase&lt;/code>. &lt;/p>
+&lt;p>Two parameters I want to highlight- I’ve set ‘Prefix’, meaning the database and files for the restored database will start with ‘Test’.  I’ve also set SharedPath and used the code we already wrote to get the default backup path.&lt;/p>
+&lt;p>$sqlInstance = &amp;lsquo;mssql1&amp;rsquo;&lt;/p>
+&lt;p>$copySplat = @{
+Source = $sqlInstance
+Destination = $sqlInstance
+Database = &amp;lsquo;AdventureWorks2017&amp;rsquo;
+BackupRestore = $true
+SharedPath = (Get-DbaDefaultPath -SqlInstance $sqlInstance).Backup
+Prefix = &amp;lsquo;Test&amp;rsquo;
+}
+Copy-DbaDatabase @copySplat&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/copyDatabase.jpg"
+loading="lazy"
+alt="Copy-DbaDatabase"
+>&lt;/p>
+&lt;p>The output below shows the migration was successful, and there were no warnings or errors (those would appear in the notes column).&lt;/p>
+&lt;p>Finally, let’s confirm it worked by rerunning our &lt;code>Get-DbaDatabase&lt;/code> command again:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/GetDatabaseAfter.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Extra proof, it’s now accessible through Azure Data Studio (ADS) and we’re ready to start our testing.  One note, if you are on the same server it’s important to confirm any code you run isn’t referencing the original database name.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ADSView.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;h2 id="additional-content">&lt;strong>Additional content&lt;/strong>&lt;/h2>
+&lt;p>As I mentioned I have already spoken and written about the power of &lt;code>Copy-DbaDatabase&lt;/code>, one of my favourite commands.  If you’d like to read more, I’ve written a post on the dbatools blog, &lt;a class="link" href="https://dbatools.io/migrating-application-dbs/" target="_blank" rel="noopener"
+>migrating application databases with dbatools&lt;/a>.&lt;/p>
+&lt;p>I’ve also recorded a short ‘Life hack’ video, &lt;a class="link" href="https://www.youtube.com/watch?v=Fraig15pwxE&amp;amp;t=1s" target="_blank" rel="noopener"
+>easy database migrations with dbatools&lt;/a> that I’ve published on my YouTube channel.&lt;/p></description></item></channel></rss>

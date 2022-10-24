@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tabs on Jess Pomfret</title><link>https://jpomfret.github.io/tags/tabs/</link><description>Recent content in tabs on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 09 Jun 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/tabs/index.xml" rel="self" type="application/rss+xml"/><item><title>T-SQL Tuesday #127 – Non SQL Tips &amp; Tricks</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#127-non-sql-tips-tricks/</link><pubDate>Tue, 09 Jun 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#127-non-sql-tips-tricks/</guid><description>&lt;p>&lt;a class="link" href="https://sqlstudies.com/2020/06/02/tsql-tuesday-127-invite-non-sql-tips-and-tricks/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>I feel like I say this every month, but it’s already time for another edition of T-SQL Tuesday. This months blog party is hosted by Kenneth Fisher (&lt;a class="link" href="https://sqlstudies.com/" target="_blank" rel="noopener"
+>B&lt;/a>|&lt;a class="link" href="https://twitter.com/sqlstudent144" target="_blank" rel="noopener"
+>T&lt;/a>) and he’s looking for tips &amp;amp; tricks, but nothing DBMS related.  As you might already know, I love shortcuts and tips &amp;amp; tricks – so I was really excited to see this prompt. First, because I easily found a few I wanted to share, but secondly, I can’t wait to read about everyone else’s tips &amp;amp; tricks.&lt;/p>
+&lt;p>I had a hard time narrowing this down to just one shortcut, so I’ve picked three – but they fit together nicely. First, I have to let you in on a small secret:&lt;/p>
+&lt;h2 id="im-a-tab-hoarder">I’m a tab hoarder&lt;/h2>
+&lt;p>Whether it’s chrome or SSMS, I cannot help myself when it comes to opening new tabs. It’s not uncommon for me to have so many chrome tabs open that you can only see the logos.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/tabsShort.png"
+loading="lazy"
+alt="chrome browser tabs"
+>&lt;/p>
+&lt;p>I even got called out by my good friend Andrew (&lt;a class="link" href="https://awickham.com/" target="_blank" rel="noopener"
+>B&lt;/a>|&lt;a class="link" href="https://twitter.com/awickham" target="_blank" rel="noopener"
+>T&lt;/a>) this last week:&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/awickham/status/1267503576571674624" target="_blank" rel="noopener"
+>https://twitter.com/awickham/status/1267503576571674624&lt;/a>&lt;/p>
+&lt;p>My tips &amp;amp; tricks are focused around managing tabs, and they work in all browsers (at least all that I have on my laptop. Chrome, Edge, IE11).&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Ctrl + Tab&lt;/code> – Switch tabs&lt;/li>
+&lt;li>&lt;code>Ctrl + W&lt;/code> - Close a tab&lt;/li>
+&lt;li>&lt;code>Ctrl + Shift + T&lt;/code> - Reopen the last closed tab&lt;/li>
+&lt;/ul>
+&lt;p>The first two are pretty self-explanatory, but the third one deserves a special mention.  I’m sure it’s happened to everyone- you close a tab and the instant it’s gone, you realise you actually needed that one.  Well &lt;code>Ctrl + Shift + T&lt;/code> to the rescue. This shortcut will revive that last closed tab from the dead and the magic here is if you keep pressing it, it’ll keep opening tabs you shut previously.&lt;/p>
+&lt;p>In fact, if you close an entire browser window full of 20 tabs (that I’m sure you need all of) and in another browser window you press &lt;code>Ctrl + Shift + T&lt;/code>, like magic, all the tabs come back to you.&lt;/p>
+&lt;h2 id="bonus-content">Bonus Content&lt;/h2>
+&lt;p>Now I started off using these shortcuts in internet browsers, but then I discovered they work in my favourite code editor as well.  All three of the keyboard shortcuts above work in VSCode, so now you can easily switch between scripts with &lt;code>Ctrl + Tab&lt;/code>, close a script with &lt;code>Ctrl + W&lt;/code> and then reopen it with &lt;code>Ctrl + Shift + T&lt;/code>.&lt;/p>
+&lt;p>I love this crossover functionality, and I feel like it adds so much when you can open a program and it works in a way that you’re used to.&lt;/p></description></item></channel></rss>

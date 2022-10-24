@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tsqltuesday on Jess Pomfret</title><link>https://jpomfret.github.io/tags/tsqltuesday/</link><description>Recent content in tsqltuesday on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 10 Aug 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/tsqltuesday/index.xml" rel="self" type="application/rss+xml"/><item><title>T-SQL Tuesday #141: Work/Life balance</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#141-work/life-balance/</link><pubDate>Tue, 10 Aug 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#141-work/life-balance/</guid><description>&lt;p>&lt;a class="link" href="https://tjaybelt.blogspot.com/2021/08/t-sql-tuesday-141-worklife-balance.html" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>It’s T-SQL Tuesday time and I’ve finally managed to put some words into a blog post again.  It’s been a few months since I’ve posted anything on my blog, things have been busy, and my motivation has been a little lacking.  However, this topic has inspired me to try and pull something together. Thanks to TJay(&lt;a class="link" href="https://tjaybelt.blogspot.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/tjaybelt" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this month and for choosing a great topic.&lt;/p>
+&lt;p>TJay has asked us to share our personal journey with managing work/life balance.  It’s an interesting prompt, especially at this point in a global pandemic.  The last 18 months have caused a massive shift in my work/life balance, and at this point I’d have to say overall it’s been a positive change.&lt;/p>
+&lt;p>Like many of us, in March 2020 I was told to work from home full time for who knows how long.  Previously I had been working from home one day a week and commuting into the office the other four.  My commute wasn’t particularly long, but it did take about 45 mins each way for me to walk to the station and take the train into Southampton where my office is located.  Gaining that commute time back has given me a lot more flexibility as far as my working hours – which is in turn where I’ve been able to improve my work/life balance.&lt;/p>
+&lt;p>I’m lucky I work at a company, and on a team, that has transitioned smoothly into the work from home lifestyle.  The ability to work more flexibly is the biggest benefit that I see when working from home and it does allow for a more manageable work/life balance in my opinion.&lt;/p>
+&lt;p>I’ve talked about my love of CrossFit before, and it’s something I missed a lot while gyms were closed during the lockdowns over the last year.  Now that gyms are back open again I’ve got back into the habit of going 5-6 days per week.  Pre-working from home I would go to the gym in the evenings, checking in for either the 5pm or 530pm classes. Afterwards there was time for dinner, a little TV and not much else in the evenings.&lt;/p>
+&lt;p>Now that I work from home, I’ve been able to change my schedule to go to the lunch time class. It’s created a great break both mentally and physically in the middle of my workdays, allowing me to get away from my desk and spend an hour at the gym with my wife and friends. It really breaks up the day and since I’m not commuting, I don’t end my day any later than I used to.&lt;/p>
+&lt;p>I will say that it was a struggle at first to end my workdays on time. I found myself slipping into working later than I would if I had to leave the office to commute home. This was especially hard when we were in lockdown and there was nothing really to do. Luckily my wife tended to keep me on track here. We’d go out and walk together after work which meant I couldn’t just sit at my desk all evening. That helped a lot, and I feel like now I’ve got into a pretty good routine of ending my days at a reasonable time.&lt;/p>
+&lt;p>Although 2020/2021 has been a hard year I think overall at this point the changes have had a positive impact on my work/life balance. I’ll leave you with my keys to success:&lt;/p>
+&lt;ul>
+&lt;li>A little fitness – I always feel better when I exercise, even if it’s just a walk and some fresh air so I ensure I make time for this.&lt;/li>
+&lt;li>A little support – I’m lucky that my wife always keeps me on track, but having someone in your corner be it friends or family, can make a huge difference.&lt;/li>
+&lt;/ul>
+&lt;p>Thanks again to TJay for hosting, and I look forward to reading everyone else&amp;rsquo;s responses.&lt;/p></description></item><item><title>T-SQL Tuesday #135: The outstanding tools of the trade that make your job awesome</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/</link><pubDate>Tue, 09 Feb 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/</guid><description>&lt;p>&lt;a class="link" href="https://www.bronowski.it/blog/2021/02/t-sql-tuesday-135-the-outstanding-tools-of-the-trade-that-make-your-job-awesome/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>It’s time for February’s monthly blog party. This month is hosted by Mikey Bronowski (&lt;a class="link" href="https://www.bronowski.it/blog" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/MikeyBronowski" target="_blank" rel="noopener"
+>t&lt;/a>) and he’s asking us to write about our ‘tools of the trade’.  He’s looking for those tools that make our lives easier, ones we couldn’t imagine going without. Thanks for hosting Mikey, can’t wait to read everyone’s contributions and add some tools to my toolbelt.&lt;/p>
+&lt;p>I’m going to split this into a couple of sections. I’m sure you can all guess what’s up first though…&lt;/p>
+&lt;h2 id="powershell">PowerShell&lt;/h2>
+&lt;p>If I could only choose one tool for my toolbelt it would be PowerShell, which is actually probably cheating because there are so many options to import modules and add functionality.  I’m going to highlight five modules I use a lot below.&lt;/p>
+&lt;ol>
+&lt;li>&lt;a class="link" href="https://github.com/sqlcollaborative/dbatools" target="_blank" rel="noopener"
+>dbatools&lt;/a> – If you’ve read much of my blog before, or seen me present, it should be no surprise that dbatools is number one.  I use dbatools every day, whether it’s to check diskspace, update database owners, or a plethora of other uses.  In fact I previously wrote a post ‘&lt;a class="link" href="https://jesspomfret.com/t-sql-tuesday-101/" target="_blank" rel="noopener"
+>The Multitool of my DBA toolbox&lt;/a>’ that highlights five great use cases.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks&lt;/a> – A close friend of dbatools, dbachecks combines Pester and dbatools to create an amazing infrastructure testing module.  This is perfect for creating a morning checks dashboard, or quickly checking certain parts of your estate. For example, in my post ‘&lt;a class="link" href="https://jesspomfret.com/dbachecks-importexcel/" target="_blank" rel="noopener"
+>dbachecks meets ImportExcel&lt;/a>’ we check up on backups and database status before exporting to create an Excel report.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/pester/Pester" target="_blank" rel="noopener"
+>Pester&lt;/a> – Originally designed for unit/integration testing, I personally use this framework to test anything you can write in PowerShell. It quickly provides a clear and easy to read answer for whether everything is as expected. I’ve written about it previously to ‘&lt;a class="link" href="https://jesspomfret.com/pester-test-cluster-role-owners/" target="_blank" rel="noopener"
+>Pester test your Cluster Role Owners&lt;/a>’.&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/dfinke/ImportExcel" target="_blank" rel="noopener"
+>ImportExcel&lt;/a> – This module lets you work with Excel objects, without having Excel installed.  Easily read data from spreadsheets into PowerShell, or export data to create detailed reports with a few lines of code. Our host for this T-SQL Tuesday has written a great series on this module, if you’re looking for inspiration. &lt;a class="link" href="https://www.bronowski.it/blog/tag/importexcel/" target="_blank" rel="noopener"
+>importexcel Archives - Mikey Bronowski - Blog&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/PowershellFrameworkCollective/psframework" target="_blank" rel="noopener"
+>PSFramework&lt;/a> – Finally, I want to highlight PSFramework.  Portions of this module are used within both dbatools and dbachecks.  It provides great options for both setting configuration options that can be then used in your modules as well as for creating great logging. I’ve switched to using Write-PSFMessage instead of Write-Host\Verbose\Output as it provides a lot more flexibility as well as writing to a physical log file.&lt;/li>
+&lt;/ol>
+&lt;p>I also recently wrote about &lt;a class="link" href="https://jesspomfret.com/psreadline-search-history/" target="_blank" rel="noopener"
+>PowerShell’s interactive search functionality&lt;/a>, and after a poll on Twitter was pretty shocked by how few people knew about it.  I recommend checking it out, as it is a really handy built in feature.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/jpomfret/status/1357014555638042624" target="_blank" rel="noopener"
+>https://twitter.com/jpomfret/status/1357014555638042624&lt;/a>&lt;/p>
+&lt;h2 id="microsoft-excel">Microsoft Excel&lt;/h2>
+&lt;p>Since I’ve written a lot about PowerShell previously, I wanted to highlight some other tools that I depend on. I’ve always been a fan of Excel, my personal life is full of spreadsheets – most decisions end with a spreadsheet (lucky for me, my wife is also a big fan of Excel!).  I often find myself copying data into Excel to keep track of work, or to quickly analyse data.  It’s also a great way of sharing data with a clear structure.  I’m also a big fan of shortcuts – so here’s a few I use often.&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Ctrl+;&lt;/strong> - Insert today’s date into the current cell – really useful, and avoids you having to remember we’re now in 2021!&lt;/li>
+&lt;li>&lt;strong>Ctrl+l&lt;/strong> – Select a cell within a dataset, press Ctrl+l (lowercase L), press enter. Your data is transformed into a table.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/ctrlL.gif"
+loading="lazy"
+alt="Gif showing using Ctrl&amp;#43;L in Excel to create a table"
+>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Ctrl+D&lt;/strong> – Fill down, this will copy the contents of the cell above into your current cell.  Also smart enough to handle continuation of formulas.&lt;/li>
+&lt;li>&lt;strong>Ctrl+R&lt;/strong> – Fill right, same as above but it’ll copy the contents of the cell to your left into your current cell.&lt;/li>
+&lt;li>&lt;strong>Ctrl+Up/Down arrow&lt;/strong> – This will move your cursor to either the first value in the current column, or the last.  I use this a lot for navigating around worksheets/tables.&lt;/li>
+&lt;li>&lt;strong>F2&lt;/strong> – This edits a cell&amp;rsquo;s contents. It puts your cursor at the end of the value, but you can now use your arrow keys to move about in the cell. It also stops you accidentally overwriting what was already in the cell.&lt;/li>
+&lt;/ul>
+&lt;h2 id="my-bike">My Bike&lt;/h2>
+&lt;p>My final tool is my bike. Not technical at all, but a tool I use to keep fit and have some fun.  I love cycling, and in the current times it’s my best option for fitness (I’m in England – we’re deep into lockdown 3 and gyms are closed). &lt;/p>
+&lt;p>Honestly, I have a really hard time working out at home. I enjoy going to the gym, seeing some friendly faces and having someone tell me what to do for an hour.  It’s not the same at home, and my mood is instantly affected by not being active.&lt;/p>
+&lt;p>However, I’m happy to go out for a ride, and living in the South of England the weather is reasonably kind all year round.  Previously, living in Ohio there weren’t many options for winter bike riding, unless you had fat tyres and loved the snow!  I’m also lucky to be close to the South Downs (pictured below), as well as plenty of country lanes to explore.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/Bike_SouthDowns-1024x768.jpg"
+loading="lazy"
+alt="My bike on the south downs"
+>&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>Thanks for reading and hope you’ve enjoyed digging through my toolbox. Thanks again to Mikey for hosting. I always enjoy participating in these T-SQL Tuesday’s, partly because it gives me a prompt to write about, partly because it’s fun to see what everyone else wrote about.&lt;/p>
+&lt;p>Stay safe folks.&lt;/p></description></item><item><title>T-SQL Tuesday #130 – Automate Your Stress Away</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#130-automate-your-stress-away/</link><pubDate>Wed, 09 Sep 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#130-automate-your-stress-away/</guid><description>&lt;p>&lt;a class="link" href="https://sqlzelda.wordpress.com/2020/09/01/t-sql-tuesday-130-automate-your-stress-away/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>Thanks to Elizabeth Nobel (&lt;a class="link" href="https://sqlzelda.wordpress.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/SQLZelda" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this month’s T-SQL Tuesday party and apologies for being as late as possible to the party! I love the topic of automation so felt sure I’d write something and then time slipped away. Luckily Mikey Bronowski (&lt;a class="link" href="https://www.bronowski.it/blog/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/MikeyBronowski" target="_blank" rel="noopener"
+>t&lt;/a>) convinced me that it wasn’t too late to write something on my lunch break today (Wednesday in the UK) as it’s still Tuesday on Baker Island. Interesting fact Baker Island uses UTC-12:00 because since it’s uninhabited the islands time zone is unspecified (&lt;a class="link" href="https://en.wikipedia.org/wiki/Baker_Island" target="_blank" rel="noopener"
+>Wikipedia&lt;/a>).&lt;/p>
+&lt;h2 id="automating-dbachecks-with-scheduled-task">Automating dbachecks with scheduled task&lt;/h2>
+&lt;p>I wanted to write about automating your daily checks with dbachecks, there are many ways of expanding on this post, but this should give you a good basis to build from.&lt;/p>
+&lt;h3 id="the-environment">The environment&lt;/h3>
+&lt;p>I have two docker containers running on my laptop, one running SQL Server 2017 and one running SQL Server 2019. I will use these SQL Server instances to run my sample daily checks against.&lt;/p>
+&lt;p>I have also created a database on the 2019 instance (mssql2) called dbachecks to store our daily check results.&lt;/p>
+&lt;h3 id="the-checks">The checks&lt;/h3>
+&lt;p>There are hundreds of checks available within the dbachecks module, and on top of that you can even &lt;a class="link" href="https://nocolumnname.blog/2018/02/22/adding-your-own-checks-to-dbachecks/" target="_blank" rel="noopener"
+>write your own&lt;/a> and include those. For this example I’m going to use the ‘DatabaseStatus’ check to ensure all my databases are online as expected.&lt;/p>
+&lt;h3 id="the-automation">The automation&lt;/h3>
+&lt;p>To automate the running of our daily checks we’ll first create a PowerShell script and then schedule that using task scheduler.  If you have other enterprise scheduling tools available you could easily use those instead to invoke the PowerShell script.&lt;/p>
+&lt;p>The script for my example, shown below, is pretty simple. I have a section to define where the data will be stored (the ability to save dbachecks result information straight into a database was introduced with dbachecks 2.0 and so I would highly recommend updating if you’re on an earlier version).&lt;/p>
+&lt;p>The next section (lines 7-9) lists my SQL instances that I want to check, and the checks that should be run.  The list of SQL instances could easily be pulled from a text file, a central management server (CMS) or a database to enhance the script.&lt;/p>
+&lt;p>The final three lines (lines 11-13) run the checks, apply a label of ‘MorningChecks’ (this allows for grouping of test results in the reports) and then inserts the results into the database.&lt;/p>
+&lt;p>Import-Module dbachecks, dbatools&lt;/p>
+&lt;h2 id="dbachecks-database-connection">Dbachecks Database Connection&lt;/h2>
+&lt;p>$dbachecksServer = &amp;lsquo;mssql2&amp;rsquo;
+$dbachecksDatabase = &amp;lsquo;dbachecks&amp;rsquo;&lt;/p>
+&lt;h2 id="define-instances-and-checks-to-run">Define instances and checks to run&lt;/h2>
+&lt;p>$SqlInstance = &amp;lsquo;mssql1&amp;rsquo;,&amp;lsquo;mssql2&amp;rsquo;
+$checks = &amp;lsquo;DatabaseStatus&amp;rsquo;&lt;/p>
+&lt;p>Invoke-DbcCheck -SqlInstance $SqlInstance -Checks $checks -PassThru |
+Convert-DbcResult -Label &amp;lsquo;MorningChecks&amp;rsquo; |
+Write-DbcTable -SqlInstance $dbachecksServer -Database $dbachecksDatabase&lt;/p>
+&lt;p>I saved this script to &lt;code>C:\dbachecks\dbachecks.ps1&lt;/code> and then ran the following PowerShell to schedule the execution of the script daily at 7am.&lt;/p>
+&lt;p>$RunAs = Get-Credential
+$taskSplat = @{
+TaskName = &amp;lsquo;Daily dbachecks&amp;rsquo;
+Action = (New-ScheduledTaskAction -Execute &amp;lsquo;powershell&amp;rsquo; -Argument &amp;lsquo;-File dbachecks.ps1&amp;rsquo; -WorkingDirectory C:\dbachecks)
+Trigger = (New-ScheduledTaskTrigger -Daily -At &amp;lsquo;07:00&amp;rsquo;)
+User = $RunAs.UserName
+Password = ($RunAs.GetNetworkCredential().Password)
+RunLevel = &amp;lsquo;Highest&amp;rsquo;
+}
+Register-ScheduledTask @taskSplat&lt;/p>
+&lt;p>It’s important to note that the account used to run this scheduled task needs to be an account that has access to all of the SQL instances you want to check, as well as the SQL instance you are writing the final data to.&lt;/p>
+&lt;h3 id="results">Results&lt;/h3>
+&lt;p>Since this is now scheduled daily we can grab our morning coffee, sit down at our desk and immediately review our estate and ensure everything is as expected.&lt;/p>
+&lt;p>We wrote the data to a SQL Server so you can go and query the data directly. By default there will be two tables created in the database.&lt;/p>
+&lt;ul>
+&lt;li>CheckResults – contains the actual results of the checks against your server&lt;/li>
+&lt;li>dbachecksChecks – contains the metadata of the checks including tags and descriptions for each check you have invoked.&lt;/li>
+&lt;/ul>
+&lt;p>The other option is to use the dbachecks PowerBi dashboard, by running the following you can load the dashboard and connect to your dbachecks results database:&lt;/p>
+&lt;p>Start-DbcPowerBi -FromDatabase&lt;/p>
+&lt;p>When this opens you can see there were some failures on mssql1, right clicking on the orange bar you can drill through to see the details.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2020/09/dashboard-1.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/dashboard-1-1024x583.jpg"
+loading="lazy"
+alt="dbachecks main dashboard"
+>&lt;/a>&lt;/p>
+&lt;p>On the details pane you can see there are two offline databases that I need to look into.&lt;/p>
+&lt;p>&lt;a class="link" href="https://jesspomfret.com/wp-content/uploads/2020/09/drillthrough.jpg" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/drillthrough-1024x279.jpg"
+loading="lazy"
+alt="details view of dbachecks PowerBi"
+>&lt;/a>&lt;/p>
+&lt;h3 id="summary">Summary&lt;/h3>
+&lt;p>Finally, this automation is just the starting piece of automating your daily checks. There are many ways to expand on this, but this is how you can get started with automating daily health checks with dbachecks.&lt;/p>
+&lt;p>Thanks again for hosting, and sorry for being so late!&lt;/p></description></item><item><title>T-SQL Tuesday #127 – Non SQL Tips &amp; Tricks</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#127-non-sql-tips-tricks/</link><pubDate>Tue, 09 Jun 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#127-non-sql-tips-tricks/</guid><description>&lt;p>&lt;a class="link" href="https://sqlstudies.com/2020/06/02/tsql-tuesday-127-invite-non-sql-tips-and-tricks/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+alt="T-SQL Tuesday Logo"
+>&lt;/a>&lt;/p>
+&lt;p>I feel like I say this every month, but it’s already time for another edition of T-SQL Tuesday. This months blog party is hosted by Kenneth Fisher (&lt;a class="link" href="https://sqlstudies.com/" target="_blank" rel="noopener"
+>B&lt;/a>|&lt;a class="link" href="https://twitter.com/sqlstudent144" target="_blank" rel="noopener"
+>T&lt;/a>) and he’s looking for tips &amp;amp; tricks, but nothing DBMS related.  As you might already know, I love shortcuts and tips &amp;amp; tricks – so I was really excited to see this prompt. First, because I easily found a few I wanted to share, but secondly, I can’t wait to read about everyone else’s tips &amp;amp; tricks.&lt;/p>
+&lt;p>I had a hard time narrowing this down to just one shortcut, so I’ve picked three – but they fit together nicely. First, I have to let you in on a small secret:&lt;/p>
+&lt;h2 id="im-a-tab-hoarder">I’m a tab hoarder&lt;/h2>
+&lt;p>Whether it’s chrome or SSMS, I cannot help myself when it comes to opening new tabs. It’s not uncommon for me to have so many chrome tabs open that you can only see the logos.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/tabsShort.png"
+loading="lazy"
+alt="chrome browser tabs"
+>&lt;/p>
+&lt;p>I even got called out by my good friend Andrew (&lt;a class="link" href="https://awickham.com/" target="_blank" rel="noopener"
+>B&lt;/a>|&lt;a class="link" href="https://twitter.com/awickham" target="_blank" rel="noopener"
+>T&lt;/a>) this last week:&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/awickham/status/1267503576571674624" target="_blank" rel="noopener"
+>https://twitter.com/awickham/status/1267503576571674624&lt;/a>&lt;/p>
+&lt;p>My tips &amp;amp; tricks are focused around managing tabs, and they work in all browsers (at least all that I have on my laptop. Chrome, Edge, IE11).&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Ctrl + Tab&lt;/code> – Switch tabs&lt;/li>
+&lt;li>&lt;code>Ctrl + W&lt;/code> - Close a tab&lt;/li>
+&lt;li>&lt;code>Ctrl + Shift + T&lt;/code> - Reopen the last closed tab&lt;/li>
+&lt;/ul>
+&lt;p>The first two are pretty self-explanatory, but the third one deserves a special mention.  I’m sure it’s happened to everyone- you close a tab and the instant it’s gone, you realise you actually needed that one.  Well &lt;code>Ctrl + Shift + T&lt;/code> to the rescue. This shortcut will revive that last closed tab from the dead and the magic here is if you keep pressing it, it’ll keep opening tabs you shut previously.&lt;/p>
+&lt;p>In fact, if you close an entire browser window full of 20 tabs (that I’m sure you need all of) and in another browser window you press &lt;code>Ctrl + Shift + T&lt;/code>, like magic, all the tabs come back to you.&lt;/p>
+&lt;h2 id="bonus-content">Bonus Content&lt;/h2>
+&lt;p>Now I started off using these shortcuts in internet browsers, but then I discovered they work in my favourite code editor as well.  All three of the keyboard shortcuts above work in VSCode, so now you can easily switch between scripts with &lt;code>Ctrl + Tab&lt;/code>, close a script with &lt;code>Ctrl + W&lt;/code> and then reopen it with &lt;code>Ctrl + Shift + T&lt;/code>.&lt;/p>
+&lt;p>I love this crossover functionality, and I feel like it adds so much when you can open a program and it works in a way that you’re used to.&lt;/p></description></item><item><title>T-SQL Tuesday – #125: Unit Testing Databases</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#125-unit-testing-databases/</link><pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#125-unit-testing-databases/</guid><description>&lt;p>&lt;a class="link" href="https://hybriddbablog.com/2020/04/07/t-sql-tuesday-125-unit-testing-databases-we-need-to-do-this/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>It’s T-SQL Tuesday time again! March felt really long for a lot of us as we got used to our new way of life, so I’m excited we made it to April’s prompt.&lt;/p>
+&lt;p>This month’s topic is asking for a discussion around whether unit testing for databases is valuable. Since getting involved with dbatools and beginning to write more structured PowerShell (meaning modules and DSC resources rather than just an odd script) I have learnt a lot more about testing code. However, I have zero experience with testing databases. So I’m excited for this topic. Thanks for hosting Hamish (&lt;a class="link" href="https://hybriddbablog.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/TheHybridDBA" target="_blank" rel="noopener"
+>t&lt;/a>).&lt;/p>
+&lt;p>I recently watched Steve Jones give a session as part of &lt;a class="link" href="https://www.red-gate.com/hub/events/redgate-events/redgate-streamed/" target="_blank" rel="noopener"
+>Redgate Streamed&lt;/a> on using &lt;a class="link" href="https://tsqlt.org/" target="_blank" rel="noopener"
+>tSQLt&lt;/a> for database testing. It’s not the first time I’ve heard about this tool and it’s been on my list for way too long as something I want to investigate a little further. I figured this was a good excuse.&lt;/p>
+&lt;h2 id="unit-tests-for-powershell">Unit tests for PowerShell&lt;/h2>
+&lt;p>Writing tests for PowerShell code makes a lot of sense to me. There is something really nice about being able to test all the (covered) functionality of a function or cmdlet, after you’ve fiddled around with it.  It’s easy to get lost in fixing a bug, or adding some great new functionality and accidentally break something else. Having tests written ensures the function still works as desired, and as you add functionality or fix bugs you can add to the test cases, making the whole process more robust.  I’m 100% for unit and integration testing for code. No doubt about it.&lt;/p>
+&lt;h2 id="so-why-not-databases">So why not databases?&lt;/h2>
+&lt;p>Data is always the difficult bit when people talk about DevOps or agile development practices, and to be honest, I’d be way out of my depth to talk about how and why to test your data.  I’m instead going to look at using tSQLt to test functions and stored procedures. After all, there’s code in our databases too! After seeing the benefits of writing tests for PowerShell functions, I can easily see the benefits of testing the programmable objects in our databases.&lt;/p>
+&lt;h2 id="installing-tsqlt">Installing tSQLt&lt;/h2>
+&lt;p>Getting started with tSQLt is really easy- &lt;a class="link" href="https://tsqlt.org/downloads/" target="_blank" rel="noopener"
+>you download a zip file&lt;/a>, unzip the contents and then run the tSQLt.class.sql script against your development database.&lt;/p>
+&lt;p>There are a couple of requirements, including CLR integration must be enabled and your database must be set to trustworthy.  These could open up some security considerations, but for my development environment it’s no issue.&lt;/p>
+&lt;p>After I ran the tSQLt.class.sql script I got the following in the messages tab of SSMS. We’re ready to go:&lt;/p>
+&lt;p>Installed at 2020-04-07 15:45:03.200&lt;/p>
+&lt;p>+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;ndash;+
+| |
+| Thank you for using tSQLt. |
+| |
+| tSQLt Version: 1.0.5873.27393 |
+| |
++&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;ndash;+&lt;/p>
+&lt;p>Completion time: 2020-04-11T14:25:21.6912488+01:00&lt;/p>
+&lt;h2 id="test-a-simple-function">Test a simple function&lt;/h2>
+&lt;p>To start with I made a really simple function to make sure I understood the tSQLt syntax and could get my first test written successfully.  It takes two numbers and returns the sum.&lt;/p>
+&lt;p>CREATE OR ALTER FUNCTION dbo.AddTwoNumbers (@int1 int, @int2 int)
+RETURNS INT AS
+BEGIN
+RETURN @int1 + @int2
+END&lt;/p>
+&lt;p>In tSQLt we’ll use a test class to group similar tests together, which will enable us to run a suite of tests in one go. Since this is for TSQLTuesday I’ll create a test class named testTSQLTuesday.&lt;/p>
+&lt;p>EXEC tSQLt.NewTestClass &amp;rsquo;testTSQLTuesday&amp;rsquo;;
+GO&lt;/p>
+&lt;p>This is basically just a schema for our tests to live in. I’m now ready to create my first test. The documentation for tSQLt has some good examples to get us started, and I followed the ‘AssertEquals’ example from their &lt;a class="link" href="https://tsqlt.org/user-guide/tsqlt-tutorial/" target="_blank" rel="noopener"
+>tutorial&lt;/a>.&lt;/p>
+&lt;p>When we run our tSQLt tests the stored procedure name will be the name of the test, so it’s important to make those meaningful. I named this one ‘test the addTwoNumbers function works’.&lt;/p>
+&lt;p>From the little I do know about test-driven development, I understand we should write the test to initially fail. That’ll confirm that I haven’t set it up in a way that will provide false positives. In the below test I’m saying that I expect the sum of 1 and 2 calculated by my function to be 4, obviously untrue.&lt;/p>
+&lt;p>-- create the test to fail
+CREATE OR ALTER PROCEDURE testTSQLTuesday.[test the addTwoNumbers function works]
+AS
+BEGIN
+DECLARE @actual INT;
+DECLARE @testInt1 INT = 1;
+DECLARE @testInt2 INT = 2;&lt;/p>
+&lt;pre>&lt;code>SELECT @actual = dbo.AddTwoNumbers(@testInt1, @testInt2);
+DECLARE @expected INT = 4;
+EXEC tSQLt.AssertEquals @expected, @actual;
+&lt;/code>&lt;/pre>
+&lt;p>END;&lt;/p>
+&lt;p>GO&lt;/p>
+&lt;p>You can see this is a pretty simple test to set up. I declared two numbers that I’ll pass to the function and then fill in what I expect the result to be (still the wrong answer at this point).&lt;/p>
+&lt;p>To run the test I’ll use the tSQLt.Run stored procedure, passing in my test class name.&lt;/p>
+&lt;p>EXEC tSQLt.Run &amp;rsquo;testTSQLTuesday';&lt;/p>
+&lt;p>Reviewing the messages pane in SSMS I can see my test has failed, as expected, and it let’s you know it expected 4 but got 3.&lt;/p>
+&lt;p>[testTSQLTuesday].[test the addTwoNumbers function works] failed: (Failure) Expected: &amp;lt;4&amp;gt; but was: &amp;lt;3&amp;gt;&lt;/p>
+&lt;p>+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+
+|Test Execution Summary|
++&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+&lt;/p>
+&lt;h2 id="1-testtsqltuesdaytest-the-addtwonumbers-function-works-13failure">|No|Test Case Name |Dur(ms)|Result |
++&amp;ndash;+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;+&amp;mdash;&amp;mdash;-+&amp;mdash;&amp;mdash;-+
+|1 |[testTSQLTuesday].[test the addTwoNumbers function works]| 13|Failure|&lt;/h2>
+&lt;h2 id="test-case-summary-1-test-cases-executed-0-succeeded-1-failed-0-errored">Msg 50000, Level 16, State 10, Line 43
+Test Case Summary: 1 test case(s) executed, 0 succeeded, 1 failed, 0 errored.&lt;/h2>
+&lt;p>Completion time: 2020-04-11T14:37:18.8297577+01:00&lt;/p>
+&lt;p>Now I’ll fix the test so if the function is working as expected the test should pass.&lt;/p>
+&lt;p>-- create the test
+CREATE OR ALTER PROCEDURE testTSQLTuesday.[test the addTwoNumbers function works]
+AS
+BEGIN
+DECLARE @actual INT;
+DECLARE @testInt1 INT = 1;
+DECLARE @testInt2 INT = 2;&lt;/p>
+&lt;pre>&lt;code>SELECT @actual = dbo.AddTwoNumbers(@testInt1, @testInt2);
+DECLARE @expected INT = (@testInt1 + @testInt2);
+EXEC tSQLt.AssertEquals @expected, @actual;
+&lt;/code>&lt;/pre>
+&lt;p>END;&lt;/p>
+&lt;p>GO&lt;/p>
+&lt;p>Good news, our first tSQLt test has passed.&lt;/p>
+&lt;p>+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+
+|Test Execution Summary|
++&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+&lt;/p>
+&lt;h2 id="1-testtsqltuesdaytest-the-addtwonumbers-function-works--3success">|No|Test Case Name |Dur(ms)|Result |
++&amp;ndash;+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;+&amp;mdash;&amp;mdash;-+&amp;mdash;&amp;mdash;-+
+|1 |[testTSQLTuesday].[test the addTwoNumbers function works]| 3|Success|&lt;/h2>
+&lt;h2 id="test-case-summary-1-test-cases-executed-1-succeeded-0-failed-0-errored">Test Case Summary: 1 test case(s) executed, 1 succeeded, 0 failed, 0 errored.&lt;/h2>
+&lt;p>Completion time: 2020-04-11T16:33:56.6201835+01:00&lt;/p>
+&lt;h2 id="test-a-stored-procedure-that-changes-data">Test a stored procedure that changes data&lt;/h2>
+&lt;p>One thing I thought that was really cool with tSQLt is that it executes the tests in a transaction, and then rolls it back after testing to ensure things are left the way they were before we started testing.  To show this I’ve created a simple stored procedure that allows us to update an email address in the Person.EmailAddress table from AdventureWorks2017.&lt;/p>
+&lt;p>CREATE PROCEDURE Person.UpdateEmailAddress
+@NewEmailAddress varchar(100),
+@BusinessEntityID int
+AS&lt;/p>
+&lt;p>UPDATE Person.EmailAddress
+SET EmailAddress = @NewEmailAddress
+where BusinessEntityID = @BusinessEntityID&lt;/p>
+&lt;p>GO&lt;/p>
+&lt;p>Then I wrote a test, similar to the first example, which compares the actual value that is in the Person.EmailAddress table after running the procedure with what I would expect to be in there.&lt;/p>
+&lt;p>CREATE OR ALTER PROCEDURE testTSQLTuesday.[test the UpdateEmailAddress procedure]
+AS
+BEGIN
+DECLARE @actual varchar(100);
+DECLARE @newEmail varchar(100) = &amp;rsquo;&lt;a class="link" href="mailto:test@test.com" >test@test.com&lt;/a>&amp;rsquo;;
+DECLARE @businessEntityID INT = 2;&lt;/p>
+&lt;pre>&lt;code>EXEC person.UpdateEmailAddress @newEmail, @businessEntityId
+SELECT @actual = EmailAddress
+FROM Person.EmailAddress
+WHERE BusinessEntityID = @businessEntityID
+DECLARE @expected varchar(100) = @newEmail
+EXEC tSQLt.AssertEquals @expected, @actual;
+&lt;/code>&lt;/pre>
+&lt;p>END;
+GO&lt;/p>
+&lt;p>I added this to the same test class so we’ll execute both tests with the same call to tSQLt.Run.&lt;/p>
+&lt;p>EXEC tSQLt.Run &amp;rsquo;testTSQLTuesday';&lt;/p>
+&lt;p>The results now show I have two tests that passed.&lt;/p>
+&lt;p>+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+
+|Test Execution Summary|
++&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+&lt;/p>
+&lt;h2 id="2-testtsqltuesdaytest-the-updateemailaddress-procedure--7success">|No|Test Case Name |Dur(ms)|Result |
++&amp;ndash;+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;+&amp;mdash;&amp;mdash;-+&amp;mdash;&amp;mdash;-+
+|1 |[testTSQLTuesday].[test the addTwoNumbers function works]| 6|Success|
+|2 |[testTSQLTuesday].[test the UpdateEmailAddress procedure]| 7|Success|&lt;/h2>
+&lt;h2 id="test-case-summary-2-test-cases-executed-2-succeeded-0-failed-0-errored">Test Case Summary: 2 test case(s) executed, 2 succeeded, 0 failed, 0 errored.&lt;/h2>
+&lt;p>Completion time: 2020-04-11T17:17:36.4799073+01:00&lt;/p>
+&lt;p>To run this test we had to actually call the stored procedure that changes data in our tables. As I mentioned though, this all happened within a transaction that was never committed. We can confirm our data was unchanged by checking the table.&lt;/p>
+&lt;p>SELECT EmailAddress
+FROM Person.EmailAddress
+WHERE BusinessEntityID = 2;&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/tsql125Tests.jpg"
+loading="lazy"
+alt="select statement showing email unchanged"
+>&lt;/p>
+&lt;p>This is just scratching the surface of what tSQLt can do. The &lt;a class="link" href="https://tsqlt.org/full-user-guide/" target="_blank" rel="noopener"
+>full user guide&lt;/a> is available online.  This goes through all the available assertions (we only looked at AssertEquals here) as well as more complicated topics such as how to isolate dependencies to be able to effectively unit test.&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>Writing this post has been a great excuse for me to try out tSQLt and write my first T-SQL unit tests. To be honest, it was a lot easier than I expected.  I will say I’m comfortable writing pester tests for my PowerShell code so that base was helpful, but the documentation for tSQLt made getting setup and starting to test databases pretty straightforward.&lt;/p>
+&lt;p>The cost of unit testing your database code is the time investment to get comfortable with the tools and to write the tests as you develop the database code.  The benefit though is a more reliable, easier to maintain database with less bugs, which will in the end make your data safer.&lt;/p>
+&lt;p>I’d say there is a significant benefit to applying unit testing to databases, and I believe we’ll see a significant increase in the number of folks applying unit tests to their database environments.&lt;/p></description></item><item><title>T-SQL Tuesday #123: Summary of Life Hacks</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#123-summary-of-life-hacks/</link><pubDate>Tue, 18 Feb 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#123-summary-of-life-hacks/</guid><description>&lt;p>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>There was an amazing response to my &lt;a class="link" href="https://jesspomfret.com/t-sql-tuesday-123/" target="_blank" rel="noopener"
+>TSQL2sday prompt for February&lt;/a> 2020 where I encouraged folks to share their life hacks. So firstly, thanks to everyone who participated.&lt;/p>
+&lt;p>A lot of people had more than one life hack so I recommend reading all of the posts linked to below. For this summary post I’ve tried to pick one or two hacks from each post and group them into logical buckets.&lt;/p>
+&lt;p>There are several hacks shared that I plan on integrating into my life, and I hope this post will serve as a good reference for us all going forward.&lt;/p>
+&lt;p>If I missed any posts please let me know!&lt;/p>
+&lt;h2 id="sql-server-management-studio">&lt;strong>SQL Server Management Studio&lt;/strong>&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://allthezerosmatter.com/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier-custom-shortcuts-in-ssms-ads/" target="_blank" rel="noopener"
+>Chris&lt;/a>, a first time TSQL2sday poster (welcome!), talks about adding shortcuts to run common queries, for example selecting the top 100 rows, or getting the number of rows in a table.&lt;/li>
+&lt;li>&lt;a class="link" href="https://jasonbrimhall.info/2020/02/12/top-3-database-life-hacks/" target="_blank" rel="noopener"
+>Jason&lt;/a> has three life hacks for us, my favourite being the scroll bar map in SSMS. I use that a lot in VSCode, and had no idea you could do that in SSMS as well.&lt;/li>
+&lt;li>&lt;a class="link" href="https://sqlstudies.com/2020/02/11/configure-your-tools-t-sql-tuesday-123/" target="_blank" rel="noopener"
+>Kenneth’s&lt;/a> hack is to configure your tools and shows some great tips for making SQL Server Management Studio work for you.&lt;/li>
+&lt;li>&lt;a class="link" href="https://dallasdbas.com/tsqltuesday-life-hacks/" target="_blank" rel="noopener"
+>Kevin&lt;/a> talks us through executing sp_whoisactive as a temporary procedure to leave no trace and using SSMS registered servers.&lt;/li>
+&lt;li>&lt;a class="link" href="http://sqlworldwide.com/t-sql-tuesday-123-ssms-tips-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Taiob&lt;/a> has some great tips to make using SSMS more effective, including adding your own keyboard shortcuts.&lt;/li>
+&lt;li>&lt;a class="link" href="https://timharkin.com/life-hacks-to-make-your-day-easier-t-sql-tuesday-123/" target="_blank" rel="noopener"
+>Tim&lt;/a> shares a few hacks including multiline editing in SSMS, and a homemade bread proofing box.&lt;/li>
+&lt;/ul>
+&lt;h2 id="t-sqlpowershell">T-SQL/PowerShell&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://jimbabwe.co.za/2020/02/12/t-sql-tuesday-123-life-hacking-by-opening-windows/" target="_blank" rel="noopener"
+>James&lt;/a> has a hack for using windowing functions in T-SQL to aggregate aggregates and a really well laid out post to explain that concept.&lt;/li>
+&lt;li>&lt;a class="link" href="https://lisagb.info/archives/71" target="_blank" rel="noopener"
+>Lisa&lt;/a> has a couple of stored procedures to add to your toolbelt. One that recursively finds objects your code calls, and one that recursively finds code that calls your objects.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.sqlstad.nl/rants-and-rambling/t-sql-tuesday-123-life-hacks-that-make-your-life-easier/" target="_blank" rel="noopener"
+>Sander’s&lt;/a> life hack is to make the most out of your PowerShell profile, and discusses the contents of his profile.&lt;/li>
+&lt;/ul>
+&lt;h2 id="keyboardword-shortcuts">Keyboard/word Shortcuts&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://www.cathrinewilhelmsen.net/2020/02/11/keyboard-shortcuts-moving-text-lines-moving-windows/" target="_blank" rel="noopener"
+>Cathrine&lt;/a> has some great keyboard shortcuts to make us more productive, showing us how to move both lines of text and windows around.&lt;/li>
+&lt;li>&lt;a class="link" href="https://msurasky.wixsite.com/sqlcorner/post/t-sql-tuesday-life-hacks-to-make-your-day-easier" target="_blank" rel="noopener"
+>Martin&lt;/a> levels up from using keyboard shortcuts to keyWORD shortcuts, including some to insert useful code snippets into SSMS for tasks he completes often.&lt;/li>
+&lt;/ul>
+&lt;h2 id="organisationtime-management">&lt;strong>Organisation/Time management&lt;/strong>&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://flxsql.com/t-sql-tuesday-123-lifehacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Andy&lt;/a> has several great life hacks which he mentions are also habits at this point. He includes using cloud storage to sync up your documents and VSCode extensions across computers.&lt;/li>
+&lt;li>&lt;a class="link" href="https://sqlblog.org/2020/02/11/t-sql-tuesday-123-life-hacks" target="_blank" rel="noopener"
+>Aaron&lt;/a> has a ton of little life hacks built into his daily schedule while he works from home. My favourites are a scheduled hour of ‘disengagement’ time to focus on non-collaborative work and his travel pack of gear.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.brentozar.com/archive/2020/02/tsql2sday-my-life-hack-is-an-hourglass-yes-an-hourglass/" target="_blank" rel="noopener"
+>Brent&lt;/a> suggests using a (half) hour glass to assess progress made and keep him on track. He also links to a beautiful wallet damaging hourglass.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.drewsk.tech/2020/02/11/t-sql-tuesday-123/" target="_blank" rel="noopener"
+>Drew&lt;/a> highlights the Eisenhower matrix to improve delegation, and then goes on to list several more great productivity tips. Also bonus points for including a February fact!&lt;/li>
+&lt;li>&lt;a class="link" href="https://curiousaboutdata.com/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/amp/?__twitter_impression=true" target="_blank" rel="noopener"
+>Mala&lt;/a> has two great tips for us, first to get the benefits of both working at home and in the office. Secondly, a way to squeeze in some learning time.&lt;/li>
+&lt;li>&lt;a class="link" href="https://nocolumnname.blog/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Shane’s&lt;/a> life hack is not just to use the Pomodoro technique, which is pretty manual. He’s written a PowerShell script for it complete with toast notifications.&lt;/li>
+&lt;li>&lt;a class="link" href="https://tracyboggiano.com/archive/2020/02/t-sql-tuesday-123-life-hacks/" target="_blank" rel="noopener"
+>Tracey&lt;/a> has a host of useful life hacks including queuing Ola’s index maintenance scripts and using a real paper planner for goals. Tracey also reveals she is the host for next month’s TSQL2sday!&lt;/li>
+&lt;/ul>
+&lt;h2 id="toolsapps">Tools/Apps&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://eitanblumin.com/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Eitan&lt;/a> talks about moving from an individual contributor to a manager and now utilising a bunch of “digital assistants” to get his menial tasks done.&lt;/li>
+&lt;li>&lt;a class="link" href="https://sqlzelda.wordpress.com/2020/02/11/t-sql-tuesday-123-improve-focus-through-speech" target="_blank" rel="noopener"
+>Elizabeth’s&lt;/a> life hack helped her to get her book written (I saw it just came out!). She’s been using dictation software to get the ideas out of her head and onto paper.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.sqlskills.com/blogs/erin/life-hacks/" target="_blank" rel="noopener"
+>Erin&lt;/a> has two life hacks for us. First, using the Toggl app to track your time. The second is listening to movies in the background while working to improve focus.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.kevinrchant.com/2020/02/11/t-sql-tuesday-123-favourite-sql-server-life-hack/" target="_blank" rel="noopener"
+>Kevin&lt;/a> shares several tools he likes to use including Glenn Berry’s diagnostic scripts especially for finding indexes, dbatools and some other free community tools. Plus wearing jackets with lots of pockets for short flights.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.michaelscalise.com/2020/02/11/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Mike&lt;/a>, another first time TSQL2sday poster (welcome to you too!), is using Apple’s ‘Speak Screen’ option to catch up on his backlog of blogs to read.&lt;/li>
+&lt;/ul>
+&lt;h2 id="personalhealth">Personal/Health&lt;/h2>
+&lt;ul>
+&lt;li>&lt;a class="link" href="http://dataperfpro.com/t-sql-tuesday-123-being-will-parker/" target="_blank" rel="noopener"
+>Allen&lt;/a> has a great life hack for dealing with people. Inspired by a role he played, Will Parker, he tries to be friendly and open to everyone.&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.bronowski.it/blog/2020/02/t-sql-tuesday-123-life-hacks-to-make-your-day-easier/" target="_blank" rel="noopener"
+>Mikey&lt;/a> has a simple but effective hack- get involved with #SQLFamily. He has a good list on where to find people.&lt;/li>
+&lt;li>&lt;a class="link" href="https://richbenner.com/2020/02/t-sql-123/" target="_blank" rel="noopener"
+>Rich&lt;/a> has a life hack that I can relate to, getting your exercise in, and I’d agree it’s a great life hack both physically and mentally.&lt;/li>
+&lt;li>&lt;a class="link" href="http://blogs.lobsterpot.com.au/2020/02/11/shortcuts-good-and-bad/" target="_blank" rel="noopener"
+>Rob&lt;/a> talks about a shortcut from his childhood French lessons to handle pronouns, and goes on to talk about the importance of us all doing better with each individual’s pronouns after this past week&amp;rsquo;s SQLFamily discussions.&lt;/li>
+&lt;li>&lt;a class="link" href="https://toddkleinhans.wordpress.com/2020/02/11/tsql-tuesday-123-my-life-hack-flowing-in-the-morning/" target="_blank" rel="noopener"
+>Todd’s&lt;/a> life hack is to use virtual reality in the morning to get into the flow zone before he starts his day. The videos shared in this post were amazing, and I’ve added the book he references to my to-read list.&lt;/li>
+&lt;/ul></description></item><item><title>T-SQL Tuesday #121 - Gifts received for this year</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#121-gifts-received-for-this-year/</link><pubDate>Tue, 10 Dec 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#121-gifts-received-for-this-year/</guid><description>&lt;p>&lt;a class="link" href="https://curiousaboutdata.com/2019/12/03/tsql-tuesday-121-gifts-received-for-this-year/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>&lt;em>This is a time for material gift giving, for many of us. It might also be a time to consider the many gifts we have received through the year, and perhaps use this opportunity to appreciate people or situations that we were blessed with.&lt;/em>&lt;/p>
+&lt;p>When I first saw Mala’s post last week for the last T-SQL Tuesday of the year I immediately started thinking of all the gifts I have received this year and how thankful I was with how 2019 has turned out. So first things first, thanks to Mala (&lt;a class="link" href="https://curiousaboutdata.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/sqlmal/" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this final prompt of 2019.&lt;/p>
+&lt;h2 id="the-gift-of-sqlfamily">The gift of #SQLFamily&lt;/h2>
+&lt;p>Around this time I found my local user group in Cleveland and started attending meetings. Attending meetings, talking to no one and going home, but still learning a lot from the great speakers and topics that were shared. This really started my journey as I started to interact with the community.&lt;/p>
+&lt;p>I was also starting to follow members of the SQL Server community on Twitter. I occasionally used the &lt;a class="link" href="https://twitter.com/hashtag/sqlhelp?src=hashtag_click" target="_blank" rel="noopener"
+>#SQLHelp&lt;/a> hashtag to get some guidance, but mostly played the role of lurker. I’d read articles that were shared, learning plenty, but not fully realizing the potential here.&lt;/p>
+&lt;p>In 2015 I changed jobs, which meant in 2016 I had the chance to attend my first PASS Summit. What an experience. It was like our local user group on steroids, all day, for 3 whole days.  I was exhausted by the end of the week and that was just from the conference portion as I mostly kept to myself during the evenings.&lt;/p>
+&lt;p>As time went on I still attended my local user group almost every month. I started talking to the people there more and more and began to understand this concept of #SQLFamily that I had heard mentioned so many times before.&lt;/p>
+&lt;p>My friends at the user group continually provided support, guidance, and encouragement and eventually I started to believe I could give something back to the community. I started this blog in February 2018 and gave my first user group presentation in June 2018. This is when I really started to believe in the magic of the #SQLFamily.&lt;/p>
+&lt;p>Since that slightly shaky presentation on Data Compression in June 2018, I’ve presented 3 different sessions a total of 14 times at various user groups, SQL Saturdays and conferences. Although I still feel like I have a long way to go, it was really great to present back to my local user group this last month to show them I’m getting better and their support is working!&lt;/p>
+&lt;p>I will also give a special shout out to the Grillen guys. In June 2019 I was lucky enough to present my DSC &amp;amp; SQL Server presentation at DataGrillen. This was my first big conference- I had a few SQL Saturdays under my belt but this felt huge. William (&lt;a class="link" href="http://williamdurkin.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/sql_williamd" target="_blank" rel="noopener"
+>t&lt;/a>) and Ben (&lt;a class="link" href="https://www.solisyon.de/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/bweissman" target="_blank" rel="noopener"
+>t&lt;/a>) were the most amazing hosts, not only having created an amazing space to present and learn in, but also ensuring both myself and my wife had the best trip possible. I highly recommend checking this conference out if you can. The good news is, at this time, the c&lt;a class="link" href="https://datagrillen.com/" target="_blank" rel="noopener"
+>all for speakers for 2020&lt;/a> is still open for 5 more days!&lt;/p>
+&lt;p>We are so lucky to live and work in a community that has this concept of #SQLFamily. It took me a while to see it but now I can truly appreciate it and I can honestly say I wouldn’t be where I am today without every one of you!&lt;/p>
+&lt;h2 id="the-gift-of-supportive-family--friends">The gift of supportive family &amp;amp; friends&lt;/h2>
+&lt;p>The second gift I will talk about is I have the most supportive friends and family. Thanks to the #SQLFamily, I have met and made connections with folks from all over the world.  Thanks to Twitter, I randomly stumbled across this tweet one afternoon:&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/SQLDiplomat/status/1161342206675955713" target="_blank" rel="noopener"
+>https://twitter.com/SQLDiplomat/status/1161342206675955713&lt;/a>&lt;/p>
+&lt;p>I’m originally from Chippenham in the South West of England (about 1.5 hours from Southampton), and my wife, who’s American, wasn’t opposed to living in England at some point in our lives. Although it wasn’t in the immediate plan we decided to find out more and it turned out this opportunity was too good to miss. I’m really looking forward to 2020 and this new opportunity.&lt;/p>
+&lt;p>I’m so excited to move back to England, to be closer to my family, and explore the UK and Europe with my wife. With the excitement comes absolute chaos as we prepare to move the 3,500 miles across the Atlantic. We’re currently working through selling our home, cars, things and packing up our lives in the US. We are very lucky to have the most supportive family on both sides of the pond as well as so many amazing friends that, although are sad to see us move, are being amazing at helping us realize (I guess it’s realise now!) this dream.&lt;/p>
+&lt;p>&lt;img src="https://i1.wp.com/jesspomfret.com/wp-content/uploads/2019/12/IMG-20191207-WA0002.jpg?fit=650%2C867&amp;amp;ssl=1"
+loading="lazy"
+>&lt;/p>
+&lt;p>Literally carrying me into 2020!&lt;/p>
+&lt;p>The final shoutout is to my wife, who to be fair has the rougher deal here. I am moving towards my family, with a job lined up that I’m excited about. She is stepping into a world of unknown, leaving her family and her dream job in the US for an adventure in England. You wouldn’t know this though, she’s the one keeping us organized and on track while I write blog posts to avoid packing ?. Her support and sense of adventure is the gift I’m most thankful for, as I know I couldn’t have accomplished half the things I did this year without her in my corner.&lt;/p>
+&lt;p>I’ve had a great 2019. It is ending in no way how I expected, and that’s largely due to the amazing gifts I’ve received from #SQLFamily and my own friends and family. So a big thank you to everyone involved!&lt;/p>
+&lt;p>I hope everyone has a safe and enjoyable holiday season. Thanks again Mala for hosting!&lt;/p></description></item><item><title>T-SQL Tuesday #119 - Changing your mind</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#119-changing-your-mind/</link><pubDate>Tue, 08 Oct 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#119-changing-your-mind/</guid><description>&lt;p>&lt;a class="link" href="http://workingwithdevs.com/tsql2sday-119-changing-your-mind/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>It’s time for our monthly T-SQL Tuesday blog party again and we have another interesting prompt to write about. Thanks goes to Alex Yates (&lt;a class="link" href="http://workingwithdevs.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/_AlexYates_" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this month.&lt;/p>
+&lt;p>I’ve thought about this a lot over the last few days and really wanted to find a technical topic to write about, but over and over I came back to the same thoughts. This last week I attended two conferences and gave three presentations (one topic twice), and I still can’t believe I’ve given a single technical presentation.&lt;/p>
+&lt;p>Allen White (&lt;a class="link" href="http://dataperfpro.com" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/SQLRunr" target="_blank" rel="noopener"
+>t&lt;/a>) has a famous spiel that he gives before every one of his presentations, encouraging his audience that everyone has something they can teach others. I created my PASS profile in 2011, and that was about the time I first heard Allen present. I remember laughing to myself that I would never be able to do that.  Giving presentations during my college years was something I dreaded, why on earth would I volunteer now to do that.&lt;/p>
+&lt;p>Well, fast forward to June 2018, I gave &lt;a class="link" href="https://jesspomfret.com/first-user-group-presentation-i-survived/" target="_blank" rel="noopener"
+>my first user group presentation&lt;/a>. I stepped way out of my comfort zone for that, but since then I have presented 11 additional times.  I’ve presented at a mixture of SQL Saturdays, online virtual groups and conferences, and every time I’ve got extremely nervous beforehand, and experienced an unbelievable high after.&lt;/p>
+&lt;p>This past week I gave my DSC &amp;amp; SQL Server presentation on Friday in Columbus at &lt;a class="link" href="https://dogfoodcon.com/" target="_blank" rel="noopener"
+>DogFoodCon&lt;/a> (a great conference with a very different crowd than my usual data platform events) and then I gave two sessions at &lt;a class="link" href="https://sqlsaturday.com/907/eventhome.aspx" target="_blank" rel="noopener"
+>SQL Saturday Pittsburgh&lt;/a>.&lt;/p>
+&lt;p>At this point I still feel like I’m not really a speaker, every time I walk into the speaker room at an event I expect someone to ask what I’m doing in there. However, I’ve received a lot of great feedback, and more importantly had a lot of great conversations with people about things they learnt in my session. I’m getting there.&lt;/p>
+&lt;p>The other amazing part of this adventure is I’ve had so much fun, I’ve met and become friends with some great people and I’ve traveled as far as Germany to explore the world and deliver my sessions.&lt;/p>
+&lt;p>I can 100% say I’ve changed my opinion on whether I can become a speaker in this community, and I’ve bought into Allen’s spiel that everyone has something to give back. &lt;/p>
+&lt;p>If you are reading this and laughing to yourself that it can’t mean you, it does! Maybe you’re not ready to speak, but start a blog and share some things you’ve done – other people are one month behind you, trying to work out how to do what you just did. If writing isn’t your style, go contribute some code to open source software- &lt;a class="link" href="https://github.com/sqlcollaborative/dbatools" target="_blank" rel="noopener"
+>dbatools&lt;/a> and &lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks&lt;/a> are on GitHub and always looking for new contributors. Go squash some bugs or add new functionality.&lt;/p>
+&lt;p>Thanks again to Alex for the great prompt.&lt;/p></description></item><item><title>T-SQL Tuesday #118 – Your fantasy SQL feature</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#118-your-fantasy-sql-feature/</link><pubDate>Tue, 10 Sep 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#118-your-fantasy-sql-feature/</guid><description>&lt;p>&lt;a class="link" href="https://www.kevinrchant.com/2019/09/03/t-sql-tuesday-118-your-fantasy-sql-feature/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>This month our T-SQL Tuesday host, Kevin Chant (&lt;a class="link" href="https://www.kevinrchant.com" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/kevchant" target="_blank" rel="noopener"
+>t&lt;/a>), has challenged us to propose a new fantasy feature for SQL Server. Firstly, thanks to Kevin for hosting this month’s blog party.&lt;/p>
+&lt;p>When I first read the invitation I didn’t have any ideas jump straight into my mind. Since then, I’ve come up with two. I’m going to share both since they are for different areas… cheating I know ?.&lt;/p>
+&lt;h3 id="likein-operator">LIKEIN Operator&lt;/h3>
+&lt;p>First up, I am proposing the introduction of the &lt;code>LIKEIN&lt;/code> operator for T-SQL queries. It would be useful to be able to combine the functionality of the &lt;code>LIKE&lt;/code> and &lt;code>IN&lt;/code> operators. To be able to select multiple strings that include wildcards, without having to use multiple &lt;code>OR&lt;/code> clauses would be a great addition to our T-SQL tool belts.&lt;/p>
+&lt;p>My example comes from the AdventureWorks2017 database where we need to select the addresses we have listed within two regions. In the United Kingdom postal codes are split into two parts. For example, the postcode for Wembley Stadium is HA9 0WS (Yes, I’m currently watching the England Vs Bulgaria game). The first half, HA9, is known as the outward code and can be 3 or 4 digits long. This specifies the postcode area and district. The second half of the postcode helps to identify a specific address. &lt;/p>
+&lt;p>Using my new &lt;code>LIKEIN&lt;/code> operator this can easily be accomplished:&lt;/p>
+&lt;p>select AddressId, AddressLine1, AddressLine2, City, StateProvinceID, PostalCode
+from Person.Address
+where PostalCode likein (&amp;lsquo;RG41%&amp;rsquo;, &amp;lsquo;V9B%&amp;rsquo;)&lt;/p>
+&lt;p>Since we don’t currently have this functionality I’ll suggest a few other options.&lt;/p>
+&lt;p>First, as mentioned above we could use multiple &lt;code>OR&lt;/code> clauses.  The main downside to this option is as soon as we add &lt;code>OR&lt;/code> into our &lt;code>WHERE&lt;/code> clause we lose the ability to do index seeks and instead are forced to scan the entire index.  Hopefully with the implementation of &lt;code>LIKEIN&lt;/code> we would still be able to use index seeks, as long as the string doesn’t start with a wildcard.&lt;/p>
+&lt;p>select AddressId, AddressLine1, AddressLine2, City, StateProvinceID, PostalCode
+from Person.Address
+where PostalCode like &amp;lsquo;RG41%&amp;rsquo;
+or PostalCode like &amp;lsquo;V9B%&amp;rsquo;&lt;/p>
+&lt;p>We could also use the &lt;code>substring&lt;/code> and &lt;code>charindex&lt;/code> functions to match just the first part of &lt;code>PostalCode&lt;/code>, before the space with our two desired areas. This also removes our ability to use index seeks. Anytime you add a function onto the right side of the &lt;code>WHERE&lt;/code> clause you are forced to scan the whole index or table.&lt;/p>
+&lt;p>select AddressId, AddressLine1, AddressLine2, City, StateProvinceID, PostalCode
+from Person.Address
+where substring(PostalCode,0,charindex(&amp;rsquo; &amp;lsquo;,PostalCode,0)) in(&amp;lsquo;RG41&amp;rsquo;,&amp;lsquo;V9B&amp;rsquo;)&lt;/p>
+&lt;p>Finally, here’s an option that allows us to effectively use our index. We could use two separate queries and combine them with &lt;code>UNION ALL&lt;/code>. This results in two seeks and then a concatenation operator in the execution plan to combine the results.  Also, since these result sets are not overlapping, &lt;code>UNION ALL&lt;/code> can be used instead of &lt;code>UNION&lt;/code> since we won’t have duplicate results to remove.&lt;/p>
+&lt;p>select AddressId, AddressLine1, AddressLine2, City, StateProvinceID, PostalCode
+from Person.Address
+where PostalCode like &amp;lsquo;RG41%&amp;rsquo;
+UNION ALL
+select AddressId, AddressLine1, AddressLine2, City, StateProvinceID, PostalCode
+from Person.Address
+where PostalCode like &amp;lsquo;V9B%&amp;rsquo;&lt;/p>
+&lt;h3 id="agent-alerts--raise-error-when-message-doesnt-contain-text">Agent Alerts – Raise error when message doesn’t contain text&lt;/h3>
+&lt;p>My second new feature is a lot simpler. When configuring SQL Server alerts you have the option to only raise the alert if the message contains certain text. My proposed feature is the opposite- don’t raise the alert if it contains certain text.&lt;/p>
+&lt;p>A severity 20 alert, such as the one below contains the client IP address. It would be really nice to exclude any alerts that contained a certain misbehaving client IP, to help keep the noise down.&lt;/p>
+&lt;p>Error: 17836, Severity: 20, State: 17.
+Length specified in network packet payload did not match number of bytes read;
+the connection has been closed. Please contact the vendor of the client library.
+[CLIENT: xx.xx.xx.xx]&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/tsql117.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Thanks for reading my fantasy features. I’m looking forward to reading all the other new ideas out there.&lt;/p></description></item><item><title>T-SQL Tuesday #117 – When Have You Used MOT Tables?</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#117-when-have-you-used-mot-tables/</link><pubDate>Tue, 13 Aug 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#117-when-have-you-used-mot-tables/</guid><description>&lt;p>This month’s T-SQL Tuesday is all about &lt;a class="link" href="https://docs.microsoft.com/en-us/sql/relational-databases/in-memory-oltp/overview-and-usage-scenarios?view=sql-server-2017" target="_blank" rel="noopener"
+>Memory Optimized Tables&lt;/a> (MOT), a topic I will admit I know almost nothing about. When they first came out in 2014 I was excited about the new technology and the options that would bring, however I never found a good reason to implement them.&lt;/p>
+&lt;p>&lt;a class="link" href="https://docs.microsoft.com/en-us/sql/relational-databases/in-memory-oltp/overview-and-usage-scenarios?view=sql-server-2017" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>Thanks to Steve Jones (&lt;a class="link" href="https://voiceofthedba.com" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/way0utwest" target="_blank" rel="noopener"
+>t&lt;/a>) for hosting this month’s edition and after reading about MOT this week I’m looking forward to learning how people are using them.&lt;/p>
+&lt;p>I’ve heard many times in the technology world that the third release of a software or new feature is the best time to adopt it.  Reading about MOT, it seems like this theory fits here also. &lt;/p>
+&lt;p>When Hekaton, as it was known then, was released with SQL Server 2014 there were a lot of restrictions.  With the subsequent releases, presumably guided by feedback, some of these restrictions have been lifted.  I’ve picked a couple to discuss here that I think could have a big impact on adoption rates.&lt;/p>
+&lt;h3 id="schema-changes">Schema Changes&lt;/h3>
+&lt;p>In 2014 schema changes were not supported. This meant you couldn’t ALTER a Memory Optimized Table or a natively compiled stored procedure, instead you had to DROP and recreate the object.  This isn’t a huge concern for stored procedures. The main issue here would be losing any object level permissions that had been set.&lt;/p>
+&lt;p>With Memory Optimized Tables however, this means you need to make sure you handle the data within that table. There are ways around this obviously. You could copy it off into a staging table, drop and recreate your table and then re-insert the data.  This does however add some complexity to managing your environment, and I could see this putting some people off.&lt;/p>
+&lt;p>With the 2016 release ALTER TABLE and ALTER PROCEDURE support was introduced, effectively removing this barrier to use.  A further enhancement, the ability to use sp_rename, was then introduced with the 2017 release.&lt;/p>
+&lt;p>Although there are still some restrictions on schema changes, including no extended properties, they are minimal compared to what was available in the 2014 release.&lt;/p>
+&lt;h3 id="foreign-keys">Foreign Keys&lt;/h3>
+&lt;p>Another huge missing piece when this technology was introduced in 2014 was foreign key support.  My understanding was that this technology could be (reasonably) easily swapped in to help with I/O and contention bottlenecks in your current SQL Server environment. This idea becomes less of a possibility when you realize this lack of support. Most well designed databases use foreign keys to enforce referential integrity, so having to remove those in order to use In-Memory technology seems like an unlikely ask.&lt;/p>
+&lt;p>Again, with 2016 we saw this barrier removed. Not only was foreign key support introduced, so too was the ability to use UNIQUE and CHECK constraints on Memory Optimized Tables.  This will make it much easier to take existing SQL Server workloads and move some key tables into memory.&lt;/p>
+&lt;p>Although not directly related to foreign keys, 2017 saw the previous restriction of having a maximum of 8 indexes per Memory Optimized Table lifted. This gives you more freedom to add unique indexes and to index foreign key columns.&lt;/p>
+&lt;h3 id="summary">Summary&lt;/h3>
+&lt;p>To wrap this up, although I haven’t myself used Memory Optimized Tables, it does seem like the barriers to use have been significantly reduced in the last two releases of SQL Server (2016, 2017).  This technology has now had time to mature and grow in features, hopefully now it’ll be easier to find a good use case for implementation.&lt;/p></description></item><item><title>T-SQL Tuesday #101 - The Multitool of my DBA toolbox</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#101-the-multitool-of-my-dba-toolbox/</link><pubDate>Tue, 10 Apr 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#101-the-multitool-of-my-dba-toolbox/</guid><description>&lt;p>&lt;a class="link" href="http://t-sql.dk/?p=1947" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues-300x300.png"
+loading="lazy"
+>&lt;/a>Thanks to &lt;a class="link" href="http://t-sql.dk/" target="_blank" rel="noopener"
+>Jens Vestergaard&lt;/a> for hosting T-SQL Tuesday #101.  When I saw the topic for this month’s T-SQL Tuesday, I knew instantly which tool I would write about. Although there are many great tools out there that make my job as a DBA easier (and I’m excited to read the summary for this month to see what everyone else leans on), there is one that has fundamentally changed far more than just my work day. First of all I love PowerShell; the ability to make my daily tasks both repeatable and automated is something that has always appealed to me. Then I found &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
+>dbatools&lt;/a>, which combines everything I love about PowerShell into an ever-evolving open source module.&lt;/p>
+&lt;p>Once you &lt;a class="link" href="https://dbatools.io/install" target="_blank" rel="noopener"
+>install the module&lt;/a> you can run the following to list all the available commands in your toolbox. It’s a good idea to keep your copy of the module updated and check this often as people are always adding new commands.&lt;/p>
+&lt;p>Get-Command -Module dbatools -CommandType Function | Out-GridView&lt;/p>
+&lt;p>Having hundreds of commands can be a little overwhelming. In no particular order, these are the top five that I use most or that save me the most time.&lt;/p>
+&lt;h3 id="test-dbasqlbuild">Test-DbaSqlBuild&lt;/h3>
+&lt;p>When I found this command I couldn’t have been more excited. My day-to-day job requires the care and watering of over 100 SQL Server instances of varying versions.  Using this command you can get the current build of all your instances and then compare that to the most recent available.  There are also parameters for how far you want to be from the latest version. Setting the -latest switch means just that, your server will only be seen as compliant if it’s on the latest release, passing in -1CU means that it can be no more than 1 cumulative update behind.&lt;/p>
+&lt;p>This snippet takes the registered instances from our central management servers and pipes them into Test-DbaSqlBuild to determine if they are on the latest version. It creates an easy list of what needs patched.&lt;/p>
+&lt;p>Get-DbaRegisteredServer -SqlInstance nonProdServers, prodServers |
+Test-DbaSqlBuild -Latest&lt;/p>
+&lt;h3 id="get-dbadiskspace">Get-DbaDiskSpace&lt;/h3>
+&lt;p>This is a great command to have handy. Pass in one or many server names and it returns the current size, amount of space available and blocksize for all drives and mount points on that server. There are also switches to look for any drives that have SQL files on, or to check the filesystem fragmentation levels.  One great use of this command is to pass in a list of servers and filter for drives under 5% free space. This is a great proactive check of where action may be needed soon.&lt;/p>
+&lt;p>Get-DbaDiskSpace -ComputerName $servers | Where-Object {$_.PercentFree -lt 5}&lt;/p>
+&lt;h3 id="copy-dbadatabase">Copy-DbaDatabase&lt;/h3>
+&lt;p>This command is used to move databases from one instance to another. You can use either a backup/restore method or by detaching and re-attaching the files. Check out my post on the &lt;a class="link" href="https://dbatools.io/migrating-application-dbs/" target="_blank" rel="noopener"
+>dbatools blog&lt;/a> for a more detailed look on how I used this to save a lot of time on a recent project at work.&lt;/p>
+&lt;p>Copy-DbaDatabase -Source SourceServer -Destination DestinationServer `
+-Database MigratingDatabase -BackupRestore -NetworkShare \\fileshare\&lt;/p>
+&lt;h3 id="repair-dbaoprhaneduser">Repair-DbaOprhanedUser&lt;/h3>
+&lt;p>This command is pure wizardry and &lt;a class="link" href="https://voiceofthedba.com/2018/02/16/dbatools-and-orphaned-users/" target="_blank" rel="noopener"
+>Steve Jones has a more extensive post&lt;/a> on this command, but it does exactly what it says. It syncs up the SIDs for SQL logins that you’ve migrated from one instance to another. This is not a difficult task, however this one line fixes any orphaned logins on your whole instance. Extremely useful if you are migrating a lot of databases to new servers.&lt;/p>
+&lt;p>Repair-DbaOrphanUser -SqlInstance serverName&lt;/p>
+&lt;h3 id="write-dbadatatable">Write-DbaDataTable&lt;/h3>
+&lt;p>The final command for my top five takes an object in PowerShell and uses SQL bulk copy to insert it into a table in a SQL Server database. Using the -AutoCreateTable switch will do just that, if the table doesn’t exist it will be created. One thing to watch is this will be a heap so if you’re going to use this table going forward building the table ahead of time with appropriate indexes and keys is probably advisable. However, this one line can be very useful for quickly throwing results into a table to save or analyze further.&lt;/p>
+&lt;p>$results | Write-DbaDataTable -SqlInstance serverName -Database databaseName -Table tableName -AutoCreateTable&lt;/p>
+&lt;p> &lt;/p>
+&lt;p>The Second reason dbatools is my favorite tool is all the other things I’ve gained and learnt from this module.  It’s been almost one year since my first pull request to dbatools, and at that point I had a decent handle on PowerShell but git was a foreign language. Guided by Chrissy LeMaire (&lt;a class="link" href="http://twitter.com/cl" target="_blank" rel="noopener"
+>t&lt;/a>) and some other folks from the &lt;a class="link" href="http://dbatools.io/slack" target="_blank" rel="noopener"
+>slack channel&lt;/a> I got the repo forked, created my own branch and then submitted a PR to get my contributions merged in.  Since then I’ve contributed multiple more PRs, everything from small fixes to the command based help, to writing a brand new command (Get-DbaDbCompression will be released soon!).&lt;/p>
+&lt;p>This tool not only gives you hundreds of commands to make your job easier, it encourages you to branch out and get involved in a truly special community. You will meet some brilliant people to bounce ideas off, learn new skills like github, integration tests or even continuous integration and development, all while giving back to the amazing community that surrounds the SQL Server ecosystem.  This blog is the start of my attempt to give back while furthering my understanding of certain topics. In June I’ll be stepping even further outside of my comfort zone by presenting at my local user group on data compression, and of course that’ll feature some dbatools related demos.&lt;/p></description></item></channel></rss>

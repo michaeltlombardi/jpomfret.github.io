@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>sql-server on Jess Pomfret</title><link>https://jpomfret.github.io/tags/sql-server/</link><description>Recent content in sql-server on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Mon, 01 Mar 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/sql-server/index.xml" rel="self" type="application/rss+xml"/><item><title>Quickly Execute a Folder of SQL Scripts against a SQL Server</title><link>https://jpomfret.github.io/p/quickly-execute-a-folder-of-sql-scripts-against-a-sql-server/</link><pubDate>Mon, 01 Mar 2021 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/quickly-execute-a-folder-of-sql-scripts-against-a-sql-server/</guid><description>&lt;p>Another week and another useful dbatools snippet for you today.  Last week at work I was given a folder of 1,500 scripts – each containing a create table statement. Can you imagine having to open each file in Management Studio to be able to execute it? Thank goodness we have PowerShell and &lt;a class="link" href="https://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> on our side.&lt;/p>
+&lt;p>The code for this example is pretty short, but there are a couple of things to point out. &lt;/p>
+&lt;p>First, I used &lt;code>Connect-DbaInstance&lt;/code> to create a server object to use to run the queries.  This means that we’re efficiently reusing the connection rather than opening a new one for each file we want to execute. &lt;/p>
+&lt;p>Second, I’m using the foreach method which takes each script file returned from the &lt;code>Get-ChildItem&lt;/code> call, and executes &lt;code>Invoke-DbaQuery&lt;/code>.  With this we can use the &lt;code>-File&lt;/code> parameter to pass in the sql file and that’s really all we need.  This will loop through each file running the sql scripts.&lt;/p>
+&lt;p>$SqlInstance = &amp;lsquo;mssql1&amp;rsquo;
+$destinationDatabase = &amp;lsquo;AdventureWorks2021&amp;rsquo;
+$folderPath = &amp;lsquo;.\output\AdventureWorks2017&amp;rsquo;&lt;/p>
+&lt;h1 id="create-a-connection-to-the-server-that-we-will-reuse---can-use-sqlcredential-for-alternative-creds">Create a connection to the server that we will reuse - can use SqlCredential for alternative creds&lt;/h1>
+&lt;p>$sqlInst = Connect-DbaInstance -SqlInstance $SqlInstance&lt;/p>
+&lt;p>(Get-ChildItem $folderPath).Foreach{
+Invoke-DbaQuery -SqlInstance $sqlInst -Database $destinationDatabase -File $psitem.FullName
+}&lt;/p>
+&lt;p>That’s really all we need for this blog post, but in order to set this up for a demo I did use a few other dbatools commands. I’ve posted the script above, along with the setup scripts on my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/08_ExecuteFolderOfScripts.ps1" target="_blank" rel="noopener"
+>GitHub&lt;/a>. This includes creating a new database, scripting out all the tables into individual script files, and ensuring all the schemas and other dependencies were ready in the new database.&lt;/p>
+&lt;p>Thanks for reading, and hope this is a useful snippet. It sure saved me a lot of time this week.&lt;/p></description></item><item><title>T-SQL Tuesday #108 - Non SQL Server Technologies</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#108-non-sql-server-technologies/</link><pubDate>Tue, 13 Nov 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#108-non-sql-server-technologies/</guid><description>&lt;p>&lt;a class="link" href="https://curiousaboutdata.com/2018/10/29/t-sql-tuesday-108-invitation-non-sql-server-technologies/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>It’s T-SQL Tuesday time again, I have struggled in the last month or two to get anything up on my blog. Turns out weddings are pretty time consuming ?! Now that I’m happily married and home from an amazing &lt;a class="link" href="https://www.instagram.com/jpomfret/" target="_blank" rel="noopener"
+>honeymoon in Hawaii&lt;/a> it’s back to work on my blog and professional development.  Which makes this T-SQL Tuesday topic a perfect one to get back to, so thanks to Malathi Mahadeven (&lt;a class="link" href="https://curiousaboutdata.com" target="_blank" rel="noopener"
+>B&lt;/a>|&lt;a class="link" href="https://twitter.com/sqlmal" target="_blank" rel="noopener"
+>T&lt;/a>) for hosting this month.&lt;/p>
+&lt;p>I feel like with last week’s PASS Summit (I didn’t attend this year so just watching from afar) it makes it even harder than usual to pick just one thing to learn.  There are so many things right now that I want to read about or fiddle with.&lt;/p>
+&lt;p>I’ve decided to pick a main subject, with an auxiliary bonus area attached - kind of cheating, I know.  I’ve been working on a project at work to automate our SQL Server builds with Powershell Desired State Configuration (DSC) so this will be my main goal. I already have a basic understanding of how DSC works and how to install SQL Server with it, I want to improve this knowledge to the point where I can present a session on it.&lt;/p>
+&lt;p>The side goal is docker/containers/kubernetes (maybe), I’m wondering if I could use these to test my DSC configurations, maybe not to install SQL Server (I have no idea though) but I imagine I could configure SQL Server running in a container.&lt;/p>
+&lt;p>I saw the tweet below last week from the beard, &lt;a class="link" href="https://twitter.com/sqldbawithbeard" target="_blank" rel="noopener"
+>Rob Sewell&lt;/a>, that quoted &lt;a class="link" href="https://twitter.com/bobwardms" target="_blank" rel="noopener"
+>Bob Ward’s&lt;/a> thoughts on learning directions.  Feels like this is probably solid advice to justify my side goal.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/sqldbawithbeard/status/1061032613979267072" target="_blank" rel="noopener"
+>https://twitter.com/sqldbawithbeard/status/1061032613979267072&lt;/a>&lt;/p>
+&lt;h2 id="learning-plan">Learning Plan&lt;/h2>
+&lt;h4 id="learn-dsc-basics--completed">Learn DSC Basics – completed&lt;/h4>
+&lt;p>I’ve already started learning DSC, I was lucky enough to take a PowerShell DSC class a couple of months ago and that combined with reading online documentation and blogs has given me a good base.&lt;/p>
+&lt;p>Resources:&lt;/p>
+&lt;ul>
+&lt;li>Microsoft Docs - &lt;a class="link" href="https://docs.microsoft.com/en-us/powershell/dsc/overview" target="_blank" rel="noopener"
+>https://docs.microsoft.com/en-us/powershell/dsc/overview&lt;/a>&lt;/li>
+&lt;li>SQLServerDSC Github - &lt;a class="link" href="https://github.com/PowerShell/SqlServerDsc" target="_blank" rel="noopener"
+>https://github.com/PowerShell/SqlServerDsc&lt;/a>&lt;/li>
+&lt;li>DSC Install of SQL Server &lt;a class="link" href="https://chrislumnah.com/2017/03/07/dsc-install-of-sql-server/" target="_blank" rel="noopener"
+>https://chrislumnah.com/2017/03/07/dsc-install-of-sql-server/&lt;/a>&lt;/li>
+&lt;li>Making modules available in Push mode &lt;a class="link" href="http://nanalakshmanan.com/blog/Push-Config-Pull-Module/" target="_blank" rel="noopener"
+>http://nanalakshmanan.com/blog/Push-Config-Pull-Module/&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h4 id="learn-more-about-how-dsc-resources-are-written-and-developed">Learn more about how DSC resources are written and developed&lt;/h4>
+&lt;p>This is where I currently am, I have the basics up and running to install SQL Server (blog post coming one day) but there are things I’d like to configure that aren’t currently built into the SQLServerDSC module.  Since this is open sourced on github I have the opportunity to learn while doing, I’ve already started working on adding an SQL Agent Operator resource so I can configure an operator during my install.&lt;/p>
+&lt;h4 id="dsc-sql-server-and-containers">DSC, SQL Server and Containers?&lt;/h4>
+&lt;p>Can I even use DSC to configure SQL Server running in a container? I have no idea, but I plan on finding out.  If this is possible it feels like this would be a really easy way to spin up ‘unconfigured’ SQL Server and test my configurations.  If not – hey maybe I learned a bit about containers along the way, and it feels like those are only getting more mainstream.&lt;/p>
+&lt;h4 id="final-goal---present-a-dsc-session">Final goal - Present a DSC session&lt;/h4>
+&lt;p>My final goal is to create a &amp;lsquo;Automate your SQL Server Install with DSC&amp;rsquo; session. Presenting on something forces you to learn it in depth, this will be great for myself and hopefully the community. Hopefully it&amp;rsquo;ll make its way to a SQL Saturday next year.  The session would be a crash course on DSC specifically to install and configure SQL Server with the end goal of attendees being able to use this process to automate their own builds. Watch this space, currently in the idea phase.&lt;/p></description></item></channel></rss>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>containers on Jess Pomfret</title><link>https://jpomfret.github.io/tags/containers/</link><description>Recent content in containers on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Wed, 27 May 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/containers/index.xml" rel="self" type="application/rss+xml"/><item><title>Using PSDefaultParameterValues for connecting to SQL Server in containers</title><link>https://jpomfret.github.io/p/using-psdefaultparametervalues-for-connecting-to-sql-server-in-containers/</link><pubDate>Wed, 27 May 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/using-psdefaultparametervalues-for-connecting-to-sql-server-in-containers/</guid><description>&lt;p>I’ve written previously about using containers for demos on my laptop, specifically for my &lt;a class="link" href="https://jesspomfret.com/data-compression-containers/" target="_blank" rel="noopener"
+>data compression talk&lt;/a>.  Since I switched those demos over I haven’t looked back- if it’s possible to run my demos off of containers I always choose that option.&lt;/p>
+&lt;p>I recently presented a talk called ‘Life Hacks: dbatools edition’ which walks through 6 scenarios where you can immediately implement dbatools to quickly reap the rewards.  The demos can all be run on containers, but I did need to get a little more complex to be able to show off dbatools migration commands. To do this I used a docker compose file.&lt;/p>
+&lt;p>The compose file creates one instance straight from the Microsoft SQL Server 2019 image and a second one from a dockerfile that specifies the base SQL Server 2017 image, copies in the files needed to attach the AdventureWorks2017 database, and runs some SQL to get everything setup exactly as desired. Feel free to check out this &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/LifeHacks_dbatools/Docker/docker-compose.yml" target="_blank" rel="noopener"
+>setup on my Github&lt;/a>.&lt;/p>
+&lt;p>One of the things that bothered me about running my demos on containers was that I couldn’t use windows authentication. Instead I had to pass in a SQL login to connect for every command.&lt;/p>
+&lt;h2 id="enter-psdefaultparametervalues">Enter PSDefaultParameterValues&lt;/h2>
+&lt;p>I first heard about PSDefaultParameterValues from a &lt;a class="link" href="https://github.com/PSPowerHour/PSPowerHour/tree/master/materials/2018-08-21/potatoqualitee" target="_blank" rel="noopener"
+>PSPowerHour session by Chrissy LeMaire&lt;/a> in 2018. After rewatching this recently, I realised she even mentioned this exact scenario. However, it took until I recently rediscovered this handy preference variable that it all clicked together.&lt;/p>
+&lt;p>PSDefaultParameterValues does exactly what the name suggests- it lets you specify default values for parameters. PSDefaultParameterValues can be set as a hash table of parameter names and values that will be used in your session for any function that can use it.  A simple example is the verbose parameter. If you wanted to turn on the &lt;code>-Verbose&lt;/code> switch for every function you run you could add &lt;code>-Verbose&lt;/code> to each function call, or you could set PSDefaultParameterValues.&lt;/p>
+&lt;h3 id="option-1--add--verbose-to-individual-commands">Option 1 – Add &lt;code>-Verbose&lt;/code> to individual commands&lt;/h3>
+&lt;p>Get-DbaDbBackupHistory -SqlInstance mssql1 -Verbose
+Repair-DbaDbOrphanUser -SqlInstance mssql1 -Verbose&lt;/p>
+&lt;h3 id="option-2--set-psdefaultparametervalues">Option 2 – Set PSDefaultParameterValues&lt;/h3>
+&lt;p>$PSDefaultParameterValues = @{ &amp;lsquo;*:Verbose&amp;rsquo; = $True }
+Get-DbaDbBackupHistory -SqlInstance mssql1
+Repair-DbaDbOrphanUser -SqlInstance mssql1&lt;/p>
+&lt;p>One thing to note when specifying PSDefaultParameterValues as I have above: this will overwrite any parameters you already have saved to PSDefaultParameterValues, so be careful. Another way to set &lt;code>-Verbose&lt;/code> to true would be to use the following notation:&lt;/p>
+&lt;p>$PSDefaultParameterValues[&amp;rsquo;*:Verbose&amp;rsquo;] = $True&lt;/p>
+&lt;h2 id="getting-more-specific">Getting more specific&lt;/h2>
+&lt;p>In the above examples I’m using a wildcard (*) on the left side to specify that this parameter is for all functions. You can also focus in PSDefaultParameterValues by specifying one certain function name that the parameter value will apply to:&lt;/p>
+&lt;p>$PSDefaultParameterValues[&amp;lsquo;Get-DbaDbTable:Verbose&amp;rsquo;] = $True&lt;/p>
+&lt;p>You can also specify just the dbatools commands by taking advantage of their naming conventions and using:&lt;/p>
+&lt;p>$PSDefaultParameterValues[&amp;rsquo;*-Dba*:Verbose&amp;rsquo;] = $True&lt;/p>
+&lt;h2 id="psdefaultparametervalues-for-connecting-to-containers">PSDefaultParameterValues for connecting to containers&lt;/h2>
+&lt;p>As I mentioned, my use case was to avoid having to specify a credential for every function that connected to my SQL Server running in a container. To use this for dbatools I need to specify a few parameter names. Most dbatools functions take the credential for the &lt;code>-SqlCredential&lt;/code> parameter, but for the copy commands there is both &lt;code>-SourceSqlCredential&lt;/code> and &lt;code>-DestinationCredential&lt;/code> that need to be specified.&lt;/p>
+&lt;p>First, I create a &lt;code>PSCredential&lt;/code> that contains my username and password (note: this is for a demo environment and is insecure as the password is in plain text. If you are using this for other scenarios you’ll want to protect this credential). &lt;/p>
+&lt;p>$securePassword = (&amp;lsquo;Password1234!&amp;rsquo; | ConvertTo-SecureString -asPlainText -Force)
+$credential = New-Object System.Management.Automation.PSCredential(&amp;lsquo;sa&amp;rsquo;, $securePassword)&lt;/p>
+&lt;p>Once I have the credential I can specify all the parameters that should use that credential by default:&lt;/p>
+&lt;p>$PSDefaultParameterValues = @{&amp;quot;*:SqlCredential&amp;quot;=$credential
+&amp;ldquo;*:DestinationCredential&amp;rdquo;=$credential
+&amp;ldquo;*:DestinationSqlCredential&amp;rdquo;=$credential
+&amp;ldquo;*:SourceSqlCredential&amp;rdquo;=$credential}&lt;/p>
+&lt;p>Now whenever I call a function within this session, the specified parameters will use my credential. Therefore I can run the following and it’ll automatically use my saved sa login credential.&lt;/p>
+&lt;p>Get-DbaDatabase -SqlInstance mssql1&lt;/p>
+&lt;h2 id="psdefaultparametervalues-in-your-profile">PSDefaultParameterValues in your profile&lt;/h2>
+&lt;p>Setting PSDefaultParameterValues will only persist in the current session, however you can add the code above to your profile so that these default values are always provided.  If I do, whenever I open a PowerShell window I can easily connect to my containers without having to specify the credential.&lt;/p>
+&lt;p>One thing to note is that this might be overkill. In my situation this is my demo machine. I always use the same sa password for any containers I run, and the majority of the time I’m running commands with a &lt;code>SqlCredential&lt;/code> parameter I want to connect to those containers.&lt;/p>
+&lt;h2 id="override">Override&lt;/h2>
+&lt;p>Even if you have set PSDefaultParameterValues in your profile you can still override that default value on any command just by specifying a new value. For example, running the following will pop up the credential request window for you to enter new credentials.&lt;/p>
+&lt;p>Get-DbaDatabase -SqlInstance mssql1 -SqlCredential (Get-Credential)&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>To wrap this up, I’ve found a lot of time savings by adding PSDefaultParameterValues to my profile. I can now quickly fire up PowerShell and start running functions against my containers.  It also keeps my demo scripts clean and easier to read. There is no need to specify the same parameters over and over again when it’s always going to be the same value.&lt;/p></description></item><item><title>Data Compression Demos in Containers</title><link>https://jpomfret.github.io/p/data-compression-demos-in-containers/</link><pubDate>Wed, 23 Jan 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/data-compression-demos-in-containers/</guid><description>&lt;p>One of the things I want to spend more time exploring this year is containers, specifically SQL Server running in containers. While I’ve been preparing to give my data compression talk at SQL Saturday Cleveland, which is only two weeks away, and generally procrastinating from all other responsibilities, I decided I should change my demos from running against a VM on my laptop to running against a containerized instance of SQL Server.&lt;/p>
+&lt;p>First, a couple of blog shout outs. This idea had been in my mind for a little while after reading &lt;a class="link" href="https://www.cathrinewilhelmsen.net/2018/12/02/sql-server-2019-docker-container/" target="_blank" rel="noopener"
+>a great post by Cathrine Wilhelmsen&lt;/a> where she wrote about moving her demo environments to containers. I’ve also spent a decent amount of time reading &lt;a class="link" href="https://dbafromthecold.com/2017/03/15/summary-of-my-container-series/" target="_blank" rel="noopener"
+>Andrew Pruski’s excellent container series&lt;/a>. These were the source for the majority of both my knowledge and confidence that I could pull this off.&lt;/p>
+&lt;h3 id="demo-environment-setup">Demo environment setup&lt;/h3>
+&lt;p>I use three databases in my data compression demos - first is a copy of AdventureWorks. On my VM I actually removed some of the tables I didn’t use to skinny it down a little. The second database I named ‘SalesOrderLarge’ and is just three copies of the SalesOrderDetail and SalesOrderHeader tables that have been enlarged using Jonathan Kehayias’ script. Finally, I have a ‘CompressTest’ database that is just an empty shell that I use to create one table in during the demos to show the internals of compression.&lt;/p>
+&lt;h3 id="creating-my-image">Creating my Image&lt;/h3>
+&lt;p>The first step in this process was to stop the SQL Server service in my VM and copy out the database files (mdf &amp;amp; ldf) to use in my container. I’ll save these into a folder on my laptop for now and then they’ll be copied into my image as it’s built.&lt;/p>
+&lt;p>I created the dockerfile below (following Andrew’s &lt;a class="link" href="https://dbafromthecold.com/2018/12/11/attaching-databases-via-a-dockerfile-update/" target="_blank" rel="noopener"
+>example&lt;/a>) that will be used to build an image for my datacompression containers. This image is based off the SQL Server 2019 CTP 2.2 image from Microsoft, then we’ll create a folder and copy in a script and the files for my three databases. The last line runs the script and starts SQL Server.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># start with the SQL 2019 CTP 2.2 image
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">FROM mcr.microsoft.com/mssql/server:2019-CTP2.2-ubuntu
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># create a folder and copy in the attach-db script
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RUN mkdir /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY attach-db.sh /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># copy in AdventureWorks database files
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/AdventureWorks2017.mdf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/AdventureWorks2017_log.ldf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># copy in CompressTest database files
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/CompressTest.mdf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/CompressTest_log.ldf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># copy in SalesOrderLarge database files
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/SalesOrderLarge.mdf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/SalesOrderLarge_log.ldf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># attach databases and start SQL Server
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ENTRYPOINT /var/opt/sqlserver/attach-db.sh &amp;amp; /opt/mssql/bin/sqlservr
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The attach-db.sh script uses sqlcmd to execute three &lt;code>CREATE DATABASE&lt;/code> commands to finish the setup of my environment and I end up with a folder structure as shown below. You don’t have to put the database files in a separate folder, I only did that for neatness.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/fileSetup.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Everything is setup so I’m ready to build my image. I’ll navigate to the DataCompression folder from my PowerShell console and run the &lt;code>docker build&lt;/code> command:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">cd C:\Docker\DataCompression\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker build -t datacompression .
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>To check out my new image I’ll use &lt;code>docker images&lt;/code>:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/dockerimages-1024x116.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="running-my-demo-container">Running my demo container&lt;/h3>
+&lt;p>I used to have a ResetEnvironment script that I would use to make sure my VM was setup for the start of my demos. This allowed me to run through and practice my demos as many times as I wanted (read, a lot, probably too many). With containers I will just start up a new one, run through my demos, then remove it, easy as that.&lt;/p>
+&lt;p>Side note - I will run some activity against the AdventureWorks database once I start the container. This is needed to show the compression suggestions since these are partially based off index usage. I’ll probably still use some kind of script to start a container and run the load in preparation for the demos.&lt;/p>
+&lt;p>For now, I’ll just use the following to start up a container from my new datacompression image. The important parts of this code are firstly, setting &lt;code>-p 1433:1433&lt;/code>, this maps the containers port 1433 to the host computers port. Secondly, we need to set two environmental variables, &lt;code>ACCEPT_EULA=Y&lt;/code> to accept the end user licensing agreement and &lt;code>SA_PASSWORD=’password’&lt;/code> to create the SA password for the instance. In this case the password needs to match what I have used in my &lt;code>attach.sh&lt;/code> script otherwise when that runs it’ll throw a failed login error and we won’t have any databases created.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=$SaPwd -p 1433:1433 -d datacompression
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>My plan is to use this setup for my demos at SQL Saturday Cleveland. It’s pretty cool that this works exactly the same in my VM running Windows Server 2016 and SQL Server 2016, or in a linux container running SQL Server 2019.&lt;/p>
+&lt;h3 id="try-it-yourself">Try it yourself&lt;/h3>
+&lt;p>I&amp;rsquo;m going to write a few follow up posts that make use of this container so if you want to follow along or set up your own environment for tinkering you can pull it down from &lt;a class="link" href="https://cloud.docker.com/repository/registry-1.docker.io/jpomfret7/datacompression" target="_blank" rel="noopener"
+>docker hub&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">docker pull jpomfret7/datacompression:demo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=$SaPwd -p 1433:1433 -d jpomfret7/datacompression:demo
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

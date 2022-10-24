@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>data-compression on Jess Pomfret</title><link>https://jpomfret.github.io/tags/data-compression/</link><description>Recent content in data-compression on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 19 Feb 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/data-compression/index.xml" rel="self" type="application/rss+xml"/><item><title>Data Compression Internals</title><link>https://jpomfret.github.io/p/data-compression-internals/</link><pubDate>Tue, 19 Feb 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/data-compression-internals/</guid><description>&lt;p>Last year I gave my first user group presentation on data compression and since then I’ve also given this talk at both SQL Saturday Columbus 2018 and SQL Saturday Cleveland 2019. One of my favourite demos from the presentation is taking a look under the covers to see what SQL Server does with compressed data at the page level. This blog post is going to walk through this demo.  If you’d like to follow along you can pull down my docker image and have your own environment up and running in no time. As long as you already have docker running on your machine you can use the following to get setup and the full demo script is available on &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/DataCompression/01_Page_Internals.sql" target="_blank" rel="noopener"
+>GitHub&lt;/a>.&lt;/p>
+&lt;p>docker pull jpomfret7/datacompression:demo&lt;/p>
+&lt;p>docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=$SaPwd -p 1433:1433 -d jpomfret7/datacompression:demo&lt;/p>
+&lt;p>I’m using an empty database to start this demo so you only really need my containerized environment for the end when we need to load some more sample data.&lt;/p>
+&lt;p>Within my empty database, named &lt;code>CompressTest&lt;/code>, I first create a simple table named &lt;code>employee&lt;/code> and insert three rows. A couple of important things to note on this table. Firstly, the datatypes I’ve chosen are all fixed length, and the values inserted leave a lot of empty space. Secondly, there are a few examples of repeating data, both in the name columns and the city.  These conditions make this table a great candidate for both row and page compression.&lt;/p>
+&lt;p>USE CompressTest
+GO&lt;/p>
+&lt;p>CREATE TABLE employee (
+employeeId bigint PRIMARY KEY,
+firstName char(100),
+lastName char(100),
+address1 char(250),
+city char(50)
+)&lt;/p>
+&lt;p>INSERT INTO employee
+values (1, &amp;lsquo;Alex&amp;rsquo;,&amp;lsquo;Young&amp;rsquo;,&amp;lsquo;2 Sand Run&amp;rsquo;,&amp;lsquo;Akron&amp;rsquo;),
+(2, &amp;lsquo;Richard&amp;rsquo;,&amp;lsquo;Young&amp;rsquo;,&amp;lsquo;77 High St.&amp;rsquo;,&amp;lsquo;Akron&amp;rsquo;),
+(3, &amp;lsquo;Alexis&amp;rsquo;,&amp;lsquo;Young&amp;rsquo;,&amp;lsquo;1 First Ave.&amp;rsquo;,&amp;lsquo;Richfield&amp;rsquo;)&lt;/p>
+&lt;h3 id="compression-level-none">Compression Level: None&lt;/h3>
+&lt;p>Once we have our table created we need to use a couple of undocumented, but widely used commands to view the underlying page. Step one is to find the page that contains our data. We&amp;rsquo;ll use &lt;code>DBCC IND&lt;/code> for this and pass in our database and table name.&lt;/p>
+&lt;p>DBCC IND (&amp;lsquo;CompressTest&amp;rsquo;, &amp;rsquo;employee&amp;rsquo;, 1);&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_IND.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>The &lt;code>employee&lt;/code> table has two types of pages shown here. The &lt;code>PageType&lt;/code> of 1 is our data page and the one we are interested in today. Once we have our &lt;code>PageFID (1)&lt;/code> and &lt;code>PagePID (376)&lt;/code>, we’ll take these values and use them as parameters for &lt;code>DBCC PAGE&lt;/code>.&lt;/p>
+&lt;p>We first need to switch on trace flag &lt;code>3604&lt;/code>: this will write the output of our &lt;code>DBCC PAGE&lt;/code> command to the messages tab instead of the event log.&lt;/p>
+&lt;p>There are 4 parameters for &lt;code>DBCC PAGE&lt;/code>: we will need to pass in the database name (or id), the file number, the page id and the print option.  Using a print option of 0 will give us just the page header. In these examples I’m going to use option 3 which gives us more details on the rows stored on the page. For more information on using &lt;code>DBCC PAGE&lt;/code> I’d recommend Paul Randal’s post &amp;ldquo;&lt;a class="link" href="https://blogs.msdn.microsoft.com/sqlserverstorageengine/2006/06/10/how-to-use-dbcc-page/" target="_blank" rel="noopener"
+>How to use DBCC PAGE&lt;/a>&amp;rdquo;.&lt;/p>
+&lt;p>We will run the following to inspect our page:&lt;/p>
+&lt;p>DBCC TRACEON (3604);
+GO
+DBCC PAGE(&amp;lsquo;CompressTest&amp;rsquo;,1,376,3)&lt;/p>
+&lt;p>There is a lot of information returned. Before you get overwhelmed, we are only going to look at a few data points from this so we can show the changes as we apply compression.  If you are interested in learning more about page internals, another Paul Randal post worth checking out is &amp;ldquo;&lt;a class="link" href="https://www.sqlskills.com/blogs/paul/inside-the-storage-engine-anatomy-of-a-page/%ef%bb%bf" target="_blank" rel="noopener"
+>Inside the Storage Engine: Anatomy of a page&lt;/a>&amp;rdquo;.&lt;/p>
+&lt;p>From the output below we’ll note the following: the &lt;code>pminlin&lt;/code> (the size of the fixed length data fields) is 512, the &lt;code>m_slotCnt&lt;/code> (the number of records on the page) is 3, and finally the &lt;code>m_freeCnt&lt;/code> (the number of free bytes on the page) is 6545.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_PAGE_NONE.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Since we used option 3 for &lt;code>DBCC PAGE&lt;/code> we can also scroll down and see the data on our pages. The first record is below and is currently 515 bytes, and you can see on the right there is a lot of unused space.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_PAGE_RECORD_NONEjpg.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="compression-level-row">Compression Level: Row&lt;/h3>
+&lt;p>We’ll now take our employees table and apply &lt;code>ROW&lt;/code> compression to the clustered index. This physically changes how the data is stored on the page.  Any fixed length datatypes will now be stored in variable length fields where the data only uses the minimum number of bytes needed.&lt;/p>
+&lt;p>ALTER TABLE employee REBUILD PARTITION = ALL
+WITH (DATA_COMPRESSION = ROW)&lt;/p>
+&lt;p>When compression is applied the pages are rewritten to disk, we need to use &lt;code>DBCC IND&lt;/code> to retrieve the new page information:&lt;/p>
+&lt;p>DBCC IND (&amp;lsquo;CompressTest&amp;rsquo;, &amp;rsquo;employee&amp;rsquo;, 1);&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_IND_ROW.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>We then use these values for &lt;code>DBCC PAGE&lt;/code>. The trace flag we set earlier is good for the session, therefore if we’re in the same query window we don’t need to rerun that command.&lt;/p>
+&lt;p>DBCC PAGE(&amp;lsquo;CompressTest&amp;rsquo;,1,384,3)&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_PAGE_ROW.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Now that our table is ROW compressed you can see the &lt;code>pminlength&lt;/code> is only 5, this is reduced from 512 when our table wasn’t compressed. You can also note &lt;code>m_slotCnt&lt;/code> is still 3, which is expected, and the amount of free space on the page &lt;code>m_freeCnt&lt;/code> has increased to 7971.&lt;/p>
+&lt;p>If we again scroll down to inspect our first row we can see it is now only 35 bytes and the highlighted area on the right clearly shows that the unused space within our row has been removed.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_PAGE_RECORD_ROW.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="compression-level-page">Compression Level: Page&lt;/h3>
+&lt;p>Our final type of compression is &lt;code>PAGE&lt;/code> compression. This compresses the data using three steps:&lt;/p>
+&lt;ol>
+&lt;li>Row compression: removing any wasted space from fixed length datatypes as we have already seen.&lt;/li>
+&lt;li>Prefix compression: the engine will look for repeating data at the start of each column on each page and store that once in the anchor record.  Each row will then store a pointer back to that anchor record which is stored within the compression information section of the page.&lt;/li>
+&lt;li>Dictionary compression: similar to prefix compression except the repeating data can be anywhere on the page instead of being restricted to the same column.&lt;/li>
+&lt;/ol>
+&lt;p>ALTER TABLE employee REBUILD PARTITION = ALL
+WITH (DATA_COMPRESSION = PAGE&lt;/p>
+&lt;p>Running &lt;code>DBCC IND&lt;/code> again will get us our newly written page:&lt;/p>
+&lt;p>DBCC IND (&amp;lsquo;CompressTest&amp;rsquo;, &amp;rsquo;employee&amp;rsquo;, 1);&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_IND_PAGE.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>We’ll examine it with &lt;code>DBCC PAGE&lt;/code>:&lt;/p>
+&lt;p>DBCC PAGE(&amp;lsquo;CompressTest&amp;rsquo;,1,376,3)&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_PAGE_PAGE.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>The interesting thing here is that nothing has changed, but if I check the DMVs the &lt;code>employee&lt;/code> table shows as &lt;code>PAGE&lt;/code> compressed.&lt;/p>
+&lt;p>Use CompressTest&lt;/p>
+&lt;p>SELECT
+schema_name(obj.SCHEMA_ID) as SchemaName,
+obj.name as TableName,
+ind.name as IndexName,
+ind.type_desc as IndexType,
+pas.row_count as NumberOfRows,
+pas.used_page_count as UsedPageCount,
+(pas.used_page_count * 8)/1024 as SizeUsedMB,
+par.data_compression_desc as DataCompression,
+(pas.reserved_page_count * 8)/1024 as SizeReservedMB
+FROM sys.objects obj
+INNER JOIN sys.indexes ind
+ON obj.object_id = ind.object_id
+INNER JOIN sys.partitions par
+ON par.index_id = ind.index_id
+AND par.object_id = obj.object_id
+INNER JOIN sys.dm_db_partition_stats pas
+ON pas.partition_id = par.partition_id
+WHERE obj.schema_id &amp;lt;&amp;gt; 4
+ORDER BY SizeUsedMB desc&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/dmvs.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>SQL Server outsmarted us a little here. I have only inserted three rows into the employee table and we know after looking at the &lt;code>DBCC PAGE&lt;/code> output that there is plenty of free space on this page.  SQL Server will only apply PAGE compression if it needs to as there is a higher CPU cost to use prefix and dictionary compression. If page compression isn’t going to save any pages the engine leaves the table with just &lt;code>ROW&lt;/code> compression applied.&lt;/p>
+&lt;p>Running the following will insert 200 more rows into my employee table. I’m getting the data from the &lt;code>vEmployee&lt;/code> view within &lt;code>AdventureWorks2017&lt;/code>.&lt;/p>
+&lt;p>INSERT INTO employee (employeeId, firstName,lastName, address1, city)
+SELECT TOP 200 BusinessEntityID, FirstName, LastName, AddressLine1, CITY
+FROM AdventureWorks2017.HumanResources.vEmployee
+WHERE BusinessEntityID &amp;gt; 3&lt;/p>
+&lt;p>Now when I run &lt;code>DBCC IND&lt;/code> I can see the employee table uses four pages, two of them being data pages.&lt;/p>
+&lt;p>DBCC IND (&amp;lsquo;CompressTest&amp;rsquo;, &amp;rsquo;employee&amp;rsquo;, 1);&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_IND_FINAL.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Finally, we’ll look at &lt;code>DBCC PAGE&lt;/code> to see page compression in action:&lt;/p>
+&lt;p>DBCC PAGE(&amp;lsquo;CompressTest&amp;rsquo;,1,376,3)&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/DBCC_PAGE_FINAL.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>You can now see there are 102 rows on our page (&lt;code>m_slotCnt&lt;/code>) and our fixed length data types are still 5 (&lt;code>pminlen&lt;/code>). Directly after the page header is the compression information section. You can see on the right that repeating data values have been pulled out and stored here.  There are two possible &lt;code>CI Header Flags&lt;/code> and they are both set here. &lt;code>CI_HAS_ANCHOR_RECORD&lt;/code> shows that prefix compression has been used and &lt;code>CI_HAS_DICTIONARY&lt;/code> shows that dictionary compression has been used.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/compressionInfo_Page-1.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>If I scroll down a little further, I’ll come to the first row. The record is now only 24 bytes and you can see that a lot of the data has been replaced. The values &lt;code>Alex&lt;/code>, &lt;code>Young&lt;/code> and &lt;code>Akron&lt;/code> all now reside in the compression information and this record just contains pointers.&lt;/p>
+&lt;p>&lt;img src="https://i2.wp.com/jesspomfret.com/wp-content/uploads/2019/02/DBCC_PAGE_RECORD_PAGE.jpg?fit=650%2C206&amp;amp;ssl=1"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="summary">Summary&lt;/h3>
+&lt;p>It’s easy to just apply compression to your databases and see massive space savings. This post hopes to shed a little light on what happens to your pages when using row and page compression. I recently gave this talk to the DBA Fundamentals virtual chapter so if you’d like to see the rest the recording is available on &lt;a class="link" href="http://%ef%bb%bfhttps://www.youtube.com/watch?v=F02NqGP2Gyg" target="_blank" rel="noopener"
+>YouTube&lt;/a>.&lt;/p></description></item><item><title>Data Compression Demos in Containers</title><link>https://jpomfret.github.io/p/data-compression-demos-in-containers/</link><pubDate>Wed, 23 Jan 2019 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/data-compression-demos-in-containers/</guid><description>&lt;p>One of the things I want to spend more time exploring this year is containers, specifically SQL Server running in containers. While I’ve been preparing to give my data compression talk at SQL Saturday Cleveland, which is only two weeks away, and generally procrastinating from all other responsibilities, I decided I should change my demos from running against a VM on my laptop to running against a containerized instance of SQL Server.&lt;/p>
+&lt;p>First, a couple of blog shout outs. This idea had been in my mind for a little while after reading &lt;a class="link" href="https://www.cathrinewilhelmsen.net/2018/12/02/sql-server-2019-docker-container/" target="_blank" rel="noopener"
+>a great post by Cathrine Wilhelmsen&lt;/a> where she wrote about moving her demo environments to containers. I’ve also spent a decent amount of time reading &lt;a class="link" href="https://dbafromthecold.com/2017/03/15/summary-of-my-container-series/" target="_blank" rel="noopener"
+>Andrew Pruski’s excellent container series&lt;/a>. These were the source for the majority of both my knowledge and confidence that I could pull this off.&lt;/p>
+&lt;h3 id="demo-environment-setup">Demo environment setup&lt;/h3>
+&lt;p>I use three databases in my data compression demos - first is a copy of AdventureWorks. On my VM I actually removed some of the tables I didn’t use to skinny it down a little. The second database I named ‘SalesOrderLarge’ and is just three copies of the SalesOrderDetail and SalesOrderHeader tables that have been enlarged using Jonathan Kehayias’ script. Finally, I have a ‘CompressTest’ database that is just an empty shell that I use to create one table in during the demos to show the internals of compression.&lt;/p>
+&lt;h3 id="creating-my-image">Creating my Image&lt;/h3>
+&lt;p>The first step in this process was to stop the SQL Server service in my VM and copy out the database files (mdf &amp;amp; ldf) to use in my container. I’ll save these into a folder on my laptop for now and then they’ll be copied into my image as it’s built.&lt;/p>
+&lt;p>I created the dockerfile below (following Andrew’s &lt;a class="link" href="https://dbafromthecold.com/2018/12/11/attaching-databases-via-a-dockerfile-update/" target="_blank" rel="noopener"
+>example&lt;/a>) that will be used to build an image for my datacompression containers. This image is based off the SQL Server 2019 CTP 2.2 image from Microsoft, then we’ll create a folder and copy in a script and the files for my three databases. The last line runs the script and starts SQL Server.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"># start with the SQL 2019 CTP 2.2 image
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">FROM mcr.microsoft.com/mssql/server:2019-CTP2.2-ubuntu
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># create a folder and copy in the attach-db script
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RUN mkdir /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY attach-db.sh /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># copy in AdventureWorks database files
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/AdventureWorks2017.mdf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/AdventureWorks2017_log.ldf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># copy in CompressTest database files
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/CompressTest.mdf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/CompressTest_log.ldf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># copy in SalesOrderLarge database files
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/SalesOrderLarge.mdf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">COPY DatabaseFiles/SalesOrderLarge_log.ldf /var/opt/sqlserver
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># attach databases and start SQL Server
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ENTRYPOINT /var/opt/sqlserver/attach-db.sh &amp;amp; /opt/mssql/bin/sqlservr
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>The attach-db.sh script uses sqlcmd to execute three &lt;code>CREATE DATABASE&lt;/code> commands to finish the setup of my environment and I end up with a folder structure as shown below. You don’t have to put the database files in a separate folder, I only did that for neatness.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/fileSetup.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Everything is setup so I’m ready to build my image. I’ll navigate to the DataCompression folder from my PowerShell console and run the &lt;code>docker build&lt;/code> command:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">cd C:\Docker\DataCompression\
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker build -t datacompression .
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>To check out my new image I’ll use &lt;code>docker images&lt;/code>:&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/dockerimages-1024x116.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="running-my-demo-container">Running my demo container&lt;/h3>
+&lt;p>I used to have a ResetEnvironment script that I would use to make sure my VM was setup for the start of my demos. This allowed me to run through and practice my demos as many times as I wanted (read, a lot, probably too many). With containers I will just start up a new one, run through my demos, then remove it, easy as that.&lt;/p>
+&lt;p>Side note - I will run some activity against the AdventureWorks database once I start the container. This is needed to show the compression suggestions since these are partially based off index usage. I’ll probably still use some kind of script to start a container and run the load in preparation for the demos.&lt;/p>
+&lt;p>For now, I’ll just use the following to start up a container from my new datacompression image. The important parts of this code are firstly, setting &lt;code>-p 1433:1433&lt;/code>, this maps the containers port 1433 to the host computers port. Secondly, we need to set two environmental variables, &lt;code>ACCEPT_EULA=Y&lt;/code> to accept the end user licensing agreement and &lt;code>SA_PASSWORD=’password’&lt;/code> to create the SA password for the instance. In this case the password needs to match what I have used in my &lt;code>attach.sh&lt;/code> script otherwise when that runs it’ll throw a failed login error and we won’t have any databases created.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=$SaPwd -p 1433:1433 -d datacompression
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>My plan is to use this setup for my demos at SQL Saturday Cleveland. It’s pretty cool that this works exactly the same in my VM running Windows Server 2016 and SQL Server 2016, or in a linux container running SQL Server 2019.&lt;/p>
+&lt;h3 id="try-it-yourself">Try it yourself&lt;/h3>
+&lt;p>I&amp;rsquo;m going to write a few follow up posts that make use of this container so if you want to follow along or set up your own environment for tinkering you can pull it down from &lt;a class="link" href="https://cloud.docker.com/repository/registry-1.docker.io/jpomfret7/datacompression" target="_blank" rel="noopener"
+>docker hub&lt;/a>.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">docker pull jpomfret7/datacompression:demo
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=$SaPwd -p 1433:1433 -d jpomfret7/datacompression:demo
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>Data Compression + Backup Compression = Double Compression?</title><link>https://jpomfret.github.io/p/data-compression--backup-compression-double-compression/</link><pubDate>Mon, 20 Aug 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/data-compression--backup-compression-double-compression/</guid><description>&lt;p>I recently gave my &lt;a class="link" href="http://jesspomfret.com/first-user-group-presentation-i-survived/" target="_blank" rel="noopener"
+>first usergroup presentation in Cleveland&lt;/a>, closely followed by my first SQL Saturday presentation in Columbus. My chosen topic was row store data compression and I had a few great questions that I plan on answering with blog posts. First up&amp;hellip;&lt;/p>
+&lt;h3 id="what-happens-if-i-use-data-compression-and-backup-compression-do-i-get-double-compression">What happens if I use data compression and backup compression, do I get double compression?&lt;/h3>
+&lt;p>This is a great question, and without diving too deeply into how backup compression works I&amp;rsquo;m going to do a simple experiment on the WideWorldImporters database.  I&amp;rsquo;ve restored this database to my local SQL Server 2016 instance and I&amp;rsquo;m simply going to back it up several times under different conditions.&lt;/p>
+&lt;p>After restoring the database it&amp;rsquo;s about 3GB in size, so our testing will be on a reasonably small database.  It would be interesting to see how the results change as the database size increases, perhaps a future blog post.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/WideWorldImporters-1-300x99.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>Now I&amp;rsquo;m not sure how to write a blog post without mentioning &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
+>dbatools&lt;/a>, I&amp;rsquo;m using my favourite PowerShell module to check current database compression (Get-DbaDbCompression), apply data compression (Set-DbaDbCompression) and to create the backups with and without compression (Backup-DbaDatabase).&lt;/p>
+&lt;p>The script I used to run through this experiment is available for you to test out on my &lt;a class="link" href="https://github.com/jpomfret/demos/blob/master/BlogExamples/01_DataCompressionPlusBackupCompression.ps1" target="_blank" rel="noopener"
+>github&lt;/a> and the results are below:&lt;/p>
+&lt;p>[table id=1 /]&lt;/p>
+&lt;p>We can clearly see that using backup compression gives us a huge space savings.  On our database where none of the objects are compressed we get a 78% reduction in the size of the backup file. When all our objects are row compressed we get a 70% savings and even when all our objects are page compressed we still get a 60% reduction in size when we apply backup compression.&lt;/p>
+&lt;p>Now, if we compare the difference in sizes for the three backups that used backup compression, we do get a small amount of additional space savings by using data compression in combination with backup compression. The backup file is 7% smaller when the database objects are row compressed and 6% smaller when page compression is applied, however, these savings aren&amp;rsquo;t nearly as significant as as just comparing whether backup compression is used or not.&lt;/p>
+&lt;p>So to answer the question, we don&amp;rsquo;t get double the compression by using both data and backup compression, but whether we use data compression or not within our database using backup compression will get you a pretty significant space saving when looking at the size of the backup file on disk.&lt;/p></description></item><item><title>T-SQL Tuesday #104 – Code you can't live without</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#104-code-you-cant-live-without/</link><pubDate>Tue, 10 Jul 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#104-code-you-cant-live-without/</guid><description>&lt;p>&lt;a class="link" href="https://bertwagner.com/2018/07/03/code-youd-hate-to-live-without-t-sql-tuesday-104-invitation/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues-300x300.png"
+loading="lazy"
+>&lt;/a>As soon as I saw Bert Wagner (&lt;a class="link" href="https://twitter.com/bertwagner" target="_blank" rel="noopener"
+>t&lt;/a>|&lt;a class="link" href="https://bertwagner.com/" target="_blank" rel="noopener"
+>b&lt;/a>) post his T-SQL Tuesday topic last week I knew this was going to be a great one. I’m really looking forward to reading about everyone’s favorite code snippets so thanks Bert for hosting and choosing a fantastic subject!&lt;/p>
+&lt;p>A lot of the code I can&amp;rsquo;t live without is either downloaded from the community (e.g. &lt;a class="link" href="http://whoisactive.com/" target="_blank" rel="noopener"
+>sp_whoisactive&lt;/a>, &lt;a class="link" href="http://karaszi.com/spindexinfo-enhanced-index-information-procedure" target="_blank" rel="noopener"
+>sp_indexinfo&lt;/a>, &lt;a class="link" href="https://www.brentozar.com/blitz/" target="_blank" rel="noopener"
+>sp_blitz&lt;/a>), or very specific to my workplace so I&amp;rsquo;m going to share some code that I&amp;rsquo;ve been meaning to blog about.&lt;/p>
+&lt;p>I’ve been using this at work recently and it also relates to the presentation I gave at the &lt;a class="link" href="http://jesspomfret.com/first-user-group-presentation-i-survived/" target="_blank" rel="noopener"
+>ONSSUG June meeting&lt;/a> around data compression. The beginnings of this script originated online as I dug into learning about the DMVs that related to objects and compression and then customized for what I needed.&lt;/p>
+&lt;p>If you run the below as is it will provide basic information about all objects in your database, except those in the &amp;lsquo;sys&amp;rsquo; schema, along with their current size and compression level.&lt;/p>
+&lt;p>SELECT
+schema_name(obj.SCHEMA_ID) as SchemaName,
+obj.name as TableName,
+ind.name as IndexName,
+ind.type_desc as IndexType,
+pas.row_count as NumberOfRows,
+pas.used_page_count as UsedPageCount,
+(pas.used_page_count * 8)/1024 as SizeUsedMB,
+par.data_compression_desc as DataCompression
+FROM sys.objects obj
+INNER JOIN sys.indexes ind
+ON obj.object_id = ind.object_id
+INNER JOIN sys.partitions par
+ON par.index_id = ind.index_id
+AND par.object_id = obj.object_id
+INNER JOIN sys.dm_db_partition_stats pas
+ON pas.partition_id = par.partition_id
+WHERE obj.schema_id &amp;lt;&amp;gt; 4 &amp;ndash; exclude objects in &amp;lsquo;sys&amp;rsquo; schema
+&amp;ndash;AND schema_name(obj.schema_id) = &amp;lsquo;schemaName&amp;rsquo;
+&amp;ndash;AND obj.name = &amp;rsquo;tableName&amp;rsquo;
+ORDER BY SizeUsedMB desc&lt;/p>
+&lt;p>(This is also available in my &lt;a class="link" href="https://github.com/jpomfret/ScriptsAndTips/blob/master/ObjectSizeAndCompression.sql" target="_blank" rel="noopener"
+>GitHub Tips and Scripts Repo&lt;/a>)&lt;/p>
+&lt;p>Now this T-SQL is great for a quick look at one database, but what if I want to run this script against every database in my environment? Well I popped over to PowerShell, fired up &lt;a class="link" href="http://dbatools.io/" target="_blank" rel="noopener"
+>dbatools&lt;/a> and ran the following:&lt;/p>
+&lt;p>get-command -Module dbatools -Name *compression*&lt;/p>
+&lt;p>Bad news, there was no Get-DbaDbCompression, there were commands for compressing objects (Set-DbaDbCompression) and for getting suggested compression setting based on the &lt;a class="link" href="https://blogs.msdn.microsoft.com/blogdoezequiel/2011/01/03/the-sql-swiss-army-knife-6-evaluating-compression-gains/" target="_blank" rel="noopener"
+>Tiger Teams best practices&lt;/a> (Test-DbaDbCompression), but nothing to just return the current compression status of the objects.&lt;/p>
+&lt;p>What’s more exciting than just using the greatest PowerShell module ever created? Making it better by contributing! So I made sure I had the latest development branch synced up and got to work writing Get-DbaDbCompression.  This has now been merged into the main branch and is therefore available in the Powershell gallery, so if your dbatools module is up to date you can now run the following to get the same information as above from one database:&lt;/p>
+&lt;p>Get-DbaDbCompression -SqlInstance serverName -Database databaseName&lt;/p>
+&lt;p>Or go crazy and run it against a bunch of servers.&lt;/p>
+&lt;p>$servers = Get-DbaRegisteredServer -SqlInstance cmsServer | select -expand servername
+$compression = Get-DbaDbCompression -SqlInstance $servers
+$compression | Out-GridView&lt;/p>
+&lt;p>I hope this post might come in handy for anyone who is curious about data compression in their environments. Both the T-SQL and PowerShell versions provide not just the current compression setting but the size of the object too. Useful if you are about to apply compression and would like a before and after comparison to see how much space you saved.&lt;/p></description></item><item><title>First User Group Presentation - I Survived!</title><link>https://jpomfret.github.io/p/first-user-group-presentation-i-survived/</link><pubDate>Wed, 27 Jun 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/first-user-group-presentation-i-survived/</guid><description>&lt;p>Well tonight marks three weeks since I gave my first user group presentation and you know what, it’s been a total whirlwind since then so I’ve had little time to reflect.  Myself and the fiancé closed on our first house and my parents flew in to visit. It’s very useful to have people on hand the first couple of weeks so we didn’t feel like completely unqualified homeowners. I spent some time right after the presentation to start breathing again and to jot down some thoughts, but this is the first chance I’ve had to report back.&lt;/p>
+&lt;p>TL;DR I didn’t die, the SQL Server community is fantastic and I have amazing supportive friends.&lt;/p>
+&lt;p>&lt;a class="link" href="https://twitter.com/Pittfurg/status/1004125722082934784" target="_blank" rel="noopener"
+>https://twitter.com/Pittfurg/status/1004125722082934784&lt;/a>&lt;/p>
+&lt;p>&lt;strong>Why Present?&lt;/strong>&lt;/p>
+&lt;p>The answer to this is twofold. Firstly this year I’ve challenged myself to get more involved in the SQL Server community. For several years now I’ve attended user group meetings, SQL Saturday’s and even made it to the PASS Summit a couple of times, but I’ve never contributed anything. It’s been all take.   Last year I got involved with dbatools and that started my quest to return the favour.  I’m still currently wrestling with the ideas of “who wants to listen to what I have to say” and “do I really have anything to contribute anyway,” but I’m doing my best to keep one foot in front of the other and see what happens.&lt;/p>
+&lt;p>Secondly, whenever I review my strengths and weaknesses at annual review time, communication, or more precisely public speaking is always something that I consider a weakness.  I’m not sure of a better way to improve in this area than to put myself out there and practice, so here’s to some professional development. I’m certain that gaining some knowledge, experience and confidence in this area will help me in many areas of my life.&lt;/p>
+&lt;p>&lt;strong>What to Present?&lt;/strong>&lt;/p>
+&lt;p>I ended up presenting on SQL Server data compression.  I talked about the types of data compression, and how the internals work before focusing on what you can compress, how to compress and how to decide what should be compressed.  This topic stemmed mainly from an issue at work where data compression was implemented with a large performance benefit.  This issue at work also encouraged me to spend some time looking at dbatools and compression. There were existing commands for Set-DbaDbCompression and Test-DbaDbCompression that I added some improvements to, and then I added Get-DbaDbCompression.&lt;/p>
+&lt;p>The culmination of both the issue at work and working on dbatools commands for compression left me feeling like this was a great topic to share.  Since 2016 SP1 data compression is now a standard level feature, opening up the possibilities to a lot more people.&lt;/p>
+&lt;p>&lt;strong>Improvements&lt;/strong>&lt;/p>
+&lt;p>Overall I think the presentation went well, I delivered most of what I had planned on saying and my demo’s did a decent job of explaining the process for deciding what to compress and then applying compression through T-SQL, SSMS and PowerShell.  I was lucky to have some great friends in the audience (&lt;a class="link" href="https://twitter.com/awickham" target="_blank" rel="noopener"
+>Andrew&lt;/a>, &lt;a class="link" href="https://twitter.com/Pittfurg" target="_blank" rel="noopener"
+>Drew&lt;/a> and &lt;a class="link" href="https://twitter.com/erinstellato" target="_blank" rel="noopener"
+>Erin&lt;/a>) who asked great questions which helped me to drive home certain points.&lt;/p>
+&lt;p>My timing was definitely a bit off. I’d prepared for what I thought would be 45-60 minutes of content and it was a bit shorter than that.  I plan on adding some additional content and delivering slightly slower the next time I give this talk to fix this problem.&lt;/p>
+&lt;p>I got some great feedback both from the speaker evaluations and from &lt;a class="link" href="https://www.sqlskills.com/blogs/erin/" target="_blank" rel="noopener"
+>Erin Stellato&lt;/a> who went above and beyond my request for any tips and feedback she may have.  I’ll make sure to incorporate some real life stories on where compression has had an impact as well as adding some more demos.&lt;/p>
+&lt;p>&lt;strong>What’s next?&lt;/strong>&lt;/p>
+&lt;p>That’s right, there is a next! I took a chance and submitted my session to &lt;a class="link" href="http://www.sqlsaturday.com/736/eventhome.aspx" target="_blank" rel="noopener"
+>SQL Saturday Columbus&lt;/a> and was lucky enough to be selected.  I’ve been to quite a few SQL Saturdays in Cleveland, Columbus, Pittsburgh and even Minneapolis, but this will be my first as a speaker.  If you’re in the area on July 28th and want to learn more about data compression I’ll be on at 8:30am in Room 6.&lt;/p>
+&lt;p>I’m also going to work on some blog posts around data compression and the dbatools commands so watch out for that also.&lt;/p></description></item></channel></rss>

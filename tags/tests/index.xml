@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>tests on Jess Pomfret</title><link>https://jpomfret.github.io/tags/tests/</link><description>Recent content in tests on Jess Pomfret</description><generator>Hugo -- gohugo.io</generator><language>en-gb</language><lastBuildDate>Tue, 14 Apr 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://jpomfret.github.io/tags/tests/index.xml" rel="self" type="application/rss+xml"/><item><title>T-SQL Tuesday – #125: Unit Testing Databases</title><link>https://jpomfret.github.io/p/t-sql-tuesday-#125-unit-testing-databases/</link><pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/t-sql-tuesday-#125-unit-testing-databases/</guid><description>&lt;p>&lt;a class="link" href="https://hybriddbablog.com/2020/04/07/t-sql-tuesday-125-unit-testing-databases-we-need-to-do-this/" target="_blank" rel="noopener"
+>&lt;img src="https://jpomfret.github.io/images/tsqltues.png"
+loading="lazy"
+>&lt;/a>&lt;/p>
+&lt;p>It’s T-SQL Tuesday time again! March felt really long for a lot of us as we got used to our new way of life, so I’m excited we made it to April’s prompt.&lt;/p>
+&lt;p>This month’s topic is asking for a discussion around whether unit testing for databases is valuable. Since getting involved with dbatools and beginning to write more structured PowerShell (meaning modules and DSC resources rather than just an odd script) I have learnt a lot more about testing code. However, I have zero experience with testing databases. So I’m excited for this topic. Thanks for hosting Hamish (&lt;a class="link" href="https://hybriddbablog.com/" target="_blank" rel="noopener"
+>b&lt;/a>|&lt;a class="link" href="https://twitter.com/TheHybridDBA" target="_blank" rel="noopener"
+>t&lt;/a>).&lt;/p>
+&lt;p>I recently watched Steve Jones give a session as part of &lt;a class="link" href="https://www.red-gate.com/hub/events/redgate-events/redgate-streamed/" target="_blank" rel="noopener"
+>Redgate Streamed&lt;/a> on using &lt;a class="link" href="https://tsqlt.org/" target="_blank" rel="noopener"
+>tSQLt&lt;/a> for database testing. It’s not the first time I’ve heard about this tool and it’s been on my list for way too long as something I want to investigate a little further. I figured this was a good excuse.&lt;/p>
+&lt;h2 id="unit-tests-for-powershell">Unit tests for PowerShell&lt;/h2>
+&lt;p>Writing tests for PowerShell code makes a lot of sense to me. There is something really nice about being able to test all the (covered) functionality of a function or cmdlet, after you’ve fiddled around with it.  It’s easy to get lost in fixing a bug, or adding some great new functionality and accidentally break something else. Having tests written ensures the function still works as desired, and as you add functionality or fix bugs you can add to the test cases, making the whole process more robust.  I’m 100% for unit and integration testing for code. No doubt about it.&lt;/p>
+&lt;h2 id="so-why-not-databases">So why not databases?&lt;/h2>
+&lt;p>Data is always the difficult bit when people talk about DevOps or agile development practices, and to be honest, I’d be way out of my depth to talk about how and why to test your data.  I’m instead going to look at using tSQLt to test functions and stored procedures. After all, there’s code in our databases too! After seeing the benefits of writing tests for PowerShell functions, I can easily see the benefits of testing the programmable objects in our databases.&lt;/p>
+&lt;h2 id="installing-tsqlt">Installing tSQLt&lt;/h2>
+&lt;p>Getting started with tSQLt is really easy- &lt;a class="link" href="https://tsqlt.org/downloads/" target="_blank" rel="noopener"
+>you download a zip file&lt;/a>, unzip the contents and then run the tSQLt.class.sql script against your development database.&lt;/p>
+&lt;p>There are a couple of requirements, including CLR integration must be enabled and your database must be set to trustworthy.  These could open up some security considerations, but for my development environment it’s no issue.&lt;/p>
+&lt;p>After I ran the tSQLt.class.sql script I got the following in the messages tab of SSMS. We’re ready to go:&lt;/p>
+&lt;p>Installed at 2020-04-07 15:45:03.200&lt;/p>
+&lt;p>+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;ndash;+
+| |
+| Thank you for using tSQLt. |
+| |
+| tSQLt Version: 1.0.5873.27393 |
+| |
++&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;ndash;+&lt;/p>
+&lt;p>Completion time: 2020-04-11T14:25:21.6912488+01:00&lt;/p>
+&lt;h2 id="test-a-simple-function">Test a simple function&lt;/h2>
+&lt;p>To start with I made a really simple function to make sure I understood the tSQLt syntax and could get my first test written successfully.  It takes two numbers and returns the sum.&lt;/p>
+&lt;p>CREATE OR ALTER FUNCTION dbo.AddTwoNumbers (@int1 int, @int2 int)
+RETURNS INT AS
+BEGIN
+RETURN @int1 + @int2
+END&lt;/p>
+&lt;p>In tSQLt we’ll use a test class to group similar tests together, which will enable us to run a suite of tests in one go. Since this is for TSQLTuesday I’ll create a test class named testTSQLTuesday.&lt;/p>
+&lt;p>EXEC tSQLt.NewTestClass &amp;rsquo;testTSQLTuesday&amp;rsquo;;
+GO&lt;/p>
+&lt;p>This is basically just a schema for our tests to live in. I’m now ready to create my first test. The documentation for tSQLt has some good examples to get us started, and I followed the ‘AssertEquals’ example from their &lt;a class="link" href="https://tsqlt.org/user-guide/tsqlt-tutorial/" target="_blank" rel="noopener"
+>tutorial&lt;/a>.&lt;/p>
+&lt;p>When we run our tSQLt tests the stored procedure name will be the name of the test, so it’s important to make those meaningful. I named this one ‘test the addTwoNumbers function works’.&lt;/p>
+&lt;p>From the little I do know about test-driven development, I understand we should write the test to initially fail. That’ll confirm that I haven’t set it up in a way that will provide false positives. In the below test I’m saying that I expect the sum of 1 and 2 calculated by my function to be 4, obviously untrue.&lt;/p>
+&lt;p>-- create the test to fail
+CREATE OR ALTER PROCEDURE testTSQLTuesday.[test the addTwoNumbers function works]
+AS
+BEGIN
+DECLARE @actual INT;
+DECLARE @testInt1 INT = 1;
+DECLARE @testInt2 INT = 2;&lt;/p>
+&lt;pre>&lt;code>SELECT @actual = dbo.AddTwoNumbers(@testInt1, @testInt2);
+DECLARE @expected INT = 4;
+EXEC tSQLt.AssertEquals @expected, @actual;
+&lt;/code>&lt;/pre>
+&lt;p>END;&lt;/p>
+&lt;p>GO&lt;/p>
+&lt;p>You can see this is a pretty simple test to set up. I declared two numbers that I’ll pass to the function and then fill in what I expect the result to be (still the wrong answer at this point).&lt;/p>
+&lt;p>To run the test I’ll use the tSQLt.Run stored procedure, passing in my test class name.&lt;/p>
+&lt;p>EXEC tSQLt.Run &amp;rsquo;testTSQLTuesday';&lt;/p>
+&lt;p>Reviewing the messages pane in SSMS I can see my test has failed, as expected, and it let’s you know it expected 4 but got 3.&lt;/p>
+&lt;p>[testTSQLTuesday].[test the addTwoNumbers function works] failed: (Failure) Expected: &amp;lt;4&amp;gt; but was: &amp;lt;3&amp;gt;&lt;/p>
+&lt;p>+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+
+|Test Execution Summary|
++&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+&lt;/p>
+&lt;h2 id="1-testtsqltuesdaytest-the-addtwonumbers-function-works-13failure">|No|Test Case Name |Dur(ms)|Result |
++&amp;ndash;+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;+&amp;mdash;&amp;mdash;-+&amp;mdash;&amp;mdash;-+
+|1 |[testTSQLTuesday].[test the addTwoNumbers function works]| 13|Failure|&lt;/h2>
+&lt;h2 id="test-case-summary-1-test-cases-executed-0-succeeded-1-failed-0-errored">Msg 50000, Level 16, State 10, Line 43
+Test Case Summary: 1 test case(s) executed, 0 succeeded, 1 failed, 0 errored.&lt;/h2>
+&lt;p>Completion time: 2020-04-11T14:37:18.8297577+01:00&lt;/p>
+&lt;p>Now I’ll fix the test so if the function is working as expected the test should pass.&lt;/p>
+&lt;p>-- create the test
+CREATE OR ALTER PROCEDURE testTSQLTuesday.[test the addTwoNumbers function works]
+AS
+BEGIN
+DECLARE @actual INT;
+DECLARE @testInt1 INT = 1;
+DECLARE @testInt2 INT = 2;&lt;/p>
+&lt;pre>&lt;code>SELECT @actual = dbo.AddTwoNumbers(@testInt1, @testInt2);
+DECLARE @expected INT = (@testInt1 + @testInt2);
+EXEC tSQLt.AssertEquals @expected, @actual;
+&lt;/code>&lt;/pre>
+&lt;p>END;&lt;/p>
+&lt;p>GO&lt;/p>
+&lt;p>Good news, our first tSQLt test has passed.&lt;/p>
+&lt;p>+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+
+|Test Execution Summary|
++&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+&lt;/p>
+&lt;h2 id="1-testtsqltuesdaytest-the-addtwonumbers-function-works--3success">|No|Test Case Name |Dur(ms)|Result |
++&amp;ndash;+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;+&amp;mdash;&amp;mdash;-+&amp;mdash;&amp;mdash;-+
+|1 |[testTSQLTuesday].[test the addTwoNumbers function works]| 3|Success|&lt;/h2>
+&lt;h2 id="test-case-summary-1-test-cases-executed-1-succeeded-0-failed-0-errored">Test Case Summary: 1 test case(s) executed, 1 succeeded, 0 failed, 0 errored.&lt;/h2>
+&lt;p>Completion time: 2020-04-11T16:33:56.6201835+01:00&lt;/p>
+&lt;h2 id="test-a-stored-procedure-that-changes-data">Test a stored procedure that changes data&lt;/h2>
+&lt;p>One thing I thought that was really cool with tSQLt is that it executes the tests in a transaction, and then rolls it back after testing to ensure things are left the way they were before we started testing.  To show this I’ve created a simple stored procedure that allows us to update an email address in the Person.EmailAddress table from AdventureWorks2017.&lt;/p>
+&lt;p>CREATE PROCEDURE Person.UpdateEmailAddress
+@NewEmailAddress varchar(100),
+@BusinessEntityID int
+AS&lt;/p>
+&lt;p>UPDATE Person.EmailAddress
+SET EmailAddress = @NewEmailAddress
+where BusinessEntityID = @BusinessEntityID&lt;/p>
+&lt;p>GO&lt;/p>
+&lt;p>Then I wrote a test, similar to the first example, which compares the actual value that is in the Person.EmailAddress table after running the procedure with what I would expect to be in there.&lt;/p>
+&lt;p>CREATE OR ALTER PROCEDURE testTSQLTuesday.[test the UpdateEmailAddress procedure]
+AS
+BEGIN
+DECLARE @actual varchar(100);
+DECLARE @newEmail varchar(100) = &amp;rsquo;&lt;a class="link" href="mailto:test@test.com" >test@test.com&lt;/a>&amp;rsquo;;
+DECLARE @businessEntityID INT = 2;&lt;/p>
+&lt;pre>&lt;code>EXEC person.UpdateEmailAddress @newEmail, @businessEntityId
+SELECT @actual = EmailAddress
+FROM Person.EmailAddress
+WHERE BusinessEntityID = @businessEntityID
+DECLARE @expected varchar(100) = @newEmail
+EXEC tSQLt.AssertEquals @expected, @actual;
+&lt;/code>&lt;/pre>
+&lt;p>END;
+GO&lt;/p>
+&lt;p>I added this to the same test class so we’ll execute both tests with the same call to tSQLt.Run.&lt;/p>
+&lt;p>EXEC tSQLt.Run &amp;rsquo;testTSQLTuesday';&lt;/p>
+&lt;p>The results now show I have two tests that passed.&lt;/p>
+&lt;p>+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+
+|Test Execution Summary|
++&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-+&lt;/p>
+&lt;h2 id="2-testtsqltuesdaytest-the-updateemailaddress-procedure--7success">|No|Test Case Name |Dur(ms)|Result |
++&amp;ndash;+&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;+&amp;mdash;&amp;mdash;-+&amp;mdash;&amp;mdash;-+
+|1 |[testTSQLTuesday].[test the addTwoNumbers function works]| 6|Success|
+|2 |[testTSQLTuesday].[test the UpdateEmailAddress procedure]| 7|Success|&lt;/h2>
+&lt;h2 id="test-case-summary-2-test-cases-executed-2-succeeded-0-failed-0-errored">Test Case Summary: 2 test case(s) executed, 2 succeeded, 0 failed, 0 errored.&lt;/h2>
+&lt;p>Completion time: 2020-04-11T17:17:36.4799073+01:00&lt;/p>
+&lt;p>To run this test we had to actually call the stored procedure that changes data in our tables. As I mentioned though, this all happened within a transaction that was never committed. We can confirm our data was unchanged by checking the table.&lt;/p>
+&lt;p>SELECT EmailAddress
+FROM Person.EmailAddress
+WHERE BusinessEntityID = 2;&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/images/tsql125Tests.jpg"
+loading="lazy"
+alt="select statement showing email unchanged"
+>&lt;/p>
+&lt;p>This is just scratching the surface of what tSQLt can do. The &lt;a class="link" href="https://tsqlt.org/full-user-guide/" target="_blank" rel="noopener"
+>full user guide&lt;/a> is available online.  This goes through all the available assertions (we only looked at AssertEquals here) as well as more complicated topics such as how to isolate dependencies to be able to effectively unit test.&lt;/p>
+&lt;h2 id="summary">Summary&lt;/h2>
+&lt;p>Writing this post has been a great excuse for me to try out tSQLt and write my first T-SQL unit tests. To be honest, it was a lot easier than I expected.  I will say I’m comfortable writing pester tests for my PowerShell code so that base was helpful, but the documentation for tSQLt made getting setup and starting to test databases pretty straightforward.&lt;/p>
+&lt;p>The cost of unit testing your database code is the time investment to get comfortable with the tools and to write the tests as you develop the database code.  The benefit though is a more reliable, easier to maintain database with less bugs, which will in the end make your data safer.&lt;/p>
+&lt;p>I’d say there is a significant benefit to applying unit testing to databases, and I believe we’ll see a significant increase in the number of folks applying unit tests to their database environments.&lt;/p></description></item><item><title>Keeping the demo gods at bay with Pester</title><link>https://jpomfret.github.io/p/keeping-the-demo-gods-at-bay-with-pester/</link><pubDate>Tue, 10 Mar 2020 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/p/keeping-the-demo-gods-at-bay-with-pester/</guid><description>&lt;p>A short while ago (it’s getting further and further away, but let’s stick with short for now) I was a football/soccer player. As with many athletes, I was pretty superstitious as far as my pregame routine. I always felt better going out onto the pitch if everything had gone smoothly as I got ready.  I put my boots, shin-pads and socks on in a certain order and even taped my socks up in a certain way. The good news is I’ve managed to find a slightly more reliable way to get ready for my presentations – and I’m going to share the secret.&lt;/p>
+&lt;p>First you put your right sock on, then your left sock on. Follow that by putting on your right shoe, and then your left shoe… just joking. You use Pester tests!&lt;/p>
+&lt;p>If you don’t know what &lt;a class="link" href="https://pester.dev/" target="_blank" rel="noopener"
+>Pester&lt;/a> is, it’s a test framework for PowerShell.  In the simplest explanation, using their Domain-Specific Language (DSL) you describe how things should look. If all looks good it returns output in green and if it doesn’t you get red output.  There are a lot of great use cases for Pester, like using it to ensure your code does what it’s supposed to, using it to validate your SQL Server environment (&lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks" target="_blank" rel="noopener"
+>dbachecks&lt;/a>), or in this example using it to make sure your demos are setup and ready to go.&lt;/p>
+&lt;p>When I’m preparing for a presentation I go through the demos over and over again, so it’s easy to accidentally leave things in a state that will cause issues when I go to do my demos in the presentation. If you’re creating a table, for example, during the demo and you already created it practicing and then forgot to drop it, the demo gods will strike and it’ll fail when it matters most! A simple Pester test to check whether the table exists will solve this issue.&lt;/p>
+&lt;p>So what do I test?&lt;/p>
+&lt;p>Last Wednesday I presented my ‘Life hacks: dbatools Edition’ session for the &lt;a class="link" href="https://www.meetup.com/Southampton-Data-Platform-and-Cloud-Group/" target="_blank" rel="noopener"
+>Southampton Data Platform and Cloud meetup&lt;/a> so I’ll talk you through the tests I ran to make sure I was ready to present that session, and it’s a demo heavy one!&lt;/p>
+&lt;p>First things first, I test that I can import the dbatools module. I make sure I’m getting the version and the number of commands I expect. dbatools puts out new versions all the time, so I usually update this in the weeks leading up to my presentation as I’m practicing.&lt;/p>
+&lt;p>Describe &amp;ldquo;Module is good to go&amp;rdquo; {
+Context &amp;ldquo;dbatools imports&amp;rdquo; {
+$null = Import-Module dbatools
+$module = Get-Module dbatools
+It &amp;ldquo;Module was imported&amp;rdquo; {
+$module | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;Module version is 1.0.99&amp;rdquo; {
+$module.Version | Should Be &amp;ldquo;1.0.99&amp;rdquo;
+}
+It &amp;ldquo;Module should import 587 commands&amp;rdquo; {
+(get-command -module dbatools | Measure).Count | Should Be 587
+}
+}
+}&lt;/p>
+&lt;p>My demo setup involves two containers running on my laptop. Because of that, I’m using the sa credential to connect and I’m setting some PSDefaultParameterValues so I don’t have to include the &lt;code>$credential&lt;/code> in every function call. I can test all that is setup correctly like so.&lt;/p>
+&lt;p>Describe &amp;ldquo;Credentials exist&amp;rdquo; {
+Context &amp;ldquo;Credential exists&amp;rdquo; {
+It &amp;ldquo;Credential is not null&amp;rdquo; {
+$credential | Should Not BeNullOrEmpty
+}
+}
+Context &amp;ldquo;username is sa&amp;rdquo; {
+It &amp;ldquo;Username is sa&amp;rdquo; {
+$credential.UserName | Should Be &amp;ldquo;sa&amp;rdquo;
+}
+}
+Context &amp;ldquo;PSDefaultParameterValues are set&amp;rdquo; {
+$params = $PSDefaultParameterValues
+It &amp;ldquo;PSDefaultParameterValues contains expected values&amp;rdquo; {
+$params.Keys -contains &amp;lsquo;*:SqlCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:SourceSqlCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:DestinationCredential&amp;rsquo; | Should Be True
+$params.Keys -contains &amp;lsquo;*:DestinationSqlCredential&amp;rsquo; | Should Be True
+}
+}
+}&lt;/p>
+&lt;p>I then have a couple of simple checks to make sure I can connect to both my instances.&lt;/p>
+&lt;p>Describe &amp;ldquo;Two instances are available&amp;rdquo; {
+Context &amp;ldquo;Two instances are up&amp;rdquo; {
+$mssql1 = Connect-DbaInstance -SqlInstance mssql1
+$mssql2 = Connect-DbaInstance -SqlInstance mssql2
+It &amp;ldquo;mssql1 is available&amp;rdquo; {
+$mssql1.Name | Should Not BeNullOrEmpty
+$mssql1.Name | Should Be &amp;lsquo;mssql1&amp;rsquo;
+}
+It &amp;ldquo;mssql2 is available&amp;rdquo; {
+$mssql2.Name | Should Not BeNullOrEmpty
+$mssql2.Name | Should Be &amp;lsquo;mssql2&amp;rsquo;
+}
+}
+}&lt;/p>
+&lt;p>I then make sure that my databases are set up as expected. I am using two databases on my mssql1 SQL Server instance, AdventureWorks2017 and DatabaseAdmin. I make sure each of those exist, are online, and that the compatibility level is set correctly. I also check that the indexes on the Employee table are set up as I expect since I use those in my demos.&lt;/p>
+&lt;p>Describe &amp;ldquo;mssql1 databases are good&amp;rdquo; {
+Context &amp;ldquo;AdventureWorks2017 is good&amp;rdquo; {
+$db = Get-DbaDatabase -SqlInstance mssql1
+$adventureWorks = $db | where name -eq &amp;lsquo;AdventureWorks2017&amp;rsquo;
+It &amp;ldquo;AdventureWorks2017 is available&amp;rdquo; {
+$adventureWorks | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;AdventureWorks status is normal&amp;rdquo; {
+$adventureWorks.Status | Should Be Normal
+}
+It &amp;ldquo;AdventureWorks Compat is 140&amp;rdquo; {
+$adventureWorks.Compatibility | Should Be 140
+}
+}
+Context &amp;ldquo;Indexes are fixed on HumanResources.Employee (bug)&amp;rdquo; {
+$empIndexes = (Get-DbaDbTable -SqlInstance mssql1 -Database AdventureWorks2017 -Table Employee).indexes | select name, IsUnique
+It &amp;ldquo;There are now just two indexes&amp;rdquo; {
+$empIndexes.Count | Should Be 2
+}
+It &amp;ldquo;There should be no unique indexes&amp;rdquo; {
+$empIndexes.IsUnique | Should BeFalse
+}
+}
+Context &amp;ldquo;DatabaseAdmin is good&amp;rdquo; {
+$db = Get-DbaDatabase -SqlInstance mssql1
+$DatabaseAdmin = $db | where name -eq &amp;lsquo;DatabaseAdmin&amp;rsquo;
+It &amp;ldquo;DatabaseAdmin is available&amp;rdquo; {
+$DatabaseAdmin | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;DatabaseAdmin status is normal&amp;rdquo; {
+$DatabaseAdmin.Status | Should Be Normal
+}
+It &amp;ldquo;DatabaseAdmin Compat is 140&amp;rdquo; {
+$DatabaseAdmin.Compatibility | Should Be 140
+}
+}
+}&lt;/p>
+&lt;p>One of my demos shows the backup history for AdventureWorks, so I test that with Pester before I start to make sure there is history to show. Nothing worse than getting up to show a wonderful set of dbatools functions and nothing being returned because I haven’t actually taken any backups!&lt;/p>
+&lt;p>Describe &amp;ldquo;Backups worked&amp;rdquo; {
+Context &amp;ldquo;AdventureWorks was backed up&amp;rdquo; {
+$instanceSplat = @{
+SqlInstance = &amp;lsquo;mssql1&amp;rsquo;
+}
+It &amp;ldquo;AdventureWorks has backup history&amp;rdquo; {
+Get-DbaDbBackupHistory @instanceSplat | Should Not BeNullOrEmpty
+}
+}
+}&lt;/p>
+&lt;p>While I was writing my demos I came across issues where my PowerShell environment was set to x86 so I added a test for that to make sure it doesn’t happen again.&lt;/p>
+&lt;p>Describe &amp;ldquo;Proc architecture is x64&amp;rdquo; {
+Context &amp;ldquo;Proc arch is good&amp;rdquo; {
+It &amp;ldquo;env:processor_architecture should be AMD64&amp;rdquo; {
+$env:PROCESSOR_ARCHITECTURE | Should Be &amp;ldquo;AMD64&amp;rdquo;
+}
+}
+}&lt;/p>
+&lt;p>Finally, I check to see what’s running on my computer. Zoomit, everyone’s favourite screen zoom tool should be running, and we should make sure that Slack and Teams are not.&lt;/p>
+&lt;p>Describe &amp;ldquo;Check what&amp;rsquo;s running&amp;rdquo; {
+$processes = Get-Process zoomit*, teams, slack -ErrorAction SilentlyContinue
+Context &amp;ldquo;ZoomIt is running&amp;rdquo; {
+It &amp;ldquo;ZoomIt64 is running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Zoomit64&amp;rsquo;) | Should Not BeNullOrEmpty
+}
+It &amp;ldquo;Slack is not running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Slack&amp;rsquo;) | Should BeNullOrEmpty
+}
+It &amp;ldquo;Teams is not running&amp;rdquo; {
+($processes | Where-Object ProcessName -eq &amp;lsquo;Teams&amp;rsquo;) | Should BeNullOrEmpty
+}
+}
+}&lt;/p>
+&lt;p>Now there are obviously ways that the demo gods can still strike, but using Pester to test your demos is a great way to try and tilt the odds in your favour.&lt;/p>
+&lt;p>You can view all the code, including the tests, for this presentation on my &lt;a class="link" href="https://github.com/jpomfret/demos/tree/master/LifeHacks_dbatools" target="_blank" rel="noopener"
+>Github&lt;/a>.&lt;/p>
+&lt;p>Here&amp;rsquo;s what the output looks like:&lt;/p>
+&lt;p>Executing all tests in &amp;lsquo;.\Tests\demo.tests.ps1&amp;rsquo;&lt;/p>
+&lt;p>Executing script .\Tests\demo.tests.ps1&lt;/p>
+&lt;p>Describing Module is good to go&lt;/p>
+&lt;pre>&lt;code>Context dbatools imports
+\[+\] Module was imported 1.59s
+\[+\] Module version is 1.0.99 287ms
+\[+\] Module should import 587 commands 162ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Credentials exist&lt;/p>
+&lt;pre>&lt;code>Context Credential exists
+\[+\] Credential is not null 263ms
+Context username is sa
+\[+\] Username is sa 83ms
+Context PSDefaultParameterValues are set
+\[+\] PSDefaultParameterValues contains expected values 80ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Two instances are available&lt;/p>
+&lt;pre>&lt;code>Context Two instances are up
+\[+\] mssql1 is available 592ms
+\[+\] mssql2 is available 26ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing mssql1 databases are good&lt;/p>
+&lt;pre>&lt;code>Context AdventureWorks2017 is good
+\[+\] AdventureWorks2017 is available 863ms
+\[+\] AdventureWorks status is normal 32ms
+\[+\] AdventureWorks Compat is 140 46ms
+Context Indexes are fixed on HumanResources.Employee (bug)
+\[+\] There are now just two indexes 1.53s
+\[+\] There should be no unique indexes 49ms
+Context DatabaseAdmin is good
+\[+\] DatabaseAdmin is available 256ms
+\[+\] DatabaseAdmin status is normal 15ms
+\[+\] DatabaseAdmin Compat is 140 17ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Backups worked&lt;/p>
+&lt;pre>&lt;code>Context AdventureWorks was backed up
+\[+\] AdventureWorks has backup history 627ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Proc architecture is x64&lt;/p>
+&lt;pre>&lt;code>Context Proc arch is good
+\[+\] env:processor\_architecture should be AMD64 125ms
+&lt;/code>&lt;/pre>
+&lt;p>Describing Check what&amp;rsquo;s running&lt;/p>
+&lt;pre>&lt;code>Context ZoomIt is running
+\[+\] ZoomIt64 is running 150ms
+\[+\] Slack is not running 43ms
+\[+\] Teams is not running 17ms
+&lt;/code>&lt;/pre>
+&lt;p>Tests completed in 6.86s
+Tests Passed: 21, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0&lt;/p>
+&lt;p>Good news, all passed and I&amp;rsquo;m ready to give my demos!&lt;/p></description></item></channel></rss>
