@@ -3754,7 +3754,7 @@ loading="lazy"
 &lt;/div>
 &lt;/div>&lt;p>That’s step one towards automating my SQL Server builds, I’m looking forward to adding more to this series. Thanks again to Garry for picking the perfect T-SQL Tuesday topic to kick off the year with.&lt;/p></description></item><item><title>2018 Comes to a Close</title><link>https://jpomfret.github.io/2018-comes-to-a-close/</link><pubDate>Sat, 29 Dec 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/2018-comes-to-a-close/</guid><description>&lt;p>2018 has been an amazing year for me. I never imagined when I started this blog in February that I would be going into 2019 even more excited to give back to the community. Public speaking is not something that comes easy to me, and in fact I find it pretty terrifying, which is why I’m amazed at how much I enjoyed presenting this past year.  The SQL Server community is definitely a special group of professionals, so thank you to any and all of you who have made this year one of my best yet.&lt;/p>
 &lt;p>Now I’m all about goals and targets so in May I wrote a T-SQL Tuesday post about giving back to the community and I set several goals to complete in 2018, let’s review.&lt;/p>
-&lt;h2 id="10-blog-posts-on-jesspomfretcom-3-technical">10 blog posts on jesspomfret.com (3 technical)&lt;/h2>
+&lt;h2 id="10-blog-posts-on-jesspomfretcom-3-technical">10 blog posts on JessPomfret.com (3 technical)&lt;/h2>
 &lt;p>This year end summary makes 12 posts for the year, and 7 were technical posts. My most popular post was ‘&lt;a class="link" href="https://jesspomfret.com/checking-backups-with-dbachecks/" target="_blank" rel="noopener"
 >Checking backups with dbachecks&lt;/a>’.  I also contributed a guest post on the dbatools blog covering &lt;a class="link" href="https://jesspomfret.com/checking-backups-with-dbachecks/" target="_blank" rel="noopener"
 >migrating application databases.&lt;/a>&lt;/p>
@@ -3873,8 +3873,14 @@ loading="lazy"
 &lt;h3 id="what-happens-if-i-use-data-compression-and-backup-compression-do-i-get-double-compression">What happens if I use data compression and backup compression, do I get double compression?&lt;/h3>
 &lt;p>This is a great question, and without diving too deeply into how backup compression works I&amp;rsquo;m going to do a simple experiment on the WideWorldImporters database.  I&amp;rsquo;ve restored this database to my local SQL Server 2016 instance and I&amp;rsquo;m simply going to back it up several times under different conditions.&lt;/p>
 &lt;p>After restoring the database it&amp;rsquo;s about 3GB in size, so our testing will be on a reasonably small database.  It would be interesting to see how the results change as the database size increases, perhaps a future blog post.&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/WideWorldImporters-1-300x99.jpg"
+&lt;p>&lt;img src="https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99.jpg"
+width="300"
+height="99"
+srcset="https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99_hu4dc4d488b2d9db7e1a586de4a7a235b2_7278_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99_hu4dc4d488b2d9db7e1a586de4a7a235b2_7278_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="303"
+data-flex-basis="727px"
 >&lt;/p>
 &lt;p>Now I&amp;rsquo;m not sure how to write a blog post without mentioning &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
 >dbatools&lt;/a>, I&amp;rsquo;m using my favourite PowerShell module to check current database compression (Get-DbaDbCompression), apply data compression (Set-DbaDbCompression) and to create the backups with and without compression (Backup-DbaDatabase).&lt;/p>
@@ -3934,13 +3940,13 @@ $compression | Out-GridView&lt;/p>
 &lt;p>TL;DR I didn’t die, the SQL Server community is fantastic and I have amazing supportive friends.&lt;/p>
 &lt;p>&lt;a class="link" href="https://twitter.com/Pittfurg/status/1004125722082934784" target="_blank" rel="noopener"
 >https://twitter.com/Pittfurg/status/1004125722082934784&lt;/a>&lt;/p>
-&lt;p>&lt;strong>Why Present?&lt;/strong>&lt;/p>
+&lt;h2 id="why-present">Why Present?&lt;/h2>
 &lt;p>The answer to this is twofold. Firstly this year I’ve challenged myself to get more involved in the SQL Server community. For several years now I’ve attended user group meetings, SQL Saturday’s and even made it to the PASS Summit a couple of times, but I’ve never contributed anything. It’s been all take.   Last year I got involved with dbatools and that started my quest to return the favour.  I’m still currently wrestling with the ideas of “who wants to listen to what I have to say” and “do I really have anything to contribute anyway,” but I’m doing my best to keep one foot in front of the other and see what happens.&lt;/p>
 &lt;p>Secondly, whenever I review my strengths and weaknesses at annual review time, communication, or more precisely public speaking is always something that I consider a weakness.  I’m not sure of a better way to improve in this area than to put myself out there and practice, so here’s to some professional development. I’m certain that gaining some knowledge, experience and confidence in this area will help me in many areas of my life.&lt;/p>
-&lt;p>&lt;strong>What to Present?&lt;/strong>&lt;/p>
+&lt;h2 id="what-to-present">What to Present?&lt;/h2>
 &lt;p>I ended up presenting on SQL Server data compression.  I talked about the types of data compression, and how the internals work before focusing on what you can compress, how to compress and how to decide what should be compressed.  This topic stemmed mainly from an issue at work where data compression was implemented with a large performance benefit.  This issue at work also encouraged me to spend some time looking at dbatools and compression. There were existing commands for Set-DbaDbCompression and Test-DbaDbCompression that I added some improvements to, and then I added Get-DbaDbCompression.&lt;/p>
 &lt;p>The culmination of both the issue at work and working on dbatools commands for compression left me feeling like this was a great topic to share.  Since 2016 SP1 data compression is now a standard level feature, opening up the possibilities to a lot more people.&lt;/p>
-&lt;p>&lt;strong>Improvements&lt;/strong>&lt;/p>
+&lt;h2 id="improvements">Improvements&lt;/h2>
 &lt;p>Overall I think the presentation went well, I delivered most of what I had planned on saying and my demo’s did a decent job of explaining the process for deciding what to compress and then applying compression through T-SQL, SSMS and PowerShell.  I was lucky to have some great friends in the audience (&lt;a class="link" href="https://twitter.com/awickham" target="_blank" rel="noopener"
 >Andrew&lt;/a>, &lt;a class="link" href="https://twitter.com/Pittfurg" target="_blank" rel="noopener"
 >Drew&lt;/a> and &lt;a class="link" href="https://twitter.com/erinstellato" target="_blank" rel="noopener"
@@ -3948,22 +3954,40 @@ $compression | Out-GridView&lt;/p>
 &lt;p>My timing was definitely a bit off. I’d prepared for what I thought would be 45-60 minutes of content and it was a bit shorter than that.  I plan on adding some additional content and delivering slightly slower the next time I give this talk to fix this problem.&lt;/p>
 &lt;p>I got some great feedback both from the speaker evaluations and from &lt;a class="link" href="https://www.sqlskills.com/blogs/erin/" target="_blank" rel="noopener"
 >Erin Stellato&lt;/a> who went above and beyond my request for any tips and feedback she may have.  I’ll make sure to incorporate some real life stories on where compression has had an impact as well as adding some more demos.&lt;/p>
-&lt;p>&lt;strong>What’s next?&lt;/strong>&lt;/p>
+&lt;h2 id="whats-next">What’s next?&lt;/h2>
 &lt;p>That’s right, there is a next! I took a chance and submitted my session to &lt;a class="link" href="http://www.sqlsaturday.com/736/eventhome.aspx" target="_blank" rel="noopener"
 >SQL Saturday Columbus&lt;/a> and was lucky enough to be selected.  I’ve been to quite a few SQL Saturdays in Cleveland, Columbus, Pittsburgh and even Minneapolis, but this will be my first as a speaker.  If you’re in the area on July 28th and want to learn more about data compression I’ll be on at 8:30am in Room 6.&lt;/p>
 &lt;p>I’m also going to work on some blog posts around data compression and the dbatools commands so watch out for that also.&lt;/p></description></item><item><title>Extended Events - Hidden Treasure</title><link>https://jpomfret.github.io/extended-events-hidden-treasure/</link><pubDate>Tue, 29 May 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/extended-events-hidden-treasure/</guid><description>&lt;p>I was troubleshooting an issue last week which led to me firing up extended events to look at records being written to the transaction log, I typed into the search bar ‘Transaction’ hoping to find something that would do the trick and didn’t quite find what I was looking for.&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/XEvents_Transaction.jpg"
+&lt;p>&lt;img src="https://jpomfret.github.io/extended-events-hidden-treasure/XEvents_Transaction.jpg"
+width="705"
+height="432"
+srcset="https://jpomfret.github.io/extended-events-hidden-treasure/XEvents_Transaction_hu07a2e58f67ab8e5fe9c4208e9a358097_74387_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/extended-events-hidden-treasure/XEvents_Transaction_hu07a2e58f67ab8e5fe9c4208e9a358097_74387_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="163"
+data-flex-basis="391px"
 >&lt;/p>
 &lt;p>After a few more failed attempts I headed to the internet and found a &lt;a class="link" href="https://www.sqlskills.com/blogs/paul/t-sql-tuesday-67-monitoring-log-activity-with-extended-events/" target="_blank" rel="noopener"
 >post by Paul Randal&lt;/a> describing exactly what I needed for this situation, using the [sqlserver].[transaction_log] event. Hold on, that’s exactly what I searched for.  I ran the T-SQL within his blog post, the event was successfully created and gave me the information I was looking for.&lt;/p>
 &lt;p>I then noticed someone asked in the comments whether it was a bug that the transaction_log event doesn’t show up in the XEvents GUI and Paul had replied:&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/PaulRandal.jpg"
+&lt;p>&lt;img src="https://jpomfret.github.io/extended-events-hidden-treasure/PaulRandal.jpg"
+width="882"
+height="155"
+srcset="https://jpomfret.github.io/extended-events-hidden-treasure/PaulRandal_hu61cac7fdd39e52c84a3c7b42467f1286_27991_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/extended-events-hidden-treasure/PaulRandal_hu61cac7fdd39e52c84a3c7b42467f1286_27991_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="569"
+data-flex-basis="1365px"
 >&lt;/p>
 &lt;p>It took me a second to find it but by default there is a filter on the ‘Channel’ column that doesn’t include ‘Debug’. Selecting that gives you a whole host of new XEvents to investigate (and use carefully, for example the transaction_log event can generate a lot of activity).&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/XEvents_ChannelTransaction.jpg"
+&lt;p>&lt;img src="https://jpomfret.github.io/extended-events-hidden-treasure/XEvents_ChannelTransaction.jpg"
+width="648"
+height="343"
+srcset="https://jpomfret.github.io/extended-events-hidden-treasure/XEvents_ChannelTransaction_hua1cdc109e6b5e9eebdd8f57062f99329_50340_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/extended-events-hidden-treasure/XEvents_ChannelTransaction_hua1cdc109e6b5e9eebdd8f57062f99329_50340_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="188"
+data-flex-basis="453px"
 >&lt;/p>
 &lt;p>I’m not sure how often I’ll need these ‘Debug’ events, but it sure is nice to know they exist. I feel like there should be some notation in the GUI that there is a filter being applied, similar to the icon in Excel when you have something filtered.&lt;/p></description></item><item><title>T-SQL Tuesday #102 - Giving Back</title><link>https://jpomfret.github.io/t-sql-tuesday-#102-giving-back/</link><pubDate>Wed, 09 May 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/t-sql-tuesday-#102-giving-back/</guid><description>&lt;p>&lt;a class="link" href="https://scribnasium.com/2018/05/giving-back-t-sql-tuesday-102-invite/" target="_blank" rel="noopener"
 >&lt;img src="https://jpomfret.github.io/images/tsqltues-300x300.png"
@@ -4041,35 +4065,82 @@ Test-DbaSqlBuild -Latest&lt;/p>
 >GitHub&lt;/a> which means you can fork and contribute to it just as you would with any other open source project. There is also a lot of useful information out there including the &lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks#dbachecks" target="_blank" rel="noopener"
 >readme&lt;/a>.  Reviewing this readme is an important first step as there are a couple of prerequisites and some potential caveats when you go to update the module.&lt;/p>
 &lt;p>You can download a copy of the module from the PowerShell Gallery (if this doesn&amp;rsquo;t work for you due to corporate firewalls, PowerShell version etc. head back to the readme for more ways to get the module):&lt;/p>
-&lt;p>Install-Module dbachecks&lt;/p>
-&lt;p>First off let&amp;rsquo;s take a look at &lt;em>Get-DbcCheck&lt;/em> to look for checks we may want to implement: &lt;img src="https://jpomfret.github.io/images/Get-DbCCheck.jpg"
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Install-Module&lt;/span> &lt;span class="n">dbachecks&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>First off let&amp;rsquo;s take a look at &lt;code>Get-DbcCheck&lt;/code> to look for checks we may want to implement: &lt;img src="https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbCCheck.jpg"
+width="650"
+height="114"
+srcset="https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbCCheck_hub0361c16f2227e05f77352518f09a3a0_66738_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbCCheck_hub0361c16f2227e05f77352518f09a3a0_66738_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="570"
+data-flex-basis="1368px"
 >&lt;/p>
 &lt;p>Each check has one unique tag which basically names the check and then a number of other tags that can also be used to call a collection of checks.&lt;/p>
 &lt;p>For this example we are going to use several checks to ensure that we meet the following requirements:&lt;/p>
 &lt;ul>
-&lt;li>Full backup once a week - using &lt;em>LastFullBackup&lt;/em>&lt;/li>
-&lt;li>Differential backup once a day - using &lt;em>LastDiffBackup&lt;/em>&lt;/li>
-&lt;li>Log backup every hour - using &lt;em>LastLogBackup&lt;/em>&lt;/li>
+&lt;li>Full backup once a week - using &lt;code>LastFullBackup&lt;/code>&lt;/li>
+&lt;li>Differential backup once a day - using &lt;code>LastDiffBackup&lt;/code>&lt;/li>
+&lt;li>Log backup every hour - using &lt;code>LastLogBackup&lt;/code>&lt;/li>
 &lt;/ul>
-&lt;p>Since each of the three checks we want to run also have the &lt;em>LastBackup&lt;/em> tag we can use that to call the collection of checks at once.&lt;/p>
+&lt;p>Since each of the three checks we want to run also have the &lt;code>LastBackup&lt;/code> tag we can use that to call the collection of checks at once.&lt;/p>
 &lt;p>There are many ways to point dbachecks at your instances, for this simple example we&amp;rsquo;ll just pass in one server name to check.&lt;/p>
-&lt;p>$server = &amp;ldquo;ServerName&amp;rdquo;
-Invoke-DbcCheck -SqlInstance $server -Check LastBackup&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/ChecksFailing.jpg"
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nv">$server&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;ServerName&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Invoke-DbcCheck&lt;/span> &lt;span class="n">-SqlInstance&lt;/span> &lt;span class="nv">$server&lt;/span> &lt;span class="n">-Check&lt;/span> &lt;span class="n">LastBackup&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksFailing.jpg"
+width="649"
+height="470"
+srcset="https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksFailing_hu15024b79f8af7d5ceaf8a211b077fb9f_205773_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksFailing_hu15024b79f8af7d5ceaf8a211b077fb9f_205773_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="138"
+data-flex-basis="331px"
 >&lt;/p>
 &lt;p>As you can clearly see from the test results there is a lot of red, meaning I&amp;rsquo;m not meeting backup requirements. However looking closer at the context we can see that the check is not configured for my specific needs &amp;ldquo;StackOverflow full backups on Server should be less than 1 days&amp;rdquo;, but I only require a full backup within 7 days.&lt;/p>
-&lt;p>The checks are set up in a way that make them extremely flexible. You can configure them to meet your needs exactly. We can use &lt;em>Get-DbcConfig&lt;/em> to review the backup configurations.  Here you can see we&amp;rsquo;re looking for full backups every 1 day (policy.backup.fullmaxdays), differentials every 25 hours (policy.backup.diffmaxhours) and log backups every 15 minutes (policy.backup.logmaxminutes).&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/Get-DbcConfig.jpg"
+&lt;p>The checks are set up in a way that make them extremely flexible. You can configure them to meet your needs exactly. We can use &lt;code>Get-DbcConfig&lt;/code> to review the backup configurations.  Here you can see we&amp;rsquo;re looking for full backups every 1 day (policy.backup.fullmaxdays), differentials every 25 hours (policy.backup.diffmaxhours) and log backups every 15 minutes (policy.backup.logmaxminutes).&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbcConfig.jpg"
+width="650"
+height="209"
+srcset="https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbcConfig_hu03ba9c2abcee862b937048a682e1f9d5_124831_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbcConfig_hu03ba9c2abcee862b937048a682e1f9d5_124831_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="311"
+data-flex-basis="746px"
 >&lt;/p>
 &lt;p>Let&amp;rsquo;s change these configuration properties to match our requirements of a full backup within the last 7 days and a log backup in the last 60 minutes.&lt;/p>
-&lt;p>Set-DbcConfig -Name policy.backup.fullmaxdays -Value 7
-Set-DbcConfig -Name policy.backup.logmaxminutes -Value 60&lt;/p>
-&lt;p>Now that the configuration is setup correctly we can rerun and confirm our environment backups are in the green.&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/ChecksSuccess.jpg"
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Set-DbcConfig&lt;/span> &lt;span class="n">-Name&lt;/span> &lt;span class="n">policy&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">backup&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">fullmaxdays&lt;/span> &lt;span class="n">-Value&lt;/span> &lt;span class="n">7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Set-DbcConfig&lt;/span> &lt;span class="n">-Name&lt;/span> &lt;span class="n">policy&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">backup&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">logmaxminutes&lt;/span> &lt;span class="n">-Value&lt;/span> &lt;span class="n">60&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Now that the configuration is setup correctly we can rerun and confirm our environment backups are in the green.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksSuccess.jpg"
+width="650"
+height="530"
+srcset="https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksSuccess_hu7741d7f664fdc4e4c34c92acd55bbce5_186017_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksSuccess_hu7741d7f664fdc4e4c34c92acd55bbce5_186017_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="122"
+data-flex-basis="294px"
 >&lt;/p>
 &lt;p>Validating your backups are running is just one small example of how you can utilize dbachecks to keep your environment in line.  In fact this is just the tip of the iceberg, there are 80 checks as of writing this post as well as multiple ways to display the results (including a pretty impressive PowerBi dashboard - &lt;a class="link" href="http://claudioessilva.eu/2018/02/22/dbachecks-using-power-bi-dashboards-to-analyse-results/" target="_blank" rel="noopener"
 >Cláudio Silva has a great post on that&lt;/a>).&lt;/p>

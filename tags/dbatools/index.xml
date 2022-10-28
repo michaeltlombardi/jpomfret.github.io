@@ -940,8 +940,14 @@ loading="lazy"
 &lt;h3 id="what-happens-if-i-use-data-compression-and-backup-compression-do-i-get-double-compression">What happens if I use data compression and backup compression, do I get double compression?&lt;/h3>
 &lt;p>This is a great question, and without diving too deeply into how backup compression works I&amp;rsquo;m going to do a simple experiment on the WideWorldImporters database.  I&amp;rsquo;ve restored this database to my local SQL Server 2016 instance and I&amp;rsquo;m simply going to back it up several times under different conditions.&lt;/p>
 &lt;p>After restoring the database it&amp;rsquo;s about 3GB in size, so our testing will be on a reasonably small database.  It would be interesting to see how the results change as the database size increases, perhaps a future blog post.&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/WideWorldImporters-1-300x99.jpg"
+&lt;p>&lt;img src="https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99.jpg"
+width="300"
+height="99"
+srcset="https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99_hu4dc4d488b2d9db7e1a586de4a7a235b2_7278_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99_hu4dc4d488b2d9db7e1a586de4a7a235b2_7278_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="303"
+data-flex-basis="727px"
 >&lt;/p>
 &lt;p>Now I&amp;rsquo;m not sure how to write a blog post without mentioning &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
 >dbatools&lt;/a>, I&amp;rsquo;m using my favourite PowerShell module to check current database compression (Get-DbaDbCompression), apply data compression (Set-DbaDbCompression) and to create the backups with and without compression (Backup-DbaDatabase).&lt;/p>
@@ -1001,13 +1007,13 @@ $compression | Out-GridView&lt;/p>
 &lt;p>TL;DR I didn’t die, the SQL Server community is fantastic and I have amazing supportive friends.&lt;/p>
 &lt;p>&lt;a class="link" href="https://twitter.com/Pittfurg/status/1004125722082934784" target="_blank" rel="noopener"
 >https://twitter.com/Pittfurg/status/1004125722082934784&lt;/a>&lt;/p>
-&lt;p>&lt;strong>Why Present?&lt;/strong>&lt;/p>
+&lt;h2 id="why-present">Why Present?&lt;/h2>
 &lt;p>The answer to this is twofold. Firstly this year I’ve challenged myself to get more involved in the SQL Server community. For several years now I’ve attended user group meetings, SQL Saturday’s and even made it to the PASS Summit a couple of times, but I’ve never contributed anything. It’s been all take.   Last year I got involved with dbatools and that started my quest to return the favour.  I’m still currently wrestling with the ideas of “who wants to listen to what I have to say” and “do I really have anything to contribute anyway,” but I’m doing my best to keep one foot in front of the other and see what happens.&lt;/p>
 &lt;p>Secondly, whenever I review my strengths and weaknesses at annual review time, communication, or more precisely public speaking is always something that I consider a weakness.  I’m not sure of a better way to improve in this area than to put myself out there and practice, so here’s to some professional development. I’m certain that gaining some knowledge, experience and confidence in this area will help me in many areas of my life.&lt;/p>
-&lt;p>&lt;strong>What to Present?&lt;/strong>&lt;/p>
+&lt;h2 id="what-to-present">What to Present?&lt;/h2>
 &lt;p>I ended up presenting on SQL Server data compression.  I talked about the types of data compression, and how the internals work before focusing on what you can compress, how to compress and how to decide what should be compressed.  This topic stemmed mainly from an issue at work where data compression was implemented with a large performance benefit.  This issue at work also encouraged me to spend some time looking at dbatools and compression. There were existing commands for Set-DbaDbCompression and Test-DbaDbCompression that I added some improvements to, and then I added Get-DbaDbCompression.&lt;/p>
 &lt;p>The culmination of both the issue at work and working on dbatools commands for compression left me feeling like this was a great topic to share.  Since 2016 SP1 data compression is now a standard level feature, opening up the possibilities to a lot more people.&lt;/p>
-&lt;p>&lt;strong>Improvements&lt;/strong>&lt;/p>
+&lt;h2 id="improvements">Improvements&lt;/h2>
 &lt;p>Overall I think the presentation went well, I delivered most of what I had planned on saying and my demo’s did a decent job of explaining the process for deciding what to compress and then applying compression through T-SQL, SSMS and PowerShell.  I was lucky to have some great friends in the audience (&lt;a class="link" href="https://twitter.com/awickham" target="_blank" rel="noopener"
 >Andrew&lt;/a>, &lt;a class="link" href="https://twitter.com/Pittfurg" target="_blank" rel="noopener"
 >Drew&lt;/a> and &lt;a class="link" href="https://twitter.com/erinstellato" target="_blank" rel="noopener"
@@ -1015,7 +1021,7 @@ $compression | Out-GridView&lt;/p>
 &lt;p>My timing was definitely a bit off. I’d prepared for what I thought would be 45-60 minutes of content and it was a bit shorter than that.  I plan on adding some additional content and delivering slightly slower the next time I give this talk to fix this problem.&lt;/p>
 &lt;p>I got some great feedback both from the speaker evaluations and from &lt;a class="link" href="https://www.sqlskills.com/blogs/erin/" target="_blank" rel="noopener"
 >Erin Stellato&lt;/a> who went above and beyond my request for any tips and feedback she may have.  I’ll make sure to incorporate some real life stories on where compression has had an impact as well as adding some more demos.&lt;/p>
-&lt;p>&lt;strong>What’s next?&lt;/strong>&lt;/p>
+&lt;h2 id="whats-next">What’s next?&lt;/h2>
 &lt;p>That’s right, there is a next! I took a chance and submitted my session to &lt;a class="link" href="http://www.sqlsaturday.com/736/eventhome.aspx" target="_blank" rel="noopener"
 >SQL Saturday Columbus&lt;/a> and was lucky enough to be selected.  I’ve been to quite a few SQL Saturdays in Cleveland, Columbus, Pittsburgh and even Minneapolis, but this will be my first as a speaker.  If you’re in the area on July 28th and want to learn more about data compression I’ll be on at 8:30am in Room 6.&lt;/p>
 &lt;p>I’m also going to work on some blog posts around data compression and the dbatools commands so watch out for that also.&lt;/p></description></item><item><title>T-SQL Tuesday #101 - The Multitool of my DBA toolbox</title><link>https://jpomfret.github.io/t-sql-tuesday-#101-the-multitool-of-my-dba-toolbox/</link><pubDate>Tue, 10 Apr 2018 00:00:00 +0000</pubDate><guid>https://jpomfret.github.io/t-sql-tuesday-#101-the-multitool-of-my-dba-toolbox/</guid><description>&lt;p>&lt;a class="link" href="http://t-sql.dk/?p=1947" target="_blank" rel="noopener"

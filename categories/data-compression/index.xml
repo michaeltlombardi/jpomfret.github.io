@@ -238,8 +238,14 @@ loading="lazy"
 &lt;h3 id="what-happens-if-i-use-data-compression-and-backup-compression-do-i-get-double-compression">What happens if I use data compression and backup compression, do I get double compression?&lt;/h3>
 &lt;p>This is a great question, and without diving too deeply into how backup compression works I&amp;rsquo;m going to do a simple experiment on the WideWorldImporters database.  I&amp;rsquo;ve restored this database to my local SQL Server 2016 instance and I&amp;rsquo;m simply going to back it up several times under different conditions.&lt;/p>
 &lt;p>After restoring the database it&amp;rsquo;s about 3GB in size, so our testing will be on a reasonably small database.  It would be interesting to see how the results change as the database size increases, perhaps a future blog post.&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/WideWorldImporters-1-300x99.jpg"
+&lt;p>&lt;img src="https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99.jpg"
+width="300"
+height="99"
+srcset="https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99_hu4dc4d488b2d9db7e1a586de4a7a235b2_7278_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/data-compression--backup-compression-double-compression/WideWorldImporters-1-300x99_hu4dc4d488b2d9db7e1a586de4a7a235b2_7278_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="303"
+data-flex-basis="727px"
 >&lt;/p>
 &lt;p>Now I&amp;rsquo;m not sure how to write a blog post without mentioning &lt;a class="link" href="http://dbatools.io" target="_blank" rel="noopener"
 >dbatools&lt;/a>, I&amp;rsquo;m using my favourite PowerShell module to check current database compression (Get-DbaDbCompression), apply data compression (Set-DbaDbCompression) and to create the backups with and without compression (Backup-DbaDatabase).&lt;/p>

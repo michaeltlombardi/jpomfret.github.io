@@ -272,35 +272,82 @@ alt="excel screenshot of pivot chart and table"
 >GitHub&lt;/a> which means you can fork and contribute to it just as you would with any other open source project. There is also a lot of useful information out there including the &lt;a class="link" href="https://github.com/sqlcollaborative/dbachecks#dbachecks" target="_blank" rel="noopener"
 >readme&lt;/a>.  Reviewing this readme is an important first step as there are a couple of prerequisites and some potential caveats when you go to update the module.&lt;/p>
 &lt;p>You can download a copy of the module from the PowerShell Gallery (if this doesn&amp;rsquo;t work for you due to corporate firewalls, PowerShell version etc. head back to the readme for more ways to get the module):&lt;/p>
-&lt;p>Install-Module dbachecks&lt;/p>
-&lt;p>First off let&amp;rsquo;s take a look at &lt;em>Get-DbcCheck&lt;/em> to look for checks we may want to implement: &lt;img src="https://jpomfret.github.io/images/Get-DbCCheck.jpg"
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Install-Module&lt;/span> &lt;span class="n">dbachecks&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>First off let&amp;rsquo;s take a look at &lt;code>Get-DbcCheck&lt;/code> to look for checks we may want to implement: &lt;img src="https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbCCheck.jpg"
+width="650"
+height="114"
+srcset="https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbCCheck_hub0361c16f2227e05f77352518f09a3a0_66738_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbCCheck_hub0361c16f2227e05f77352518f09a3a0_66738_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="570"
+data-flex-basis="1368px"
 >&lt;/p>
 &lt;p>Each check has one unique tag which basically names the check and then a number of other tags that can also be used to call a collection of checks.&lt;/p>
 &lt;p>For this example we are going to use several checks to ensure that we meet the following requirements:&lt;/p>
 &lt;ul>
-&lt;li>Full backup once a week - using &lt;em>LastFullBackup&lt;/em>&lt;/li>
-&lt;li>Differential backup once a day - using &lt;em>LastDiffBackup&lt;/em>&lt;/li>
-&lt;li>Log backup every hour - using &lt;em>LastLogBackup&lt;/em>&lt;/li>
+&lt;li>Full backup once a week - using &lt;code>LastFullBackup&lt;/code>&lt;/li>
+&lt;li>Differential backup once a day - using &lt;code>LastDiffBackup&lt;/code>&lt;/li>
+&lt;li>Log backup every hour - using &lt;code>LastLogBackup&lt;/code>&lt;/li>
 &lt;/ul>
-&lt;p>Since each of the three checks we want to run also have the &lt;em>LastBackup&lt;/em> tag we can use that to call the collection of checks at once.&lt;/p>
+&lt;p>Since each of the three checks we want to run also have the &lt;code>LastBackup&lt;/code> tag we can use that to call the collection of checks at once.&lt;/p>
 &lt;p>There are many ways to point dbachecks at your instances, for this simple example we&amp;rsquo;ll just pass in one server name to check.&lt;/p>
-&lt;p>$server = &amp;ldquo;ServerName&amp;rdquo;
-Invoke-DbcCheck -SqlInstance $server -Check LastBackup&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/ChecksFailing.jpg"
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nv">$server&lt;/span> &lt;span class="p">=&lt;/span> &lt;span class="s2">&amp;#34;ServerName&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Invoke-DbcCheck&lt;/span> &lt;span class="n">-SqlInstance&lt;/span> &lt;span class="nv">$server&lt;/span> &lt;span class="n">-Check&lt;/span> &lt;span class="n">LastBackup&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksFailing.jpg"
+width="649"
+height="470"
+srcset="https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksFailing_hu15024b79f8af7d5ceaf8a211b077fb9f_205773_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksFailing_hu15024b79f8af7d5ceaf8a211b077fb9f_205773_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="138"
+data-flex-basis="331px"
 >&lt;/p>
 &lt;p>As you can clearly see from the test results there is a lot of red, meaning I&amp;rsquo;m not meeting backup requirements. However looking closer at the context we can see that the check is not configured for my specific needs &amp;ldquo;StackOverflow full backups on Server should be less than 1 days&amp;rdquo;, but I only require a full backup within 7 days.&lt;/p>
-&lt;p>The checks are set up in a way that make them extremely flexible. You can configure them to meet your needs exactly. We can use &lt;em>Get-DbcConfig&lt;/em> to review the backup configurations.  Here you can see we&amp;rsquo;re looking for full backups every 1 day (policy.backup.fullmaxdays), differentials every 25 hours (policy.backup.diffmaxhours) and log backups every 15 minutes (policy.backup.logmaxminutes).&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/Get-DbcConfig.jpg"
+&lt;p>The checks are set up in a way that make them extremely flexible. You can configure them to meet your needs exactly. We can use &lt;code>Get-DbcConfig&lt;/code> to review the backup configurations.  Here you can see we&amp;rsquo;re looking for full backups every 1 day (policy.backup.fullmaxdays), differentials every 25 hours (policy.backup.diffmaxhours) and log backups every 15 minutes (policy.backup.logmaxminutes).&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbcConfig.jpg"
+width="650"
+height="209"
+srcset="https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbcConfig_hu03ba9c2abcee862b937048a682e1f9d5_124831_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/checking-backups-with-dbachecks/Get-DbcConfig_hu03ba9c2abcee862b937048a682e1f9d5_124831_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="311"
+data-flex-basis="746px"
 >&lt;/p>
 &lt;p>Let&amp;rsquo;s change these configuration properties to match our requirements of a full backup within the last 7 days and a log backup in the last 60 minutes.&lt;/p>
-&lt;p>Set-DbcConfig -Name policy.backup.fullmaxdays -Value 7
-Set-DbcConfig -Name policy.backup.logmaxminutes -Value 60&lt;/p>
-&lt;p>Now that the configuration is setup correctly we can rerun and confirm our environment backups are in the green.&lt;/p>
-&lt;p>&lt;img src="https://jpomfret.github.io/images/ChecksSuccess.jpg"
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-PowerShell" data-lang="PowerShell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Set-DbcConfig&lt;/span> &lt;span class="n">-Name&lt;/span> &lt;span class="n">policy&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">backup&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">fullmaxdays&lt;/span> &lt;span class="n">-Value&lt;/span> &lt;span class="n">7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Set-DbcConfig&lt;/span> &lt;span class="n">-Name&lt;/span> &lt;span class="n">policy&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">backup&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">logmaxminutes&lt;/span> &lt;span class="n">-Value&lt;/span> &lt;span class="n">60&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>Now that the configuration is setup correctly we can rerun and confirm our environment backups are in the green.&lt;/p>
+&lt;p>&lt;img src="https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksSuccess.jpg"
+width="650"
+height="530"
+srcset="https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksSuccess_hu7741d7f664fdc4e4c34c92acd55bbce5_186017_480x0_resize_q75_box.jpg 480w, https://jpomfret.github.io/checking-backups-with-dbachecks/ChecksSuccess_hu7741d7f664fdc4e4c34c92acd55bbce5_186017_1024x0_resize_q75_box.jpg 1024w"
 loading="lazy"
+class="gallery-image"
+data-flex-grow="122"
+data-flex-basis="294px"
 >&lt;/p>
 &lt;p>Validating your backups are running is just one small example of how you can utilize dbachecks to keep your environment in line.  In fact this is just the tip of the iceberg, there are 80 checks as of writing this post as well as multiple ways to display the results (including a pretty impressive PowerBi dashboard - &lt;a class="link" href="http://claudioessilva.eu/2018/02/22/dbachecks-using-power-bi-dashboards-to-analyse-results/" target="_blank" rel="noopener"
 >Cláudio Silva has a great post on that&lt;/a>).&lt;/p>
